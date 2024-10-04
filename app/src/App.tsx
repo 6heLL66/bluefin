@@ -10,9 +10,7 @@ import Box from '@mui/material/Box'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext } from './context'
-import { LogsProvider } from './logsContext'
-import { Accounts, Logs, Proxy } from './tabs'
-import { Spot } from './tabs/Spot'
+import { Accounts, Batches, Proxy } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
 
 const Tabs = {
@@ -25,18 +23,14 @@ const Tabs = {
     id: 'Proxy',
   },
   Spot: {
-    label: 'Spot trading',
-    id: 'Spot',
-  },
-  Logs: {
-    label: 'Logs',
-    id: 'Logs',
+    label: 'Wash trade',
+    id: 'Trade',
   },
 } as const
 
 const App = () => {
   const { changeTheme, theme } = useContext(ThemeContext)
-  const { isAuth, logout, accounts } = useContext(GlobalContext)
+  const { isAuth, logout } = useContext(GlobalContext)
   const [tabId, setTabId] = useState<string>(
     localStorage.getItem('lastTabId') ?? Tabs.Accounts.id,
   )
@@ -80,7 +74,6 @@ const App = () => {
               label={label}
               value={id}
               key={id}
-              disabled={id === 'Spot' && accounts.length === 0}
             />
           ))}
         </MuiTabs>
@@ -110,9 +103,8 @@ const App = () => {
           <Proxy />
         </div>
         <div style={{ display: tabId === Tabs.Spot.id ? 'block' : 'none' }}>
-          <Spot />
+          <Batches />
         </div>
-        <LogsProvider>{tabId === Tabs.Logs.id && <Logs />}</LogsProvider>
       </Box>
       <ToastContainer
         position='bottom-left'
