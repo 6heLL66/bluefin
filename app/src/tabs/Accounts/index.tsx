@@ -18,7 +18,7 @@ const createRows = (
     data: [
       account.name,
       <ChipWithCopy value={account.public_address} />,
-      <ChipWithCopy value={account.api_private_key} />,
+      <ChipWithCopy value={account.private_key} />,
       <ChipWithCopy value={stringifyProxy(getAccountProxy(account)!)} />,
     ],
   }))
@@ -38,10 +38,10 @@ const headCells: HeadCell[] = [
     label: 'Public Address',
   },
   {
-    id: 'api_private_key',
+    id: 'private_key',
     align: 'center',
     disablePadding: false,
-    label: 'Api private key',
+    label: 'private key',
   },
   {
     id: 'proxy',

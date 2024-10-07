@@ -13,12 +13,12 @@ export const AddAccountModal: React.FC<{
   const [account, setAccount] = useState<Account & { proxy: string }>({
     name: '',
     public_address: '',
-    api_private_key: '',
+    private_key: '',
     proxy: '',
   })
 
   const onConfirm = () => {
-    if (account.api_private_key && account.public_address) {
+    if (account.private_key && account.public_address) {
       const { proxy, ...accountData } = account
       handleAddAccount(accountData, proxy ? account.proxy : '')
       handleClose()
@@ -51,9 +51,9 @@ export const AddAccountModal: React.FC<{
               onChange={e => onChange('public_address', e.target.value)}
             />
             <TextField
-              label='Api private key'
+              label='Private key'
               variant='outlined'
-              onChange={e => onChange('api_private_key', e.target.value)}
+              onChange={e => onChange('private_key', e.target.value)}
             />
             <TextField
               label='Proxy'
@@ -77,11 +77,7 @@ export const AddAccountModal: React.FC<{
               variant='contained'
               color='success'
               onClick={onConfirm}
-              disabled={
-                !account.public_address ||
-                !account.api_private_key ||
-                !account.name
-              }
+              disabled={!account.private_key || !account.name}
             >
               Confirm
             </Button>

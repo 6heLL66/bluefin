@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { toast } from 'react-toastify'
 
+import { BLUEFIN_API } from '../../../bluefin-api'
 import { GlobalContext, db } from '../../../context'
 import { Account, AccountState, Unit } from '../../../types'
 import {
@@ -148,17 +149,16 @@ export const useBatch = ({
   )
 
   const fetchUserStates = useCallback((): Promise<AccountState[]> => {
-    return withTimeout<AccountState[]>(
-      () =>
-        invoke<AccountState[]>('get_unit_user_states', {
-          accounts: batchAccounts.map(acc =>
-            getBatchAccount(acc, getAccountProxy(acc)),
-          ),
-        })
+    return withTimeout<AccountState[]>(() =>
+      invoke<AccountState[]>('get_unit_user_states', {
+        accounts: batchAccounts.map(acc =>
+          getBatchAccount(acc, getAccountProxy(acc)),
+        ),
+      }),
     ).then((res: AccountState[]) => {
       setAccountState(
         batchAccounts.reduce((acc, account, index) => {
-          return { ...acc, [account.public_address]: res[index] }
+          return { ...acc, [account.private_key]: res[index] }
         }, {}),
       )
 
@@ -166,7 +166,7 @@ export const useBatch = ({
         batchAccounts.reduce((acc, account, index) => {
           return {
             ...acc,
-            [account.public_address]: {
+            [account.private_key]: {
               all: Number(res[index].marginSummary.accountValue).toFixed(2),
               free: (
                 +res[index].marginSummary.accountValue -
@@ -211,7 +211,7 @@ export const useBatch = ({
         error: `${name}: Error while re-creating unit with asset ${asset} error 🤯`,
       })
     },
-    [ 
+    [
       smartBalanceUsage,
       batchAccounts,
       getUnitTimingReacreate,
@@ -274,9 +274,9 @@ export const useBatch = ({
 
   useEffect(() => {
     Promise.all([
-      getUnitTimings(id).then((unitTimings) => setUnitTimings(unitTimings)),
+      getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
       getUnitSizes().then(unitSizes => setUnitSizes(unitSizes)),
-      fetchUserStates()
+      fetchUserStates(),
     ]).finally(() => {
       setInitialLoading(false)
     })
@@ -312,9 +312,8 @@ export const useBatch = ({
       setCreatingUnits(prev => [...prev, asset])
 
       await setUnitSize(asset, sz)
-      const sz_decimals = await getDecimals(asset)
 
-      return invoke('create_unit', {
+      return BLUEFIN_API.openUnit({
         batchAccounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ),
@@ -323,11 +322,9 @@ export const useBatch = ({
           sz,
           leverage,
           smart_balance_usage: smartBalanceUsage,
-          sz_decimals,
         },
       }).finally(async () => {
         setTimings(asset, timing, Date.now())
-        await fetchUserStates()
         setCreatingUnits(prev => prev.filter(coin => coin !== asset))
       })
     },
@@ -336,7 +333,6 @@ export const useBatch = ({
       batchAccounts,
       fetchUserStates,
       setTimings,
-      getDecimals,
       setUnitSize,
       setCreatingUnits,
     ],

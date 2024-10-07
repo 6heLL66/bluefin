@@ -12,6 +12,7 @@
     "lint:fix": "eslint --fix ./src"
   },
   "dependencies": {
+    "@bluefin-exchange/bluefin-v2-client": "^5.4.8",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/icons-material": "^5.15.15",
@@ -22,7 +23,9 @@
     "@supabase/supabase-js": "^2.42.0",
     "@tauri-apps/api": "^1",
     "@types/uuid": "^9.0.8",
+    "bignumber": "^1.1.0",
     "dayjs": "^1.11.10",
+    "ethers": "^6.13.3",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",

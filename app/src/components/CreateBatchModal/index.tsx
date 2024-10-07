@@ -49,7 +49,7 @@ export const CreateBatchModal: React.FC<{
   }, [accounts, batches])
 
   const onConfirm = () => {
-    if (batchAccounts.accounts.length === 4 ) {
+    if (batchAccounts.accounts.length === 4) {
       createBatch(batchAccounts)
       handleClose()
     }
@@ -99,10 +99,10 @@ export const CreateBatchModal: React.FC<{
                 renderValue={selected => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map(value => {
-                      const public_address = filteredAccounts.find(
+                      const name = filteredAccounts.find(
                         a => a.id === value,
-                      )?.public_address
-                      return <Chip key={value} label={public_address} />
+                      )?.name
+                      return <Chip key={value} label={name} />
                     })}
                   </Box>
                 )}
@@ -110,7 +110,7 @@ export const CreateBatchModal: React.FC<{
               >
                 {filteredAccounts.map(account => (
                   <MenuItem key={account.id} value={account.id}>
-                    {account.public_address}
+                    {account.name}
                   </MenuItem>
                 ))}
 

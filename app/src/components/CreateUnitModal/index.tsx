@@ -11,139 +11,13 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { invoke } from '@tauri-apps/api'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
 
+import { MarketData } from '../../bluefin-api'
+import { BLUEFIN_API } from '../../bluefin-api'
 import { BatchAccount } from '../../types'
-
-const AllowedAssets = [
-  'BTC',
-  'ETH',
-  'ATOM',
-  'MATIC',
-  'DYDX',
-  'SOL',
-  'AVAX',
-  'BNB',
-  'APE',
-  'OP',
-  'LTC',
-  'ARB',
-  'DOGE',
-  'INJ',
-  'SUI',
-  'kPEPE',
-  'CRV',
-  'LDO',
-  'LINK',
-  'STX',
-  'RNDR',
-  'CFX',
-  'FTM',
-  'GMX',
-  'SNX',
-  'XRP',
-  'BCH',
-  'APT',
-  'AAVE',
-  'COMP',
-  'MKR',
-  'WLD',
-  'FXS',
-  'HPOS',
-  'RLB',
-  'UNIBOT',
-  'YGG',
-  'TRX',
-  'kSHIB',
-  'UNI',
-  'SEI',
-  'RUNE',
-  'OX',
-  'FRIEND',
-  'SHIA',
-  'CYBER',
-  'ZRO',
-  'BLZ',
-  'DOT',
-  'BANANA',
-  'TRB',
-  'LOOM',
-  'OGN',
-  'RDNT',
-  'ARK',
-  'BNT',
-  'CANTO',
-  'REQ',
-  'BIGTIME',
-  'KAS',
-  'ORBS',
-  'BLUR',
-  'TIA',
-  'BSV',
-  'ADA',
-  'TON',
-  'MINA',
-  'POLYX',
-  'GAS',
-  'PENDLE',
-  'STG',
-  'FET',
-  'STRAX',
-  'NEAR',
-  'MEME',
-  'ORDI',
-  'BADGER',
-  'NEO',
-  'ZEN',
-  'FIL',
-  'PYTH',
-  'SUSHI',
-  'ILV',
-  'IMX',
-  'kBONK',
-  'GMT',
-  'SUPER',
-  'USTC',
-  'NFTI',
-  'JUP',
-  'kLUNC',
-  'RSR',
-  'GALA',
-  'JTO',
-  'NTRN',
-  'ACE',
-  'MAV',
-  'WIF',
-  'CAKE',
-  'PEOPLE',
-  'ENS',
-  'ETC',
-  'XAI',
-  'MANTA',
-  'UMA',
-  'ONDO',
-  'ALT',
-  'ZETA',
-  'DYM',
-  'MAVIA',
-  'W',
-  'PANDORA',
-  'STRK',
-  'PIXEL',
-  'AI',
-  'TAO',
-  'AR',
-  'MYRO',
-  'kFLOKI',
-  'BOME',
-  'ETHFI',
-  'ENA',
-  'MNT',
-  'TNSR',
-]
 
 export const CreateUnitModal: React.FC<{
   open: boolean
@@ -162,7 +36,6 @@ export const CreateUnitModal: React.FC<{
   handleClose,
   handleCreateUnit,
   defaultTiming,
-  account,
   accountsCount,
 }) => {
   const [form, setForm] = useState({
@@ -172,83 +45,43 @@ export const CreateUnitModal: React.FC<{
     leverage: 1,
   })
 
-  const [assetPrice, setAssetPrice] = useState(0)
-  const [assetPriceLoading, setAssetPriceLoading] = useState(false)
-  const [decimals, setDecimals] = useState<number>()
+  const [marketData, setMarketData] = useState<MarketData>([])
 
   const onConfirm = () => {
-    if (
-      form.asset &&
-      form.sz &&
-      form.leverage &&
-      form.timing &&
-      decimals !== undefined
-    )
+    if (true || (form.asset && form.sz && form.leverage && form.timing))
       handleCreateUnit({
         ...form,
         timing: form.timing * 60000,
       })
   }
 
-  const getAssetPrice = (asset: string): Promise<string> => {
-    return invoke<string>('get_asset_price', {
-      batchAccount: account,
-      asset,
-    })
+  const getMarketData = async () => {
+    const data = await BLUEFIN_API.getMarketData()
+
+    console.log(data)
+
+    setMarketData(data)
   }
 
-  const getDecimals = (asset: string): Promise<number> => {
-    return invoke<number>('get_asset_sz_decimals', {
-      batchAccount: account,
-      asset,
-    })
-  }
+  useEffect(() => {
+    getMarketData()
+  }, [])
+
+  const assetPrice = marketData.find(
+    market => market.symbol === form.asset,
+  )?.lastPrice
 
   const onChange = (
     key: 'asset' | 'sz' | 'leverage' | 'timing',
     v: string | number,
   ) => {
-    if (key === 'asset' && typeof v === 'string') {
-      setDecimals(undefined)
-      setAssetPriceLoading(true)
-      getAssetPrice(v)
-        .then((price: string) => {
-          setAssetPrice(Number(price))
-        })
-        .finally(() => {
-          setAssetPriceLoading(false)
-        })
-
-      getDecimals(v)
-        .then((res: number) => {
-          setDecimals(res)
-        })
-        .catch(() => {
-          alert(`Error when getting size decimals for asset: ${v}`)
-          setDecimals(undefined)
-        })
-    }
-
-    if (key === 'sz' && typeof v === 'number') {
-      setForm(prev => ({
-        ...prev,
-        sz: Number(v.toFixed(decimals)),
-      }))
-      return
-    }
     setForm(prev => ({ ...prev, [key]: v }))
   }
 
-  const getStep = (decimals?: number) => {
-    if (decimals === 0 || decimals === undefined) {
-      return '1'
-    }
-
-    return `.${new Array(decimals - 1).fill('0').join('')}1`
-  }
-
   const sizingError =
-    accountsCount > 2 ? assetPrice * form.sz * form.leverage * 0.1 < 10 : false
+    accountsCount > 2
+      ? Number(assetPrice) * form.sz * form.leverage * 0.1 < 10
+      : false
 
   return (
     <Modal
@@ -278,9 +111,9 @@ export const CreateUnitModal: React.FC<{
               <MenuItem value=''>
                 <em>No asset</em>
               </MenuItem>
-              {AllowedAssets.map(a => (
-                <MenuItem value={a} key={a}>
-                  {a}
+              {marketData?.map(market => (
+                <MenuItem value={market.symbol} key={market.symbol}>
+                  {market.symbol}
                 </MenuItem>
               ))}
             </Select>
@@ -293,11 +126,7 @@ export const CreateUnitModal: React.FC<{
               size='small'
               label='Size'
               variant='outlined'
-              inputProps={{
-                step: getStep(decimals),
-              }}
               value={form.sz}
-              disabled={decimals === undefined}
               type='number'
               onChange={e => onChange('sz', Number(e.target.value))}
             />
@@ -328,20 +157,26 @@ export const CreateUnitModal: React.FC<{
         <Box>
           <Typography>
             Summary:
-            {assetPriceLoading ? (
+            {!assetPrice ? (
               <CircularProgress size={12} />
             ) : (
-              <strong>{' ' + (assetPrice * form.sz).toFixed(2)} $</strong>
+              <strong>
+                {' ' + (Number(assetPrice) * form.sz).toFixed(2)} $
+              </strong>
             )}
           </Typography>
           <Typography sx={{ mt: 1 }}>
             Summary with leverage:
-            {assetPriceLoading ? (
+            {!assetPrice ? (
               <CircularProgress size={12} />
             ) : (
               <>
                 <strong>
-                  {' ' + (assetPrice * form.sz * form.leverage).toFixed(2)} $
+                  {' ' +
+                    (Number(assetPrice) * form.sz * form.leverage).toFixed(
+                      2,
+                    )}{' '}
+                  $
                 </strong>
                 {sizingError && (
                   <Alert variant='standard' color='warning' sx={{ mt: 1 }}>
@@ -366,7 +201,7 @@ export const CreateUnitModal: React.FC<{
             variant='contained'
             color='success'
             onClick={onConfirm}
-            disabled={!form.asset || !form.sz || !form.leverage || sizingError}
+            // disabled={!form.asset || !form.sz || !form.leverage || sizingError}
           >
             Confirm
           </LoadingButton>
