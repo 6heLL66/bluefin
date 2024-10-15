@@ -17,6 +17,7 @@ interface GlobalContextType {
   getAccountProxy: (account: Account) => Proxy | undefined
   removeAccounts: (accountIds: string[]) => void
   removeProxies: (proxyIds: string[]) => void
+  getAccounts: () => void
   addProxy: (proxy: Proxy) => void
   linkAccountsProxy: (
     accounts: Account['public_address'][],
@@ -53,6 +54,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   login: async () => {},
   addAccount: () => {},
   addProxy: () => {},
+  getAccounts: () => {},
   removeAccounts: () => {},
   removeProxies: () => {},
   getAccountProxy: () => ({}) as Proxy,
@@ -212,6 +214,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
       batches,
       isAuth,
       login,
+      getAccounts,
       addAccount,
       addProxy,
       removeAccounts,

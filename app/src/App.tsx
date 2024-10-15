@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import Box from '@mui/material/Box'
 
+import { OpenAPI } from './api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext } from './context'
@@ -27,6 +28,8 @@ const Tabs = {
     id: 'Trade',
   },
 } as const
+
+OpenAPI.BASE = import.meta.env.VITE_API_URL
 
 const App = () => {
   const { changeTheme, theme } = useContext(ThemeContext)
@@ -70,11 +73,7 @@ const App = () => {
           aria-label='basic tabs example'
         >
           {Object.values(Tabs).map(({ label, id }) => (
-            <MuiTab
-              label={label}
-              value={id}
-              key={id}
-            />
+            <MuiTab label={label} value={id} key={id} />
           ))}
         </MuiTabs>
         <Box sx={{ display: 'flex', gap: 2 }}>

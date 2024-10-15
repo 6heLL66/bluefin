@@ -12,14 +12,27 @@ import { stringifyProxy } from '../../utils'
 const createRows = (
   accounts: Account[],
   getAccountProxy: (account: Account) => Proxy | undefined,
+  onEdit: (account: Account) => void,
 ): Row[] => {
   return accounts.map(account => ({
-    id: account.id!,
+    id: account.id ?? account.public_address,
     data: [
       account.name,
-      <ChipWithCopy value={account.public_address} />,
-      <ChipWithCopy value={account.private_key} />,
-      <ChipWithCopy value={stringifyProxy(getAccountProxy(account)!)} />,
+      <ChipWithCopy value={account.public_address} short />,
+      <ChipWithCopy value={account.private_key} short />,
+      <ChipWithCopy
+        value={stringifyProxy(getAccountProxy(account))}
+        short={stringifyProxy(getAccountProxy(account)).length > 36}
+      />,
+      <Button
+        variant='contained'
+        onClick={e => {
+          e.stopPropagation()
+          onEdit(account)
+        }}
+      >
+        Edit
+      </Button>,
     ],
   }))
 }
@@ -41,7 +54,7 @@ const headCells: HeadCell[] = [
     id: 'private_key',
     align: 'center',
     disablePadding: false,
-    label: 'private key',
+    label: 'Passphrase',
   },
   {
     id: 'proxy',
@@ -49,12 +62,29 @@ const headCells: HeadCell[] = [
     disablePadding: false,
     label: 'Proxy',
   },
+  {
+    id: 'edit',
+    align: 'center',
+    disablePadding: false,
+    label: '',
+  },
 ]
 
 export const Accounts = () => {
   const { accounts, addAccount, getAccountProxy, removeAccounts } =
     useContext(GlobalContext)
-  const rows = useMemo(() => createRows(accounts, getAccountProxy), [accounts])
+
+  const [editAccount, setEditAccount] = useState<Account>()
+
+  const handleEdit = (account: Account) => {
+    setEditAccount(account)
+    setModalId('addAccountModal')
+  }
+
+  const rows = useMemo(
+    () => createRows(accounts, getAccountProxy, handleEdit),
+    [accounts],
+  )
   const [activeModalId, setModalId] = useState<string | null>(null)
 
   const ActionBar: React.FC<{
@@ -67,6 +97,7 @@ export const Accounts = () => {
           selected={selected}
           open={activeModalId === 'setProxyModal'}
           handleClose={() => setModalId(null)}
+          onSubmit={() => onActionDone()}
         />
         <Box
           sx={{
@@ -118,9 +149,13 @@ export const Accounts = () => {
   return (
     <Box sx={{ width: '100%' }}>
       <AddAccountModal
+        accountEdit={editAccount}
         handleAddAccount={addAccount}
         open={activeModalId === 'addAccountModal'}
-        handleClose={() => setModalId(null)}
+        handleClose={() => {
+          setModalId(null)
+          setEditAccount(undefined)
+        }}
       />
       <Table
         headCells={headCells}

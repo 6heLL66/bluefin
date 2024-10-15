@@ -60,6 +60,8 @@ export interface Position {
   }
 }
 
+export interface AccountsData {}
+
 export interface Trader {
   name: string
   public_address: string
@@ -93,9 +95,8 @@ export interface Unit {
   positions: {
     info: {
       szi: string
-      positionValue: string
+      side: 'SELL' | 'BUY'
       leverage: number
-      liquidationPx: string
     }
   }[]
 }

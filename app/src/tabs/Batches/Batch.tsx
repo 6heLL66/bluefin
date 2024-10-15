@@ -1,12 +1,13 @@
-import { Box, Button, Checkbox, FormControl, FormControlLabel, Paper, Typography } from '@mui/material'
+import { Box, Button, Paper, Typography } from '@mui/material'
 import React, { useContext, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 
+import { ChipWithCopy } from '../../components/ChipWithCopy'
 import { CreateUnitModal } from '../../components/CreateUnitModal'
 import { FormUnit, ImportUnitsModal } from '../../components/ImportUnitsModal'
 import { Table } from '../../components/Table'
 import { UpdateUnitTimingModal } from '../../components/UpdateUnitTimingModal'
-import { GlobalContext, db } from '../../context'
+import { GlobalContext } from '../../context'
 import { Unit } from '../../types'
 import { getBatchAccount } from '../../utils'
 import { headCells } from './components/cells'
@@ -16,15 +17,13 @@ import { useBatch } from './hooks/useBatch'
 export const Batch: React.FC<{
   name: string
   accounts: string[]
-  smartBalanceUsage: boolean
   constant_timing: number
   id: string
-}> = ({ name, accounts, id, constant_timing, smartBalanceUsage }) => {
+}> = ({ name, accounts, id, constant_timing }) => {
   const [modalId, setModalId] = useState<string | null>(null)
   const { closeBatch, getAccountProxy } = useContext(GlobalContext)
 
   const [updatingUnit, setUpdatingUnit] = useState('')
-  const [smartUsage, setSmartUsage] = useState(smartBalanceUsage)
 
   const {
     batchAccounts,
@@ -39,7 +38,7 @@ export const Batch: React.FC<{
     setTimings,
     createUnit,
     closeUnit,
-  } = useBatch({ accounts, id, name, smartBalanceUsage: smartUsage })
+  } = useBatch({ accounts, id, name })
 
   const handleAction = (
     type: 'close_unit' | 'update_unit_timing',
@@ -60,11 +59,6 @@ export const Batch: React.FC<{
     }
     setTimings(updatingUnit, timing, getUnitTimingOpened(updatingUnit))
     setUpdatingUnit('')
-  }
-
-  const handleSmartBalanceChange = (value: boolean) => {
-    db.updateBatch(id, value)
-    setSmartUsage(value)
   }
 
   const handleCreateUnit = async (form: {
@@ -123,40 +117,34 @@ export const Batch: React.FC<{
         sx={{
           width: '100%',
           display: 'flex',
-          justifyContent: 'space-between',
           gap: '16px',
         }}
-      > 
-      <FormControl size='small' >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={smartUsage}
-                  onChange={e => handleSmartBalanceChange(e.target.checked)}
-                />
-              }
-              label='Smart balance usage'
-            />
-          </FormControl>
-        <Box sx={{ display: 'flex', gap: 2}}>
-        <Button
-          variant='outlined'
-          color='primary'
-          disabled={initialLoading}
-          onClick={() => setModalId('importUnitsModal')}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            justifyContent: 'flex-end',
+            flexGrow: 1,
+          }}
         >
-          Import units
-        </Button>
-        <Button
-          variant='contained'
-          color='primary'
-          disabled={initialLoading}
-          onClick={() => setModalId('createUnitModal')}
-        >
-          Create Unit
-        </Button>
+          <Button
+            variant='outlined'
+            color='primary'
+            disabled={initialLoading}
+            onClick={() => setModalId('importUnitsModal')}
+          >
+            Import units
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            disabled={initialLoading}
+            onClick={() => setModalId('createUnitModal')}
+          >
+            Create Unit
+          </Button>
         </Box>
-       
       </Box>
     )
   }
@@ -226,10 +214,18 @@ export const Batch: React.FC<{
 
       {batchAccounts.map((account, index) => {
         return (
-          <Typography key={account.id}>
-            Account {index + 1}: <strong>{account.public_address}</strong>{' '}
-            balance: <strong>{balances[account.public_address]?.all}$</strong>{' '}
-            free_balance:{' '}
+          <Typography
+            key={account.id}
+            sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}
+          >
+            Account {index + 1}:
+            <div>
+              <strong>
+                <ChipWithCopy value={account.public_address} short />
+              </strong>
+            </div>
+            balance: <strong>{balances[account.public_address]?.all}$</strong>
+            free_balance:
             <strong>{balances[account.public_address]?.free}$</strong>
           </Typography>
         )
@@ -244,7 +240,6 @@ export const Batch: React.FC<{
           toolbar={toolbar()}
         />
       </Box>
-      
     </Paper>
   )
 }

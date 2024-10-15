@@ -1,7 +1,5 @@
 import LoadingButton from '@mui/lab/LoadingButton'
 import {
-  Alert,
-  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -15,8 +13,7 @@ import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
 
-import { MarketData } from '../../bluefin-api'
-import { BLUEFIN_API } from '../../bluefin-api'
+import { DefaultService, MarketDataDto } from '../../api'
 import { BatchAccount } from '../../types'
 
 export const CreateUnitModal: React.FC<{
@@ -31,13 +28,7 @@ export const CreateUnitModal: React.FC<{
     timing: number
   }) => void
   defaultTiming: number
-}> = ({
-  open,
-  handleClose,
-  handleCreateUnit,
-  defaultTiming,
-  accountsCount,
-}) => {
+}> = ({ open, handleClose, handleCreateUnit, defaultTiming }) => {
   const [form, setForm] = useState({
     asset: '',
     timing: defaultTiming,
@@ -45,7 +36,7 @@ export const CreateUnitModal: React.FC<{
     leverage: 1,
   })
 
-  const [marketData, setMarketData] = useState<MarketData>([])
+  const [marketData, setMarketData] = useState<MarketDataDto[]>([])
 
   const onConfirm = () => {
     if (true || (form.asset && form.sz && form.leverage && form.timing))
@@ -56,9 +47,7 @@ export const CreateUnitModal: React.FC<{
   }
 
   const getMarketData = async () => {
-    const data = await BLUEFIN_API.getMarketData()
-
-    console.log(data)
+    const data = await DefaultService.getMarketDataApiV1MarketGet()
 
     setMarketData(data)
   }
@@ -69,7 +58,7 @@ export const CreateUnitModal: React.FC<{
 
   const assetPrice = marketData.find(
     market => market.symbol === form.asset,
-  )?.lastPrice
+  )?.price
 
   const onChange = (
     key: 'asset' | 'sz' | 'leverage' | 'timing',
@@ -77,11 +66,6 @@ export const CreateUnitModal: React.FC<{
   ) => {
     setForm(prev => ({ ...prev, [key]: v }))
   }
-
-  const sizingError =
-    accountsCount > 2
-      ? Number(assetPrice) * form.sz * form.leverage * 0.1 < 10
-      : false
 
   return (
     <Modal
@@ -157,37 +141,29 @@ export const CreateUnitModal: React.FC<{
         <Box>
           <Typography>
             Summary:
-            {!assetPrice ? (
-              <CircularProgress size={12} />
-            ) : (
-              <strong>
-                {' ' + (Number(assetPrice) * form.sz).toFixed(2)} $
-              </strong>
-            )}
+            <strong>
+              {' ' + (Number(assetPrice ?? 0) * form.sz).toFixed(2)} $
+            </strong>
           </Typography>
           <Typography sx={{ mt: 1 }}>
             Summary with leverage:
-            {!assetPrice ? (
-              <CircularProgress size={12} />
-            ) : (
-              <>
-                <strong>
-                  {' ' +
-                    (Number(assetPrice) * form.sz * form.leverage).toFixed(
-                      2,
-                    )}{' '}
-                  $
-                </strong>
-                {sizingError && (
-                  <Alert variant='standard' color='warning' sx={{ mt: 1 }}>
-                    <Typography fontSize={14}>
-                      [Summary] * [Leverage] * 0.1 should be greater or equal
-                      than 10$
-                    </Typography>
-                  </Alert>
-                )}
-              </>
-            )}
+            <>
+              <strong>
+                {' ' +
+                  (Number(assetPrice ?? 0) * form.sz * form.leverage).toFixed(
+                    2,
+                  )}{' '}
+                $
+              </strong>
+              {/* {sizingError && (
+                <Alert variant='standard' color='warning' sx={{ mt: 1 }}>
+                  <Typography fontSize={14}>
+                    [Summary] * [Leverage] * 0.1 should be greater or equal than
+                    10$
+                  </Typography>
+                </Alert>
+              )} */}
+            </>
           </Typography>
         </Box>
         <Box

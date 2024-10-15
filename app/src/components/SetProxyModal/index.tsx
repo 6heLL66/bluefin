@@ -16,14 +16,17 @@ import { stringifyProxy } from '../../utils'
 export const SetProxyModal: React.FC<{
   open: boolean
   handleClose: () => void
+  onSubmit: () => void
   selected: string[]
-}> = ({ open, handleClose, selected }) => {
+}> = ({ open, handleClose, selected, onSubmit }) => {
   const { proxies, linkAccountsProxy } = useContext(GlobalContext)
   const [proxyId, setProxyId] = useState('')
 
   const onConfirm = () => {
+    console.log(selected)
     linkAccountsProxy(selected, proxyId)
     handleClose()
+    onSubmit()
   }
 
   return (

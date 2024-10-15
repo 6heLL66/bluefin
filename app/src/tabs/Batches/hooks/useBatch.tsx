@@ -1,4 +1,3 @@
-import { invoke } from '@tauri-apps/api'
 import {
   useCallback,
   useContext,
@@ -9,19 +8,19 @@ import {
 } from 'react'
 import { toast } from 'react-toastify'
 
-import { BLUEFIN_API } from '../../../bluefin-api'
-import { GlobalContext, db } from '../../../context'
-import { Account, AccountState, Unit } from '../../../types'
 import {
-  getBatchAccount,
-  transformAccountStatesToUnits,
-  withTimeout,
-} from '../../../utils'
+  AccountDataDto,
+  DefaultService,
+  MARKET_SYMBOLS,
+  OrderCreateDto,
+} from '../../../api'
+import { GlobalContext } from '../../../context'
+import { Account, Unit } from '../../../types'
+import { getBatchAccount, transformAccountStatesToUnits } from '../../../utils'
 
 interface Props {
   accounts: string[]
   id: string
-  smartBalanceUsage: boolean
   name: string
 }
 
@@ -51,13 +50,12 @@ interface ReturnType {
   closeUnit: (unit: Unit) => Promise<unknown>
 }
 
-const UPDATE_INTERVAL = 2500
+const UPDATE_INTERVAL = 8000
 
 export const useBatch = ({
   accounts: accountsProps,
   id,
   name,
-  smartBalanceUsage,
 }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } =
     useContext(GlobalContext)
@@ -82,15 +80,11 @@ export const useBatch = ({
     Record<string, { free: string; all: string }>
   >({})
 
-  const [accountStates, setAccountState] = useState<
-    Record<string, AccountState>
-  >({})
+  const [accountStates, setAccountState] = useState<AccountDataDto[]>([])
 
   const [unitTimings, setUnitTimings] = useState<
     Record<string, { openedTiming: number; recreateTiming: number }>
   >({})
-
-  const [unitSizes, setUnitSizes] = useState<Record<string, number>>({})
 
   const units = useMemo(() => {
     return transformAccountStatesToUnits(Object.values(accountStates))
@@ -110,30 +104,6 @@ export const useBatch = ({
     [unitTimings],
   )
 
-  const getUnitSize = useCallback(
-    (asset: string): number => {
-      return unitSizes[asset as keyof typeof unitTimings]
-    },
-    [unitSizes],
-  )
-
-  const getDecimals = useCallback((asset: string): Promise<number> => {
-    return invoke<number>('get_asset_sz_decimals', {
-      batchAccount: getBatchAccount(
-        batchAccounts[0],
-        getAccountProxy(batchAccounts[0]),
-      ),
-      asset,
-    }).catch(() => {
-      toast(
-        `${asset}: Error while getting sz_decimals. Set 0 as sz_decimals 🤯`,
-        { type: 'error' },
-      )
-
-      return 0
-    })
-  }, [])
-
   const setTimings = useCallback(
     async (asset: string, recreateTiming: number, openedTiming: number) => {
       setUnitInitTimings(id, asset, recreateTiming, openedTiming)
@@ -148,55 +118,44 @@ export const useBatch = ({
     [setUnitInitTimings, setUnitTimings],
   )
 
-  const fetchUserStates = useCallback((): Promise<AccountState[]> => {
-    return withTimeout<AccountState[]>(() =>
-      invoke<AccountState[]>('get_unit_user_states', {
-        accounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ),
-      }),
-    ).then((res: AccountState[]) => {
-      setAccountState(
-        batchAccounts.reduce((acc, account, index) => {
-          return { ...acc, [account.private_key]: res[index] }
-        }, {}),
-      )
+  const fetchUserStates = useCallback((): Promise<Array<AccountDataDto>> => {
+    return DefaultService.getAccountsDataApiV1AccountsPost({
+      requestBody: batchAccounts.map(acc =>
+        getBatchAccount(acc, getAccountProxy(acc)),
+      ),
+    }).then(res => {
+      console.log(res)
 
       setBalances(
-        batchAccounts.reduce((acc, account, index) => {
+        res.reduce((acc, account) => {
           return {
             ...acc,
-            [account.private_key]: {
-              all: Number(res[index].marginSummary.accountValue).toFixed(2),
-              free: (
-                +res[index].marginSummary.accountValue -
-                +res[index].marginSummary.totalMarginUsed
-              ).toFixed(2),
+            [account.address]: {
+              all: Number(account.balance).toFixed(2),
+              free: Number(account.free_balance).toFixed(2),
             },
           }
         }, {}),
       )
 
+      setAccountState(res)
+
       return res
-    }) as Promise<[AccountState, AccountState]>
+    })
   }, [batchAccounts])
 
   const recreateUnit = useCallback(
-    async ({ asset, leverage }: Omit<CreateUnitPayload, 'timing' | 'sz'>) => {
+    async ({ asset, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
       setRecreatingUnits(prev => [...prev, asset])
 
-      const sz_decimals = await getDecimals(asset)
-
-      const promise = invoke('close_and_create_same_unit', {
-        batchAccounts: batchAccounts.map(acc =>
+      const promise = recreateRequest({
+        accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ),
         unit: {
-          asset,
-          sz: getUnitSize(asset),
-          smart_balance_usage: smartBalanceUsage,
+          asset: asset as MARKET_SYMBOLS,
+          size: sz,
           leverage,
-          sz_decimals,
         },
       }).finally(async () => {
         const unitRecreateTiming = getUnitTimingReacreate(asset)
@@ -212,12 +171,10 @@ export const useBatch = ({
       })
     },
     [
-      smartBalanceUsage,
       batchAccounts,
       getUnitTimingReacreate,
       fetchUserStates,
       setTimings,
-      getUnitSize,
       setRecreatingUnits,
     ],
   )
@@ -226,7 +183,7 @@ export const useBatch = ({
     updatingRef.current = true
     const now = Date.now()
     return fetchUserStates()
-      .then((res: AccountState[]) => {
+      .then((res: Array<AccountDataDto>) => {
         const units = transformAccountStatesToUnits(res)
 
         units.forEach((unit: Unit) => {
@@ -254,6 +211,7 @@ export const useBatch = ({
             recreateUnit({
               asset: unit.base_unit_info.asset,
               leverage: unit.base_unit_info.leverage,
+              sz: unit.base_unit_info.size,
             })
           }
         })
@@ -275,24 +233,11 @@ export const useBatch = ({
   useEffect(() => {
     Promise.all([
       getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
-      getUnitSizes().then(unitSizes => setUnitSizes(unitSizes)),
       fetchUserStates(),
     ]).finally(() => {
       setInitialLoading(false)
     })
   }, [])
-
-  const setUnitSize = useCallback(
-    (asset: string, size: number) => {
-      setUnitSizes(prev => ({ ...prev, [asset]: size }))
-      return db.setUnitInitSize(id, asset, size)
-    },
-    [id],
-  )
-
-  const getUnitSizes = useCallback(() => {
-    return db.getUnitSizes(id)
-  }, [id])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -311,42 +256,39 @@ export const useBatch = ({
     async ({ asset, sz, leverage, timing }: CreateUnitPayload) => {
       setCreatingUnits(prev => [...prev, asset])
 
-      await setUnitSize(asset, sz)
-
-      return BLUEFIN_API.openUnit({
-        batchAccounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ),
-        unit: {
-          asset,
-          sz,
-          leverage,
-          smart_balance_usage: smartBalanceUsage,
+      return DefaultService.createOrderApiV1OrdersPost({
+        requestBody: {
+          accounts: batchAccounts.map(acc =>
+            getBatchAccount(acc, getAccountProxy(acc)),
+          ),
+          unit: {
+            asset: asset as MARKET_SYMBOLS,
+            size: sz,
+            leverage,
+          },
         },
       }).finally(async () => {
+        await fetchUserStates()
         setTimings(asset, timing, Date.now())
         setCreatingUnits(prev => prev.filter(coin => coin !== asset))
       })
     },
-    [
-      smartBalanceUsage,
-      batchAccounts,
-      fetchUserStates,
-      setTimings,
-      setUnitSize,
-      setCreatingUnits,
-    ],
+    [batchAccounts, fetchUserStates, setTimings, setCreatingUnits],
   )
 
   const closeUnit = useCallback(
     (unit: Unit) => {
       setClosingUnits(prev => [...prev, unit.base_unit_info.asset])
 
-      return invoke('close_unit', {
-        batchAccounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ),
-        asset: unit.base_unit_info.asset,
+      return DefaultService.closeOrdersApiV1OrdersDelete({
+        requestBody: {
+          accounts: batchAccounts.map(acc =>
+            getBatchAccount(acc, getAccountProxy(acc)),
+          ),
+          unit: {
+            asset: unit.base_unit_info.asset as MARKET_SYMBOLS,
+          },
+        },
       }).finally(async () => {
         await fetchUserStates()
         setClosingUnits(prev =>
@@ -371,4 +313,12 @@ export const useBatch = ({
     createUnit,
     closeUnit,
   }
+}
+
+const recreateRequest = async (requestBody: OrderCreateDto) => {
+  await DefaultService.closeOrdersApiV1OrdersDelete({ requestBody })
+
+  await new Promise(res => setTimeout(res, 8000))
+
+  await DefaultService.createOrderApiV1OrdersPost({ requestBody })
 }

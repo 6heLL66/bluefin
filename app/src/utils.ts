@@ -1,6 +1,7 @@
-import { Account, AccountState, BatchAccount, Proxy, Unit } from './types'
+import { AccountDataDto, ORDER_SIDE } from './api'
+import { Account, BatchAccount, Proxy, Unit } from './types'
 
-export const stringifyProxy = (proxy: Proxy) => {
+export const stringifyProxy = (proxy?: Proxy) => {
   if (!proxy) {
     return 'No proxy'
   }
@@ -34,34 +35,33 @@ export const connectSocket = (cb: (socket: WebSocket | null) => void) => {
 }
 
 export const transformAccountStatesToUnits = (
-  accountStates: AccountState[],
+  accountStates: Array<AccountDataDto>,
 ): Unit[] => {
   if (!accountStates.length) return []
 
   const unitsMap: { [key: string]: Unit } = {}
 
   accountStates.forEach(accountState => {
-    accountState.assetPositions.forEach(position => {
-      const { coin, leverage, szi } = position.position
-      if (!unitsMap[coin]) {
-        unitsMap[coin] = {
+    accountState.positions.forEach(position => {
+      const { symbol, leverage, size, side } = position
+      if (!unitsMap[symbol]) {
+        unitsMap[symbol] = {
           base_unit_info: {
-            asset: coin,
-            leverage: leverage.value,
+            asset: symbol,
+            leverage: Number(leverage),
             size: 0,
           },
           positions: [],
         }
       }
-      if (Number(szi) > 0) {
-        unitsMap[coin].base_unit_info.size += Number(szi) / leverage.value
+      if (Number(size) > 0 && side === ORDER_SIDE.BUY) {
+        unitsMap[symbol].base_unit_info.size += Number(size) / Number(leverage)
       }
-      unitsMap[coin].positions.push({
+      unitsMap[symbol].positions.push({
         info: {
-          szi: position.position.szi,
-          positionValue: position.position.positionValue,
-          leverage: position.position.leverage.value,
-          liquidationPx: position.position.liquidationPx,
+          szi: size,
+          side: position.side,
+          leverage: Number(leverage),
         },
       })
     })
@@ -116,11 +116,11 @@ export const formatLogs = (
 }
 
 export const getLongPositions = (positions: Unit['positions']) => {
-  return positions.filter(p => p.info.szi[0] !== '-')
+  return positions.filter(p => p.info.side === ORDER_SIDE.BUY)
 }
 
 export const getShortPositions = (positions: Unit['positions']) => {
-  return positions.filter(p => p.info.szi[0] === '-')
+  return positions.filter(p => p.info.side === ORDER_SIDE.SELL)
 }
 
 export const getPositionsSummary = (positions: Unit['positions']) => {

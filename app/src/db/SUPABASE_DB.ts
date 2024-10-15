@@ -95,6 +95,29 @@ export class SUPABASE_DB {
       .insert({ ...account, user_id: this.auth.user.id })
   }
 
+  public editAccount = async (accountId: string, data: Partial<Account>) => {
+    if (!this.auth) {
+      throw new Error('401')
+    }
+
+    const batches = await this.client
+      .from('batches')
+      .select()
+      .filter(
+        'accounts',
+        'ov',
+        `{${[accountId].map(id => `"${id}"`).join(',')}}`,
+      )
+
+    if (batches.data?.length) {
+      return new Promise((_, rej) => {
+        rej('Account exists in batch, so it can not be edited')
+      })
+    }
+
+    return this.client.from('accounts').update(data).eq('id', accountId)
+  }
+
   public addAccountWithProxy = async (account: Account, proxy: Proxy) => {
     if (!this.auth) {
       throw new Error('401')
@@ -161,7 +184,7 @@ export class SUPABASE_DB {
     return this.client
       .from('accounts')
       .update({ proxy_id: proxyId })
-      .eq('id', accountIds)
+      .in('id', accountIds)
   }
 
   public getBatches = async (): Promise<Batch[]> => {

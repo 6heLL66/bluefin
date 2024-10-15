@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "generate-api": "openapi --useOptions -i https://bluefin-dev-189d27cd79f8.herokuapp.com/api/docs/apispec.json -o ./src/api && npx prettier ./src/api -w",
     "preview": "vite preview",
     "tauri": "tauri",
     "lint": "eslint ./src",
@@ -24,7 +25,6 @@
     "@tauri-apps/api": "^1",
     "@types/uuid": "^9.0.8",
     "bignumber": "^1.1.0",
-    "dayjs": "^1.11.10",
     "ethers": "^6.13.3",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
@@ -46,6 +46,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "openapi-typescript-codegen": "^0.29.0",
     "prettier": "^3.2.5",
     "typescript": "^5.0.2",
     "vite": "^5.0.0",
