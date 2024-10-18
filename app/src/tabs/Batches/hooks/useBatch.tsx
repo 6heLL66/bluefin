@@ -157,12 +157,26 @@ export const useBatch = ({
           size: sz,
           leverage,
         },
-      }).finally(async () => {
-        const unitRecreateTiming = getUnitTimingReacreate(asset)
-        setTimings(asset, unitRecreateTiming, Date.now())
-        await fetchUserStates()
-        setRecreatingUnits(prev => prev.filter(unit => unit !== asset))
       })
+        .catch(async (e) => {
+          await DefaultService.closeOrdersApiV1OrdersDelete({
+            requestBody: {
+              accounts: batchAccounts.map(acc =>
+                getBatchAccount(acc, getAccountProxy(acc)),
+              ),
+              unit: {
+                asset: asset as MARKET_SYMBOLS
+              }
+            },
+          })
+
+          throw e
+        })
+        .finally(async () => {
+          const unitRecreateTiming = getUnitTimingReacreate(asset)
+          setTimings(asset, unitRecreateTiming, Date.now())
+          setRecreatingUnits(prev => prev.filter(unit => unit !== asset))
+        })
 
       toast.promise(promise, {
         pending: `${name}: Re-creating unit with asset ${asset}`,
@@ -220,6 +234,7 @@ export const useBatch = ({
         updatingRef.current = false
       })
   }, [
+    accountsProps,
     fetchUserStates,
     closingUnits,
     recreatingUnits,
@@ -268,7 +283,6 @@ export const useBatch = ({
           },
         },
       }).finally(async () => {
-        await fetchUserStates()
         setTimings(asset, timing, Date.now())
         setCreatingUnits(prev => prev.filter(coin => coin !== asset))
       })
@@ -290,7 +304,6 @@ export const useBatch = ({
           },
         },
       }).finally(async () => {
-        await fetchUserStates()
         setClosingUnits(prev =>
           prev.filter(asset => asset !== unit.base_unit_info.asset),
         )
