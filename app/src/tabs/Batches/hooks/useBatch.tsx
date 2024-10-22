@@ -13,6 +13,7 @@ import {
   DefaultService,
   MARKET_SYMBOLS,
   OrderCreateDto,
+  PositionDataDto,
 } from '../../../api'
 import { GlobalContext } from '../../../context'
 import { Account, Unit } from '../../../types'
@@ -124,8 +125,6 @@ export const useBatch = ({
         getBatchAccount(acc, getAccountProxy(acc)),
       ),
     }).then(res => {
-      console.log(res)
-
       setBalances(
         res.reduce((acc, account) => {
           return {
@@ -158,15 +157,15 @@ export const useBatch = ({
           leverage,
         },
       })
-        .catch(async (e) => {
+        .catch(async e => {
           await DefaultService.closeOrdersApiV1OrdersDelete({
             requestBody: {
               accounts: batchAccounts.map(acc =>
                 getBatchAccount(acc, getAccountProxy(acc)),
               ),
               unit: {
-                asset: asset as MARKET_SYMBOLS
-              }
+                asset: asset as MARKET_SYMBOLS,
+              },
             },
           })
 
@@ -270,18 +269,23 @@ export const useBatch = ({
   const createUnit = useCallback(
     async ({ asset, sz, leverage, timing }: CreateUnitPayload) => {
       setCreatingUnits(prev => [...prev, asset])
+      setTimings(asset, timing, Date.now())
+
+      const dto = {
+        accounts: batchAccounts.map(acc =>
+          getBatchAccount(acc, getAccountProxy(acc)),
+        ),
+        unit: {
+          asset: asset as MARKET_SYMBOLS,
+          size: sz,
+          leverage,
+        },
+      };
 
       return DefaultService.createOrderApiV1OrdersPost({
-        requestBody: {
-          accounts: batchAccounts.map(acc =>
-            getBatchAccount(acc, getAccountProxy(acc)),
-          ),
-          unit: {
-            asset: asset as MARKET_SYMBOLS,
-            size: sz,
-            leverage,
-          },
-        },
+        requestBody: dto,
+      }).then(() => {
+        return checkPositionsOpened(dto)
       }).finally(async () => {
         setTimings(asset, timing, Date.now())
         setCreatingUnits(prev => prev.filter(coin => coin !== asset))
@@ -303,7 +307,7 @@ export const useBatch = ({
             asset: unit.base_unit_info.asset as MARKET_SYMBOLS,
           },
         },
-      }).finally(async () => {
+      }).then(() => fetchUserStates()).finally(async () => {
         setClosingUnits(prev =>
           prev.filter(asset => asset !== unit.base_unit_info.asset),
         )
@@ -331,7 +335,43 @@ export const useBatch = ({
 const recreateRequest = async (requestBody: OrderCreateDto) => {
   await DefaultService.closeOrdersApiV1OrdersDelete({ requestBody })
 
-  await new Promise(res => setTimeout(res, 8000))
+  await new Promise(res => setTimeout(res, 5000))
 
-  await DefaultService.createOrderApiV1OrdersPost({ requestBody })
+  await DefaultService.createOrderApiV1OrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+}
+
+const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
+  let retryCount = 4
+  const retryInterval = 5000
+
+  return new Promise((res, rej) => {
+    const interval = setInterval(() => {
+      DefaultService.getAccountsDataApiV1AccountsPost({
+        requestBody: orderDto.accounts,
+      }).then(data => {
+        const positions = data.reduce(
+          (acc, account) => [...acc, ...account.positions],
+          [] as PositionDataDto[],
+        )
+
+        const isPositionsFullyOpened =
+          positions.filter(pos => pos.symbol === orderDto.unit.asset).length ===
+          4
+        if (isPositionsFullyOpened) {
+          res('ok')
+
+          clearInterval(interval)
+
+          return
+        }
+
+        if (!retryCount) {
+          clearInterval(interval)
+          rej()
+        }
+
+        retryCount--
+      })
+    }, retryInterval)
+  })
 }

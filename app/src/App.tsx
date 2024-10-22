@@ -108,6 +108,7 @@ const App = () => {
       <ToastContainer
         position='bottom-left'
         pauseOnFocusLoss={false}
+        pauseOnHover={false}
         autoClose={3000}
       />
     </Box>
