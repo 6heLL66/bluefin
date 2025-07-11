@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "bluefin-bot",
+    "productName": "ligher-bot",
     "version": "1.0.0"
   },
   "tauri": {
@@ -19,7 +19,7 @@
     },
     "windows": [
       {
-        "title": "bluefin-bot",
+        "title": "ligher-bot",
         "width": 1480,
         "height": 920,
         "theme": "Dark"
@@ -31,7 +31,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "bluefin-bot",
+      "identifier": "ligher-bot",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
