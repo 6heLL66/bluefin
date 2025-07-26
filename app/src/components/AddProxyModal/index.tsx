@@ -19,6 +19,7 @@ export const AddProxyModal: React.FC<{
 
   const onConfirm = () => {
     if (proxy.host && proxy.port && proxy.username && proxy.password) {
+      console.log(proxy)
       handleAddAccount(proxy)
       handleClose()
     }

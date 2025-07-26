@@ -183,7 +183,7 @@ export class SUPABASE_DB {
   ) => {
     return this.client
       .from('accounts')
-      .update({ proxy_id: proxyId })
+      .update({ proxy_id: proxyId ?? null })
       .in('id', accountIds)
   }
 

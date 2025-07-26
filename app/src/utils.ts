@@ -1,4 +1,4 @@
-import { AccountDataDto, ORDER_SIDE } from './api'
+import { AccountWithPositionsDto, ORDER_SIDE } from './api'
 import { Account, BatchAccount, Proxy, Unit } from './types'
 
 export const stringifyProxy = (proxy?: Proxy) => {
@@ -35,7 +35,7 @@ export const connectSocket = (cb: (socket: WebSocket | null) => void) => {
 }
 
 export const transformAccountStatesToUnits = (
-  accountStates: Array<AccountDataDto>,
+  accountStates: Array<AccountWithPositionsDto>,
 ): Unit[] => {
   if (!accountStates.length) return []
 
@@ -43,11 +43,12 @@ export const transformAccountStatesToUnits = (
 
   accountStates.forEach(accountState => {
     accountState.positions.forEach(position => {
-      const { symbol, leverage, size, side } = position
+      const { symbol, leverage, size, side, market_id } = position
       if (!unitsMap[symbol]) {
         unitsMap[symbol] = {
           base_unit_info: {
-            asset: symbol,
+            token_id: market_id,
+            symbol: symbol,
             leverage: Number(leverage),
             size: 0,
           },

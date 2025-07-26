@@ -23,7 +23,7 @@ export const Batch: React.FC<{
   const [modalId, setModalId] = useState<string | null>(null)
   const { closeBatch, getAccountProxy } = useContext(GlobalContext)
 
-  const [updatingUnit, setUpdatingUnit] = useState('')
+  const [updatingUnit, setUpdatingUnit] = useState<number>()
 
   const {
     batchAccounts,
@@ -49,7 +49,7 @@ export const Batch: React.FC<{
     }
 
     if (type === 'update_unit_timing') {
-      setUpdatingUnit(unit.base_unit_info.asset)
+      setUpdatingUnit(unit.base_unit_info.token_id)
     }
   }
 
@@ -58,11 +58,11 @@ export const Batch: React.FC<{
       return
     }
     setTimings(updatingUnit, timing, getUnitTimingOpened(updatingUnit))
-    setUpdatingUnit('')
+    setUpdatingUnit(undefined)
   }
 
   const handleCreateUnit = async (form: {
-    asset: string
+    token_id: number
     sz: number
     leverage: number
     timing: number
@@ -71,9 +71,9 @@ export const Batch: React.FC<{
     const promise = createUnit(form)
 
     toast.promise(promise, {
-      pending: `${name}: Creating unit with asset ${form.asset}`,
-      success: `${name}: Unit with asset ${form.asset} created 👌`,
-      error: `${name}: Error while creating unit with asset ${form.asset} error 🤯`,
+      pending: `${name}: Creating unit with asset ${form.token_id}`,
+      success: `${name}: Unit with asset ${form.token_id} created 👌`,
+      error: `${name}: Error while creating unit with asset ${form.token_id} error 🤯`,
     })
   }
 
@@ -84,9 +84,9 @@ export const Batch: React.FC<{
       const promise = createUnit(unit)
 
       toast.promise(promise, {
-        pending: `${name}: Creating unit with asset ${unit.asset}`,
-        success: `${name}: Unit with asset ${unit.asset} created 👌`,
-        error: `${name}: Error while creating unit with asset ${unit.asset} error 🤯`,
+        pending: `${name}: Creating unit with asset ${unit.token_id}`,
+        success: `${name}: Unit with asset ${unit.token_id} created 👌`,
+        error: `${name}: Error while creating unit with asset ${unit.token_id} error 🤯`,
       })
     })
   }
@@ -149,6 +149,8 @@ export const Batch: React.FC<{
     )
   }
 
+  console.log(balances)
+
   return (
     <Paper sx={{ padding: 3 }}>
       {modalId === 'createUnitModal' && (
@@ -169,7 +171,7 @@ export const Batch: React.FC<{
         <UpdateUnitTimingModal
           handleUpdate={handleUpdateUnitTiming}
           open
-          handleClose={() => setUpdatingUnit('')}
+          handleClose={() => setUpdatingUnit(undefined)}
           defaultValue={getUnitTimingReacreate(updatingUnit) / 60000}
         />
       )}
@@ -224,9 +226,9 @@ export const Batch: React.FC<{
                 <ChipWithCopy value={account.public_address} short />
               </strong>
             </div>
-            balance: <strong>{balances[account.public_address]?.all}$</strong>
-            free_balance:
-            <strong>{balances[account.public_address]?.free}$</strong>
+            balance: <strong>{balances[account.private_key]?.all}$</strong>
+            {/* free_balance:
+            <strong>{balances[account.private_key]?.free}$</strong> */}
           </Typography>
         )
       })}

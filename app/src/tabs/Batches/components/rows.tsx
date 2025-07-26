@@ -13,21 +13,21 @@ import {
 
 export const createRows = (
   units: Unit[],
-  closingUnitAsset: string[],
-  reCreatingUnitAssets: string[],
-  getUnitTimingOpened: (asset: string) => number,
-  getUnitTimingReacreate: (asset: string) => number,
+  closingUnitAsset: number[],
+  reCreatingUnitAssets: number[],
+  getUnitTimingOpened: (token_id: number) => number,
+  getUnitTimingReacreate: (token_id: number) => number,
   handleAction?: (
     type: 'close_unit' | 'update_unit_timing',
     unit: Unit,
   ) => void,
 ): Row[] => {
   return units.map(unit => ({
-    id: unit.base_unit_info.asset,
+    id: unit.base_unit_info.token_id.toString(),
     data: [
       <div>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <strong>{unit.base_unit_info.asset}</strong>
+          <strong>{unit.base_unit_info.symbol}</strong>
           <Box
             sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}
             onClick={() =>
@@ -37,11 +37,11 @@ export const createRows = (
             <RefreshOutlined
               sx={{ width: '18px', height: '18px', marginTop: '-2px' }}
             />
-            {getUnitTimingReacreate(unit.base_unit_info.asset) / 60000} min
+            {getUnitTimingReacreate(unit.base_unit_info.token_id) / 60000} min
           </Box>
         </Box>
 
-        {reCreatingUnitAssets.includes(unit.base_unit_info.asset) ? (
+        {reCreatingUnitAssets.includes(unit.base_unit_info.token_id) ? (
           <div>
             Recreating <CircularProgress size={28} />
           </div>
@@ -49,7 +49,7 @@ export const createRows = (
           <div>
             Time opened:
             {convertMsToTime(
-              Date.now() - getUnitTimingOpened(unit.base_unit_info.asset),
+              Date.now() - getUnitTimingOpened(unit.base_unit_info.token_id),
             )}
           </div>
         )}
@@ -95,8 +95,8 @@ export const createRows = (
           variant='contained'
           color='error'
           loading={
-            closingUnitAsset.includes(unit.base_unit_info.asset) ||
-            reCreatingUnitAssets.includes(unit.base_unit_info.asset)
+            closingUnitAsset.includes(unit.base_unit_info.token_id) ||
+            reCreatingUnitAssets.includes(unit.base_unit_info.token_id)
           }
           onClick={() => handleAction && handleAction('close_unit', unit)}
         >

@@ -5,11 +5,10 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type { MARKET_SYMBOLS } from './MARKET_SYMBOLS'
 import type { ORDER_SIDE } from './ORDER_SIDE'
 
-export type PositionDataDto = {
-  symbol: MARKET_SYMBOLS
+export type OrderDto = {
+  market_id: number
   size: string
   leverage: string
   side: ORDER_SIDE

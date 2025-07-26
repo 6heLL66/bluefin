@@ -9,11 +9,11 @@ import {
 import { toast } from 'react-toastify'
 
 import {
-  AccountDataDto,
-  DefaultService,
-  MARKET_SYMBOLS,
+  AccountWithPositionsDto,
+  AccountService,
   OrderCreateDto,
-  PositionDataDto,
+  PositionDto,
+  OrderService,
 } from '../../../api'
 import { GlobalContext } from '../../../context'
 import { Account, Unit } from '../../../types'
@@ -26,7 +26,7 @@ interface Props {
 }
 
 interface CreateUnitPayload {
-  asset: string
+  token_id: number
   sz: number
   leverage: number
   timing: number
@@ -37,21 +37,21 @@ interface ReturnType {
   units: Unit[]
   balances: Record<string, { free: string; all: string }>
   unitTimings: Record<string, { openedTiming: number; recreateTiming: number }>
-  closingUnits: string[]
-  recreatingUnits: string[]
+  closingUnits: number[]
+  recreatingUnits: number[]
   initialLoading: boolean
   setTimings: (
-    asset: string,
+    token_id: number,
     recreateTiming: number,
     openedTiming: number,
   ) => Promise<void>
-  getUnitTimingOpened: (asset: string) => number
-  getUnitTimingReacreate: (asset: string) => number
+  getUnitTimingOpened: (token_id: number) => number
+  getUnitTimingReacreate: (token_id: number) => number
   createUnit: (payload: CreateUnitPayload) => Promise<unknown>
   closeUnit: (unit: Unit) => Promise<unknown>
 }
 
-const UPDATE_INTERVAL = 8000
+const UPDATE_INTERVAL = 20000
 
 export const useBatch = ({
   accounts: accountsProps,
@@ -64,7 +64,7 @@ export const useBatch = ({
   const batchAccounts = useMemo(
     () =>
       accountsProps.map(a => {
-        return accounts.find(b => b.id === a)!
+        return accounts.find(b => b.id == a)!
       })!,
     [accountsProps],
   )
@@ -73,15 +73,15 @@ export const useBatch = ({
 
   const [initialLoading, setInitialLoading] = useState(true)
 
-  const [closingUnits, setClosingUnits] = useState<string[]>([])
-  const [creatingUnits, setCreatingUnits] = useState<string[]>([])
-  const [recreatingUnits, setRecreatingUnits] = useState<string[]>([])
+  const [closingUnits, setClosingUnits] = useState<number[]>([])
+  const [creatingUnits, setCreatingUnits] = useState<number[]>([])
+  const [recreatingUnits, setRecreatingUnits] = useState<number[]>([])
 
   const [balances, setBalances] = useState<
     Record<string, { free: string; all: string }>
   >({})
 
-  const [accountStates, setAccountState] = useState<AccountDataDto[]>([])
+  const [accountStates, setAccountState] = useState<AccountWithPositionsDto[]>([])
 
   const [unitTimings, setUnitTimings] = useState<
     Record<string, { openedTiming: number; recreateTiming: number }>
@@ -92,25 +92,25 @@ export const useBatch = ({
   }, [accountStates])
 
   const getUnitTimingOpened = useCallback(
-    (asset: string): number => {
-      return unitTimings[asset as keyof typeof unitTimings]?.openedTiming
+    (token_id: number): number => {
+      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.openedTiming
     },
     [unitTimings],
   )
 
   const getUnitTimingReacreate = useCallback(
-    (asset: string): number => {
-      return unitTimings[asset as keyof typeof unitTimings]?.recreateTiming
+    (token_id: number): number => {
+      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.recreateTiming
     },
     [unitTimings],
   )
 
   const setTimings = useCallback(
-    async (asset: string, recreateTiming: number, openedTiming: number) => {
-      setUnitInitTimings(id, asset, recreateTiming, openedTiming)
+    async (token_id: number, recreateTiming: number, openedTiming: number) => {
+      setUnitInitTimings(id, token_id.toString(), recreateTiming, openedTiming)
       setUnitTimings(prev => ({
         ...prev,
-        [asset]: {
+        [token_id.toString()]: {
           openedTiming,
           recreateTiming,
         },
@@ -119,8 +119,8 @@ export const useBatch = ({
     [setUnitInitTimings, setUnitTimings],
   )
 
-  const fetchUserStates = useCallback((): Promise<Array<AccountDataDto>> => {
-    return DefaultService.getAccountsDataApiV1AccountsPost({
+  const fetchUserStates = useCallback((): Promise<Array<AccountWithPositionsDto>> => {
+    return AccountService.accountPositionsApiAccountsPositionsPost({
       requestBody: batchAccounts.map(acc =>
         getBatchAccount(acc, getAccountProxy(acc)),
       ),
@@ -129,9 +129,9 @@ export const useBatch = ({
         res.reduce((acc, account) => {
           return {
             ...acc,
-            [account.address]: {
+            [account.private_key]: {
               all: Number(account.balance).toFixed(2),
-              free: Number(account.free_balance).toFixed(2),
+              free: Number(account.balance).toFixed(2),
             },
           }
         }, {}),
@@ -144,43 +144,38 @@ export const useBatch = ({
   }, [batchAccounts])
 
   const recreateUnit = useCallback(
-    async ({ asset, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
-      setRecreatingUnits(prev => [...prev, asset])
+    async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
+      setRecreatingUnits(prev => [...prev, token_id])
 
       const promise = recreateRequest({
         accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ),
         unit: {
-          asset: asset as MARKET_SYMBOLS,
+          token_id,
           size: sz,
           leverage,
         },
       })
         .catch(async e => {
-          await DefaultService.closeOrdersApiV1OrdersDelete({
-            requestBody: {
-              accounts: batchAccounts.map(acc =>
-                getBatchAccount(acc, getAccountProxy(acc)),
-              ),
-              unit: {
-                asset: asset as MARKET_SYMBOLS,
-              },
-            },
+          await OrderService.orderCancelApiOrdersCancelPost({
+            requestBody: {accounts: batchAccounts.map(acc =>
+              getBatchAccount(acc, getAccountProxy(acc)),
+            ), token_id}
           })
 
           throw e
         })
         .finally(async () => {
-          const unitRecreateTiming = getUnitTimingReacreate(asset)
-          setTimings(asset, unitRecreateTiming, Date.now())
-          setRecreatingUnits(prev => prev.filter(unit => unit !== asset))
+          const unitRecreateTiming = getUnitTimingReacreate(token_id)
+          setTimings(token_id, unitRecreateTiming, Date.now())
+          setRecreatingUnits(prev => prev.filter(unit => unit !== token_id))
         })
 
       toast.promise(promise, {
-        pending: `${name}: Re-creating unit with asset ${asset}`,
-        success: `${name}: Unit with asset ${asset} re-created 👌`,
-        error: `${name}: Error while re-creating unit with asset ${asset} error 🤯`,
+        pending: `${name}: Re-creating unit with asset ${token_id}`,
+        success: `${name}: Unit with asset ${token_id} re-created 👌`,
+        error: `${name}: Error while re-creating unit with asset ${token_id} error 🤯`,
       })
     },
     [
@@ -196,21 +191,21 @@ export const useBatch = ({
     updatingRef.current = true
     const now = Date.now()
     return fetchUserStates()
-      .then((res: Array<AccountDataDto>) => {
+      .then((res: Array<AccountWithPositionsDto>) => {
         const units = transformAccountStatesToUnits(res)
 
         units.forEach((unit: Unit) => {
           const unitOpenedTiming = getUnitTimingOpened(
-            unit.base_unit_info.asset,
+            unit.base_unit_info.token_id,
           )
           const unitRecreateTiming = getUnitTimingReacreate(
-            unit.base_unit_info.asset,
+            unit.base_unit_info.token_id,
           )
 
           if (
-            closingUnits.includes(unit.base_unit_info.asset) ||
-            recreatingUnits.includes(unit.base_unit_info.asset) ||
-            creatingUnits.includes(unit.base_unit_info.asset) ||
+            closingUnits.includes(unit.base_unit_info.token_id) ||
+            recreatingUnits.includes(unit.base_unit_info.token_id) ||
+            creatingUnits.includes(unit.base_unit_info.token_id) ||
             !unitOpenedTiming ||
             !unitRecreateTiming
           ) {
@@ -222,7 +217,7 @@ export const useBatch = ({
             unit.positions.length !== accountsProps.length
           ) {
             recreateUnit({
-              asset: unit.base_unit_info.asset,
+              token_id: unit.base_unit_info.token_id,
               leverage: unit.base_unit_info.leverage,
               sz: unit.base_unit_info.size,
             })
@@ -267,28 +262,28 @@ export const useBatch = ({
   }, [updateLoop])
 
   const createUnit = useCallback(
-    async ({ asset, sz, leverage, timing }: CreateUnitPayload) => {
-      setCreatingUnits(prev => [...prev, asset])
-      setTimings(asset, timing, Date.now())
+    async ({ token_id, sz, leverage, timing }: CreateUnitPayload) => {
+      setCreatingUnits(prev => [...prev, token_id])
+      setTimings(token_id, timing, Date.now())
 
-      const dto = {
+      const dto: OrderCreateDto = {
         accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ),
         unit: {
-          asset: asset as MARKET_SYMBOLS,
+          token_id,
           size: sz,
           leverage,
         },
       };
 
-      return DefaultService.createOrderApiV1OrdersPost({
+      return OrderService.orderCreateApiOrdersPost({
         requestBody: dto,
       }).then(() => {
         return checkPositionsOpened(dto)
       }).finally(async () => {
-        setTimings(asset, timing, Date.now())
-        setCreatingUnits(prev => prev.filter(coin => coin !== asset))
+        setTimings(token_id, timing, Date.now())
+        setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
       })
     },
     [batchAccounts, fetchUserStates, setTimings, setCreatingUnits],
@@ -296,20 +291,15 @@ export const useBatch = ({
 
   const closeUnit = useCallback(
     (unit: Unit) => {
-      setClosingUnits(prev => [...prev, unit.base_unit_info.asset])
+      setClosingUnits(prev => [...prev, unit.base_unit_info.token_id])
 
-      return DefaultService.closeOrdersApiV1OrdersDelete({
-        requestBody: {
-          accounts: batchAccounts.map(acc =>
-            getBatchAccount(acc, getAccountProxy(acc)),
-          ),
-          unit: {
-            asset: unit.base_unit_info.asset as MARKET_SYMBOLS,
-          },
-        },
+      return OrderService.orderCancelApiOrdersCancelPost({
+        requestBody: {accounts: batchAccounts.map(acc =>
+          getBatchAccount(acc, getAccountProxy(acc)),
+        ), token_id: unit.base_unit_info.token_id}
       }).then(() => fetchUserStates()).finally(async () => {
         setClosingUnits(prev =>
-          prev.filter(asset => asset !== unit.base_unit_info.asset),
+          prev.filter(asset => asset !== unit.base_unit_info.token_id),
         )
       })
     },
@@ -333,11 +323,11 @@ export const useBatch = ({
 }
 
 const recreateRequest = async (requestBody: OrderCreateDto) => {
-  await DefaultService.closeOrdersApiV1OrdersDelete({ requestBody })
+  // await OrderService.orderCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
 
-  await new Promise(res => setTimeout(res, 5000))
+  // await new Promise(res => setTimeout(res, 5000))
 
-  await DefaultService.createOrderApiV1OrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+  // await OrderService.orderCreateApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
@@ -346,16 +336,16 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
 
   return new Promise((res, rej) => {
     const interval = setInterval(() => {
-      DefaultService.getAccountsDataApiV1AccountsPost({
+      AccountService.accountPositionsApiAccountsPositionsPost({
         requestBody: orderDto.accounts,
       }).then(data => {
         const positions = data.reduce(
           (acc, account) => [...acc, ...account.positions],
-          [] as PositionDataDto[],
+          [] as PositionDto[],
         )
 
         const isPositionsFullyOpened =
-          positions.filter(pos => pos.symbol === orderDto.unit.asset).length ===
+          positions.filter(pos => pos.market_id === orderDto.unit.token_id).length ===
           4
         if (isPositionsFullyOpened) {
           res('ok')

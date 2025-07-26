@@ -5,10 +5,10 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type { AccountDto } from './AccountDto'
+import type { PrivateKeyDto } from './PrivateKeyDto'
 import type { ProxyDto } from './ProxyDto'
 
 export type BatchAccountDto = {
-  account: AccountDto
+  account: PrivateKeyDto
   proxy?: ProxyDto | null
 }

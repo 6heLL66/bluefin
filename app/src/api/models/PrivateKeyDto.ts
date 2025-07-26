@@ -2,6 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type AccountDto = {
+export type PrivateKeyDto = {
   private_key: string
 }

@@ -88,9 +88,10 @@ export interface AccountState {
 
 export interface Unit {
   base_unit_info: {
-    asset: string
+    token_id: number
     leverage: number
     size: number
+    symbol: string
   }
   positions: {
     info: {

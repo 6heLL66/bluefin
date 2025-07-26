@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
 
-import { DefaultService, MarketDataDto } from '../../api'
+import { TokenDto, TokenService } from '../../api'
 import { BatchAccount } from '../../types'
 
 export const CreateUnitModal: React.FC<{
@@ -22,7 +22,7 @@ export const CreateUnitModal: React.FC<{
   accountsCount: number
   handleClose: () => void
   handleCreateUnit: (form: {
-    asset: string
+    token_id: number
     sz: number
     leverage: number
     timing: number
@@ -30,16 +30,16 @@ export const CreateUnitModal: React.FC<{
   defaultTiming: number
 }> = ({ open, handleClose, handleCreateUnit, defaultTiming }) => {
   const [form, setForm] = useState({
-    asset: '',
+    token_id: 0,
     timing: defaultTiming,
     sz: 0,
     leverage: 1,
   })
 
-  const [marketData, setMarketData] = useState<MarketDataDto[]>([])
+  const [marketData, setMarketData] = useState<TokenDto[]>([])
 
   const onConfirm = () => {
-    if (true || (form.asset && form.sz && form.leverage && form.timing))
+    if (true || (form.token_id && form.sz && form.leverage && form.timing))
       handleCreateUnit({
         ...form,
         timing: form.timing * 60000,
@@ -47,7 +47,7 @@ export const CreateUnitModal: React.FC<{
   }
 
   const getMarketData = async () => {
-    const data = await DefaultService.getMarketDataApiV1MarketGet()
+    const data = await TokenService.tokenListApiTokensGet()
 
     setMarketData(data)
   }
@@ -56,12 +56,8 @@ export const CreateUnitModal: React.FC<{
     getMarketData()
   }, [])
 
-  const assetPrice = marketData.find(
-    market => market.symbol === form.asset,
-  )?.price
-
   const onChange = (
-    key: 'asset' | 'sz' | 'leverage' | 'timing',
+    key: keyof typeof form,
     v: string | number,
   ) => {
     setForm(prev => ({ ...prev, [key]: v }))
@@ -88,15 +84,15 @@ export const CreateUnitModal: React.FC<{
             <Select
               labelId='asset-label'
               id='asset-select'
-              value={form.asset}
+              value={form.token_id}
               label='Select Asset'
-              onChange={e => onChange('asset', e.target.value)}
+              onChange={e => onChange('token_id', Number(e.target.value))}
             >
               <MenuItem value=''>
                 <em>No asset</em>
               </MenuItem>
               {marketData?.map(market => (
-                <MenuItem value={market.symbol} key={market.symbol}>
+                <MenuItem value={market.market_id} key={market.symbol}>
                   {market.symbol}
                 </MenuItem>
               ))}
@@ -108,7 +104,7 @@ export const CreateUnitModal: React.FC<{
             <TextField
               fullWidth
               size='small'
-              label='Size'
+              label='Size value (USD)'
               variant='outlined'
               value={form.sz}
               type='number'
@@ -139,13 +135,13 @@ export const CreateUnitModal: React.FC<{
           </Box>
         </Box>
         <Box>
-          <Typography>
+          {/* <Typography>
             Summary:
             <strong>
               {' ' + (Number(assetPrice ?? 0) * form.sz).toFixed(2)} $
             </strong>
-          </Typography>
-          <Typography sx={{ mt: 1 }}>
+          </Typography> */}
+          {/* <Typography sx={{ mt: 1 }}>
             Summary with leverage:
             <>
               <strong>
@@ -155,16 +151,16 @@ export const CreateUnitModal: React.FC<{
                   )}{' '}
                 $
               </strong>
-              {/* {sizingError && (
+              {sizingError && (
                 <Alert variant='standard' color='warning' sx={{ mt: 1 }}>
                   <Typography fontSize={14}>
                     [Summary] * [Leverage] * 0.1 should be greater or equal than
                     10$
                   </Typography>
                 </Alert>
-              )} */}
+              )}
             </>
-          </Typography>
+          </Typography> */}
         </Box>
         <Box
           sx={{

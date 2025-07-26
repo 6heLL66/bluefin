@@ -1,14 +1,12 @@
 /* generated using openapi-typescript-codegen -- do not edit */
-
 /* istanbul ignore file */
-
 /* tslint:disable */
-
 /* eslint-disable */
-import type { MARKET_SYMBOLS } from './MARKET_SYMBOLS'
-
-export type MarketDataDto = {
-  symbol: MARKET_SYMBOLS
+export type TokenDto = {
+  symbol: string
+  market_id: number
   price: string
-  min_part_size: string
+  status: string
+  min_base_amount: string
+  min_quote_amount: string
 }

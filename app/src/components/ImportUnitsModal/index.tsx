@@ -17,7 +17,7 @@ import { BatchAccount } from '../../types'
 export interface FormUnit {
   sz: number
   leverage: number
-  asset: string
+  token_id: number
   timing: number
 }
 
