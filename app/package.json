@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "generate-api": "openapi --useOptions -i https://lighter-backend-929cbee464f0.herokuapp.com/api/openapi.json -o ./src/api && npx prettier ./src/api -w",
+    "generate-bp-api": "openapi --useOptions -i ./openapi-backpack.json -o ./src/bp-api && npx prettier ./src/bp-api -w",
     "preview": "vite preview",
     "tauri": "tauri",
     "lint": "eslint ./src",
@@ -30,7 +31,8 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.2.0",
     "react-toastify": "^10.0.5",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",

@@ -13,6 +13,7 @@ import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext } from './context'
 import { Accounts, Batches, Proxy } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
+import { Spread } from './tabs/Spread'
 
 const Tabs = {
   Accounts: {
@@ -26,6 +27,10 @@ const Tabs = {
   Spot: {
     label: 'Wash trade',
     id: 'Trade',
+  },
+  Spread: {
+    label: 'Spread (lighter + backpack)',
+    id: 'spread',
   },
 } as const
 
@@ -103,6 +108,9 @@ const App = () => {
         </div>
         <div style={{ display: tabId === Tabs.Spot.id ? 'block' : 'none' }}>
           <Batches />
+        </div>
+        <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
+          <Spread />
         </div>
       </Box>
       <ToastContainer
