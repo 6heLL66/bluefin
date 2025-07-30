@@ -1,19 +1,22 @@
 import { Button } from '@mui/material'
 import MuiTab from '@mui/material/Tab'
 import MuiTabs from '@mui/material/Tabs'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+import { useQuery } from '@tanstack/react-query'
+
 import Box from '@mui/material/Box'
 
-import { OpenAPI } from './api'
+import { OpenAPI, TokenService } from './api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext } from './context'
 import { Accounts, Batches, Proxy } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
 import { Spread } from './tabs/Spread'
+import { useSpreadStore } from './tabs/Spread/store'
 
 const Tabs = {
   Accounts: {
@@ -43,7 +46,25 @@ const App = () => {
     localStorage.getItem('lastTabId') ?? Tabs.Accounts.id,
   )
 
-  if (!isAuth) {
+  const [isLoading, setIsLoading] = useState(true)
+
+  const {data: lighterMarkets} = useQuery({
+    queryKey: ['lighter-tokens'],
+    queryFn: () => {
+      return TokenService.tokenListApiTokensGet()
+    }
+  })
+
+  const {setLighterMarkets} = useSpreadStore()
+
+  useEffect(() => {
+    if (lighterMarkets) {
+      setLighterMarkets(lighterMarkets)
+      setIsLoading(false)
+    }
+  }, [lighterMarkets])
+
+  if (!isAuth || isLoading) {
     return <Login />
   }
 

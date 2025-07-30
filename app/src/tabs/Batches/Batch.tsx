@@ -149,8 +149,6 @@ export const Batch: React.FC<{
     )
   }
 
-  console.log(balances)
-
   return (
     <Paper sx={{ padding: 3 }}>
       {modalId === 'createUnitModal' && (

@@ -323,11 +323,11 @@ export const useBatch = ({
 }
 
 const recreateRequest = async (requestBody: OrderCreateDto) => {
-  // await OrderService.orderCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
+  await OrderService.orderCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
 
-  // await new Promise(res => setTimeout(res, 5000))
+  await new Promise(res => setTimeout(res, 5000))
 
-  // await OrderService.orderCreateApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+  await OrderService.orderCreateApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {

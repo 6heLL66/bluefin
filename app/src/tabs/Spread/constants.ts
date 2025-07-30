@@ -3,6 +3,7 @@ import { HeadCell } from "../../types"
 export interface SpreadData {
     id: string
     asset: string
+    tokenId: number
     size: number
     timeOpened: string
     status: 'OPEN' | 'CLOSED' | 'PENDING'
@@ -59,28 +60,5 @@ export const headCells: HeadCell[] = [
       label: 'Actions',
       align: 'center',
       disablePadding: false,
-    },
-  ]
-  
-  export const mockSpreads: SpreadData[] = [
-    {
-      id: '1',
-      asset: 'BTC',
-      size: 0.1,
-      timeOpened: '2024-01-15 10:30:00',
-      status: 'OPEN',
-      openSpread: 0.05,
-      closeSpread: 0.08,
-      minLifetime: 300,
-    },
-    {
-      id: '2',
-      asset: 'ETH',
-      size: 1.5,
-      timeOpened: '2024-01-15 09:15:00',
-      status: 'CLOSED',
-      openSpread: 0.03,
-      closeSpread: 0.06,
-      minLifetime: 180,
     },
   ]

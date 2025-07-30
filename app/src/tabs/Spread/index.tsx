@@ -17,9 +17,11 @@ import { useSpreadStore } from './store'
 import { CreateSpreadUnitModal } from '../../components/CreateSpreadUnitModal'
 import { useState } from 'react'
 import { useSpreads } from './useSpreads'
+import { Side } from '../../bp-api'
 
 export const Spread = () => {
   const {
+    lighterMarkets,
     lighterPublicKey,
     lighterPrivateKey,
     backpackApiPublicKey,
@@ -33,7 +35,7 @@ export const Spread = () => {
     deleteSpread,
   } = useSpreadStore()
 
-  const { addSpreadSubscription } = useSpreads();
+  const { addBackpackSpreadSubscription, addLighterSpreadSubscription, openBackpackLimitOrder } = useSpreads();
 
   const [open, setOpen] = useState(false)
 
@@ -49,13 +51,21 @@ export const Spread = () => {
   const handleCreateSpread = (form: Omit<SpreadData, 'id' | 'timeOpened' | 'status'>) => {
     createSpread({
         ...form,
+        tokenId: lighterMarkets?.find(token => token.symbol === form.asset)?.market_id ?? 0,
         status: 'PENDING',
         timeOpened: '0',
         id: Date.now().toString(),
     })
-    addSpreadSubscription({
+    addBackpackSpreadSubscription({
         ...form,
         status: 'PENDING',
+        timeOpened: '0',
+        id: Date.now().toString(),
+    });
+    addLighterSpreadSubscription({
+        ...form,
+        status: 'PENDING',
+        tokenId: lighterMarkets?.find(token => token.symbol === form.asset)?.market_id ?? 0,
         timeOpened: '0',
         id: Date.now().toString(),
     });
@@ -105,6 +115,7 @@ export const Spread = () => {
 
   return (
     <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Button onClick={() => openBackpackLimitOrder(spreads[0], '130000', '15', Side.ASK)}>Open Limit Order</Button>
       <Card
         sx={{
           background: theme => theme.palette.background.paper,

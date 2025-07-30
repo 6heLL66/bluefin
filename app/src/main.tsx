@@ -1,6 +1,7 @@
 import { ThemeOptions, ThemeProvider, createTheme } from '@mui/material'
 import { useContext } from 'react'
 import ReactDOM from 'react-dom/client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import App from './App'
 import { GlobalProvider } from './context'
@@ -53,14 +54,27 @@ const darkTheme = {
   },
 } as ThemeOptions
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
+
 const AppWithThemeProvider = () => {
   const { theme } = useContext(ThemeContext)
   return (
-    <ThemeProvider
-      theme={createTheme(theme === Theme.Dark ? darkTheme : undefined)}
-    >
-      <App />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        theme={createTheme(theme === Theme.Dark ? darkTheme : undefined)}
+      >
+        <App />
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }
 

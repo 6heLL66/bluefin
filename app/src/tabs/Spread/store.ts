@@ -1,8 +1,10 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { SpreadData } from './constants'
+import { TokenDto } from '../../api'
 
 interface SpreadConfig {
+  lighterMarkets: TokenDto[]
   lighterPublicKey: string
   lighterPrivateKey: string
   backpackApiPublicKey: string
@@ -16,6 +18,8 @@ interface SpreadStore extends SpreadConfig {
   setBackpackApiPublicKey: (key: string) => void
   setBackpackApiSecretKey: (key: string) => void
   setSpreads: (spreads: SpreadData[]) => void
+
+  setLighterMarkets: (markets: TokenDto[]) => void
   createSpread: (spread: SpreadData) => void
   deleteSpread: (id: string) => void
 }
@@ -25,9 +29,13 @@ export const useSpreadStore = create<SpreadStore>()(
     (set) => ({
       lighterPublicKey: '',
       lighterPrivateKey: '',
+      lighterMarkets: [],
       backpackApiPublicKey: '',
       backpackApiSecretKey: '',
       spreads: [],
+
+      setLighterMarkets: (markets: TokenDto[]) =>
+        set({ lighterMarkets: markets }),
 
       setLighterPublicKey: (key: string) =>
         set({ lighterPublicKey: key }),
