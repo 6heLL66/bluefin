@@ -7,13 +7,12 @@ import {
   Paper,
   Select,
   TextField,
-  Typography,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
 
-import { TokenDto, TokenService } from '../../api'
+import { TokenDto_Output, TokenService } from '../../api'
 import { BatchAccount } from '../../types'
 
 export const CreateUnitModal: React.FC<{
@@ -36,7 +35,7 @@ export const CreateUnitModal: React.FC<{
     leverage: 1,
   })
 
-  const [marketData, setMarketData] = useState<TokenDto[]>([])
+  const [marketData, setMarketData] = useState<TokenDto_Output[]>([])
 
   const onConfirm = () => {
     if (true || (form.token_id && form.sz && form.leverage && form.timing))

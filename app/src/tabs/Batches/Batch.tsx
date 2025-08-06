@@ -4,7 +4,6 @@ import { toast } from 'react-toastify'
 
 import { ChipWithCopy } from '../../components/ChipWithCopy'
 import { CreateUnitModal } from '../../components/CreateUnitModal'
-import { FormUnit, ImportUnitsModal } from '../../components/ImportUnitsModal'
 import { Table } from '../../components/Table'
 import { UpdateUnitTimingModal } from '../../components/UpdateUnitTimingModal'
 import { GlobalContext } from '../../context'
@@ -74,20 +73,6 @@ export const Batch: React.FC<{
       pending: `${name}: Creating unit with asset ${form.token_id}`,
       success: `${name}: Unit with asset ${form.token_id} created 👌`,
       error: `${name}: Error while creating unit with asset ${form.token_id} error 🤯`,
-    })
-  }
-
-  const handleCreateUnits = async (units: FormUnit[]) => {
-    setModalId(null)
-
-    units.forEach(unit => {
-      const promise = createUnit(unit)
-
-      toast.promise(promise, {
-        pending: `${name}: Creating unit with asset ${unit.token_id}`,
-        success: `${name}: Unit with asset ${unit.token_id} created 👌`,
-        error: `${name}: Error while creating unit with asset ${unit.token_id} error 🤯`,
-      })
     })
   }
 
@@ -171,19 +156,6 @@ export const Batch: React.FC<{
           open
           handleClose={() => setUpdatingUnit(undefined)}
           defaultValue={getUnitTimingReacreate(updatingUnit) / 60000}
-        />
-      )}
-
-      {modalId === 'importUnitsModal' && (
-        <ImportUnitsModal
-          handleCreateUnits={handleCreateUnits}
-          account={getBatchAccount(
-            batchAccounts[0],
-            getAccountProxy(batchAccounts[0]),
-          )}
-          accountsCount={accounts.length}
-          open
-          handleClose={() => setModalId(null)}
         />
       )}
       <Box
