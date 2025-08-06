@@ -1,3 +1,5 @@
+import { AccountWithPositionsDto } from "../../api"
+import { FuturePositionWithMargin } from "../../bp-api"
 import { HeadCell } from "../../types"
 
 export interface SpreadData {
@@ -6,10 +8,12 @@ export interface SpreadData {
     tokenId: number
     size: number
     timeOpened: string
-    status: 'OPEN' | 'CLOSED' | 'PENDING'
+    status: 'ORDER FILLING' | 'WAITING'
     openSpread: number
     closeSpread: number
     minLifetime: number
+    lighterPositions: AccountWithPositionsDto["positions"]
+    backpackPositions: FuturePositionWithMargin[]
   }
   
 export const headCells: HeadCell[] = [
@@ -26,8 +30,14 @@ export const headCells: HeadCell[] = [
       disablePadding: false,
     },
     {
-      id: 'timeOpened',
-      label: 'Time Opened',
+      id: 'lighterPositions',
+      label: 'Lighter Positions',
+      align: 'center',
+      disablePadding: false,
+    },
+    {
+      id: 'backpackPositions',
+      label: 'Backpack Positions',
       align: 'center',
       disablePadding: false,
     },
@@ -39,19 +49,13 @@ export const headCells: HeadCell[] = [
     },
     {
       id: 'openSpread',
-      label: 'Open Spread',
+      label: 'Open Spread %',
       align: 'center',
       disablePadding: false,
     },
     {
       id: 'closeSpread',
-      label: 'Close Spread',
-      align: 'center',
-      disablePadding: false,
-    },
-    {
-      id: 'minLifetime',
-      label: 'Min Lifetime',
+      label: 'Close Spread %',
       align: 'center',
       disablePadding: false,
     },

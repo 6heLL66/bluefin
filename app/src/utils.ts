@@ -56,7 +56,7 @@ export const transformAccountStatesToUnits = (
         }
       }
       if (Number(size) > 0 && side === ORDER_SIDE.BUY) {
-        unitsMap[symbol].base_unit_info.size += Number(size) / Number(leverage)
+        unitsMap[symbol].base_unit_info.size += Number(size)
       }
       unitsMap[symbol].positions.push({
         info: {

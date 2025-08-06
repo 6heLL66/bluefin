@@ -9,11 +9,10 @@ import {
   TextField,
   Typography,
   Box,
-  Chip,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 
-import { TokenDto, TokenService } from '../../api'
+import { TokenDto_Output, TokenService } from '../../api'
 import { SpreadData } from '../../tabs/Spread/constants'
 
 export const CreateSpreadUnitModal: React.FC<{
@@ -26,13 +25,12 @@ export const CreateSpreadUnitModal: React.FC<{
     size: 0,
     openSpread: 0,
     closeSpread: 0,
-    minLifetime: 10,
   })
 
-  const [marketData, setMarketData] = useState<TokenDto[]>([])
+  const [marketData, setMarketData] = useState<TokenDto_Output[]>([])
 
   const onConfirm = () => {
-    if (form.asset && form.size && form.openSpread && form.closeSpread && form.minLifetime) {
+    if (form.asset && form.size && form.openSpread && form.closeSpread) {
       handleCreateSpread({
         ...form,
       })
@@ -142,18 +140,6 @@ export const CreateSpreadUnitModal: React.FC<{
               inputProps={{ step: 0.01, min: 0 }}
             />
           </Box>
-
-          <TextField
-            fullWidth
-            size="small"
-            label="Minimum Lifetime (mins)"
-            variant="outlined"
-            type="number"
-            value={form.minLifetime}
-            onChange={e => onChange('minLifetime', Number(e.target.value))}
-            inputProps={{ min: 1 }}
-            helperText="Minimum time the spread must be active before closing"
-          />
         </Box>
 
         <Box sx={{ 
@@ -175,9 +161,6 @@ export const CreateSpreadUnitModal: React.FC<{
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Spreads: <strong>{form.openSpread}%</strong> → <strong>{form.closeSpread}%</strong>
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Min Lifetime: <strong>{form.minLifetime}min</strong>
             </Typography>
           </Box>
         </Box>
@@ -201,7 +184,7 @@ export const CreateSpreadUnitModal: React.FC<{
             variant="contained"
             color="primary"
             onClick={onConfirm}
-            disabled={!form.asset || !form.size || !form.openSpread || !form.closeSpread || !form.minLifetime}
+            disabled={!form.asset || !form.size || !form.openSpread || !form.closeSpread}
             sx={{ 
               minWidth: 100,
               background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',

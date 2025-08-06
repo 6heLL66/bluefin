@@ -1,30 +1,23 @@
 
-import { eddsa } from 'elliptic';
-import { encode as base64Encode, decode as base64Decode } from 'js-base64';
+import * as ed from '@noble/ed25519';
 
-const ed25519 = new eddsa('ed25519');
-
-export const getSignature = (method: string, secretKey: string, timestamp: string, requestBody: Record<string, unknown>) => {
+export const getSignature = async (method: string, secretKey: string, timestamp: string, requestBody: Record<string, unknown>) => {
     const message = {
         instruction: method,
         ...requestBody,
         timestamp,
-        window: '5000',
+        window: "60000",
     }
 
     const messageString = new URLSearchParams(message).toString()
-
     console.log(messageString)
     const messageBuffer = new TextEncoder().encode(messageString);
 
-    const decodedKey = base64Decode(secretKey);
-    console.log(decodedKey.length)
+    const decodedKey = Uint8Array.from(Buffer.from(secretKey, 'base64'));;
 
-    const keyPair = ed25519.keyFromSecret(decodedKey);
-    const signature = keyPair.sign(Array.from(messageBuffer) as unknown as Buffer).toHex();
+    const signature = await ed.signAsync(messageBuffer, decodedKey);
 
-    // const signature = ed.sign(messageBuffer, Uint8Array.from(decodedKey, c => c.charCodeAt(0)));
-    const signatureBase64 = base64Encode(signature);
+    const signatureBase64 = Buffer.from(signature).toString('base64');
 
     return signatureBase64
 }

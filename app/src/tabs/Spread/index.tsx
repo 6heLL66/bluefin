@@ -8,8 +8,10 @@ import {
   Paper,
   TextField,
   Typography,
+  Tooltip,
+  CircularProgress,
 } from '@mui/material'
-import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material'
+import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon } from '@mui/icons-material'
 
 import { Table } from '../../components/Table'
 import { headCells, SpreadData } from './constants'
@@ -17,7 +19,7 @@ import { useSpreadStore } from './store'
 import { CreateSpreadUnitModal } from '../../components/CreateSpreadUnitModal'
 import { useState } from 'react'
 import { useSpreads } from './useSpreads'
-import { Side } from '../../bp-api'
+import { AccountService } from '../../api'
 
 export const Spread = () => {
   const {
@@ -33,15 +35,19 @@ export const Spread = () => {
     setBackpackApiSecretKey,
     createSpread,
     deleteSpread,
+    updateSpread,
   } = useSpreadStore()
 
-  const { addBackpackSpreadSubscription, addLighterSpreadSubscription, openBackpackLimitOrder } = useSpreads();
+  const { addBackpackSpreadSubscription, addLighterSpreadSubscription, closeAllPositionsMarket, isLighterConnected, isBackpackConnected } = useSpreads();
 
   const [open, setOpen] = useState(false)
 
   const getStatusChip = (status: SpreadData['status']) => {
-    const color = status === 'OPEN' ? 'success' : status === 'CLOSED' ? 'error' : 'warning'
-    return <Chip label={status} color={color} size="small" />
+    if (status === 'WAITING') {
+      return <Chip label={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CircularProgress size={16} color='info' /> waiting spread</div>} color="warning" size="small" />
+    }
+
+    return <Chip label={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CircularProgress size={16} color='info' /> order filling</div>} color="warning" size="small" />
   }
 
   const handleOpenCreateSpread = () => {
@@ -49,31 +55,141 @@ export const Spread = () => {
   }
 
   const handleCreateSpread = (form: Omit<SpreadData, 'id' | 'timeOpened' | 'status'>) => {
-    createSpread({
+    const data: SpreadData = {
         ...form,
         tokenId: lighterMarkets?.find(token => token.symbol === form.asset)?.market_id ?? 0,
-        status: 'PENDING',
+        status: 'WAITING',
         timeOpened: '0',
+        lighterPositions: [],
+        backpackPositions: [],
         id: Date.now().toString(),
-    })
-    addBackpackSpreadSubscription({
-        ...form,
-        status: 'PENDING',
-        timeOpened: '0',
-        id: Date.now().toString(),
-    });
-    addLighterSpreadSubscription({
-        ...form,
-        status: 'PENDING',
-        tokenId: lighterMarkets?.find(token => token.symbol === form.asset)?.market_id ?? 0,
-        timeOpened: '0',
-        id: Date.now().toString(),
-    });
+    }
+    createSpread(data)
+    addBackpackSpreadSubscription(data);
+    addLighterSpreadSubscription(data);
     setOpen(false)
   }
 
   const handleDeleteSpread = (id: string) => {
     deleteSpread(id)
+  }
+
+  const handleCloseAll = (spread: SpreadData) => {
+    closeAllPositionsMarket(spread)
+  }
+
+  const handleSpreadChange = (id: string, field: 'openSpread' | 'closeSpread', value: number) => {
+    updateSpread(id, { [field]: value })
+  }
+
+  const renderLighterPositions = (positions: SpreadData['lighterPositions']) => {
+    if (!positions || positions.length === 0) {
+      return (
+        <Typography variant="body2" color="text.secondary" fontSize="0.75rem">
+          No positions
+        </Typography>
+      )
+    }
+
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        {positions.map((position, index) => (
+          <Box key={index} sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 0.25,
+            p: 1,
+            borderRadius: 1,
+            bgcolor: 'background.default',
+            border: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="caption" fontWeight={600}>
+                {position.symbol}
+              </Typography>
+              <Chip 
+                label={position.side} 
+                size="small" 
+                color={position.side === 'BUY' ? 'success' : 'error'}
+                sx={{ fontSize: '0.6rem', height: 16 }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant="caption" color="text.secondary">
+                Size: {parseFloat(position.size).toFixed(4)}$
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Entry: ${parseFloat(position.entry_price).toFixed(2)}
+              </Typography>
+            </Box>
+            <Typography variant="caption" color="text.secondary">
+              Leverage: {position.leverage}x
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    )
+  }
+
+  const renderBackpackPositions = (positions: SpreadData['backpackPositions']) => {
+    if (!positions || positions.length === 0) {
+      return (
+        <Typography variant="body2" color="text.secondary" fontSize="0.75rem">
+          No positions
+        </Typography>
+      )
+    }
+
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        {positions.map((position, index) => {
+          const isLong = parseFloat(position.netQuantity) > 0
+          const pnlColor = parseFloat(position.pnlRealized) >= 0 ? 'success.main' : 'error.main'
+          
+          return (
+            <Box key={index} sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 0.25,
+              p: 1,
+              borderRadius: 1,
+              bgcolor: 'background.default',
+              border: '1px solid',
+              borderColor: 'divider'
+            }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="caption" fontWeight={600}>
+                  {position.symbol}
+                </Typography>
+                <Chip 
+                  label={isLong ? 'LONG' : 'SHORT'} 
+                  size="small" 
+                  color={isLong ? 'success' : 'error'}
+                  sx={{ fontSize: '0.6rem', height: 16 }}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="caption" color="text.secondary">
+                  Size: {Math.abs(parseFloat(position.netCost)).toFixed(2)}$
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Entry: ${parseFloat(position.entryPrice).toFixed(2)}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="caption" color="text.secondary">
+                  Mark: ${parseFloat(position.markPrice).toFixed(2)}
+                </Typography>
+                <Typography variant="caption" color={pnlColor} fontWeight={600}>
+                  PnL: ${parseFloat(position.pnlRealized).toFixed(2)}
+                </Typography>
+              </Box>
+            </Box>
+          )
+        })}
+      </Box>
+    )
   }
 
   const tableRows = spreads.map(spread => ({
@@ -83,39 +199,77 @@ export const Spread = () => {
         {spread.asset}
       </Typography>,
       <Typography variant="body2">
-        {spread.size}
+        {spread.size}$
       </Typography>,
-      <Typography variant="body2" fontSize="0.875rem">
-        {spread.timeOpened}
-      </Typography>,
+      renderLighterPositions(spread.lighterPositions),
+      renderBackpackPositions(spread.backpackPositions),
       getStatusChip(spread.status),
-      <Typography variant="body2" color="success.main">
-        {spread.openSpread}%
-      </Typography>,
-      <Typography variant="body2" color="error.main">
-        {spread.closeSpread}%
-      </Typography>,
-      <Typography variant="body2">
-        {spread.minLifetime}s
-      </Typography>,
+      <TextField
+        size="small"
+        type="number"
+        value={spread.openSpread}
+        onChange={(e) => handleSpreadChange(spread.id, 'openSpread', parseFloat(e.target.value) || 0)}
+        sx={{ 
+          width: 80,
+          '& .MuiInputBase-input': { 
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            padding: '4px 8px'
+          }
+        }}
+        InputProps={{
+          endAdornment: <Typography variant="caption" color="text.secondary">%</Typography>
+        }}
+      />,
+      <TextField
+        size="small"
+        type="number"
+        value={spread.closeSpread}
+        onChange={(e) => handleSpreadChange(spread.id, 'closeSpread', parseFloat(e.target.value) || 0)}
+        sx={{ 
+          width: 80,
+          '& .MuiInputBase-input': { 
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            padding: '4px 8px'
+          }
+        }}
+        InputProps={{
+          endAdornment: <Typography variant="caption" color="text.secondary">%</Typography>
+        }}
+      />,
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-        <IconButton
-          size="small"
-          color="error"
-          onClick={(e) => {
-            e.stopPropagation()
-            handleDeleteSpread(spread.id)
-          }}
-        >
-          <DeleteIcon fontSize="small" />
-        </IconButton>
+        <Tooltip title="Close All (Market)">
+          <IconButton
+            size="small"
+            color="warning"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleCloseAll(spread)
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Delete Spread">
+          <IconButton
+            size="small"
+            color="error"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDeleteSpread(spread.id)
+            }}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       </Box>,
     ],
   }))
 
   return (
     <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Button onClick={() => openBackpackLimitOrder(spreads[0], '130000', '15', Side.ASK)}>Open Limit Order</Button>
+      <Button onClick={() => AccountService.accountRefreshApiAccountsRefreshPost({ requestBody: [{ account: { private_key: lighterPrivateKey }}]})}>Auth lighter</Button>
       <Card
         sx={{
           background: theme => theme.palette.background.paper,
@@ -173,7 +327,7 @@ export const Spread = () => {
         }}
       >
         <Box sx={{ p: 3, borderBottom: theme => `1px solid ${theme.palette.divider}` }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" fontWeight={600}>
               Spread Management
             </Typography>
@@ -191,6 +345,23 @@ export const Spread = () => {
             >
               Create Spread
             </Button>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="body2" fontWeight={600} color="text.secondary">
+              Connection Status:
+            </Typography>
+            <Chip 
+              label={`Lighter: ${isLighterConnected ? 'Connected' : 'Disconnected'}`}
+              color={isLighterConnected ? 'success' : 'error'}
+              size="small"
+              sx={{ fontWeight: 600 }}
+            />
+            <Chip 
+              label={`Backpack: ${isBackpackConnected ? 'Connected' : 'Disconnected'}`}
+              color={isBackpackConnected ? 'success' : 'error'}
+              size="small"
+              sx={{ fontWeight: 600 }}
+            />
           </Box>
         </Box>
         <Table

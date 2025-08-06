@@ -23,7 +23,9 @@
     "@mui/utils": "^5.15.14",
     "@mui/x-date-pickers": "^7.1.1",
     "@noble/ed25519": "^2.3.0",
+    "@noble/hashes": "^1.8.0",
     "@supabase/supabase-js": "^2.42.0",
+    "@tanstack/react-query": "^5.83.0",
     "@tauri-apps/api": "^1",
     "@types/elliptic": "^6.4.18",
     "@types/uuid": "^9.0.8",
@@ -39,6 +41,7 @@
     "react-toastify": "^10.0.5",
     "tweetnacl": "^1.0.3",
     "uuid": "^9.0.1",
+    "vite-plugin-node-polyfills": "^0.24.0",
     "zustand": "^5.0.6"
   },
   "devDependencies": {

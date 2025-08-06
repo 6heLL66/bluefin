@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { Button, CircularProgress } from '@mui/material'
 import MuiTab from '@mui/material/Tab'
 import MuiTabs from '@mui/material/Tabs'
 import { useContext, useEffect, useState } from 'react'
@@ -17,6 +17,7 @@ import { Accounts, Batches, Proxy } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
 import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
+import { MarketsService } from './bp-api'
 
 const Tabs = {
   Accounts: {
@@ -55,16 +56,34 @@ const App = () => {
     }
   })
 
-  const {setLighterMarkets} = useSpreadStore()
+  const {data: backpackMarkets} = useQuery({
+    queryKey: ['backpack-tokens'],
+    queryFn: () => {
+      return MarketsService.getMarkets()
+    }
+  })
+
+  const {setLighterMarkets, setBackpackMarkets} = useSpreadStore()
 
   useEffect(() => {
     if (lighterMarkets) {
       setLighterMarkets(lighterMarkets)
+    }
+
+    if (backpackMarkets) {
+      setBackpackMarkets(backpackMarkets)
+    }
+
+    if (lighterMarkets && backpackMarkets) {
       setIsLoading(false)
     }
-  }, [lighterMarkets])
+  }, [lighterMarkets, backpackMarkets])
 
-  if (!isAuth || isLoading) {
+  if (isLoading) {
+    return <CircularProgress sx={{ position: 'absolute', top: '50%', left: '50%' }} />
+  }
+
+  if (!isAuth) {
     return <Login />
   }
 

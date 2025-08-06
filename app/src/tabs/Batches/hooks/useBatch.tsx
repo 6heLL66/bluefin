@@ -281,7 +281,7 @@ export const useBatch = ({
         requestBody: dto,
       }).then(() => {
         return checkPositionsOpened(dto)
-      }).finally(async () => {
+      }).then((data) => setAccountState(data)).finally(async () => {
         setTimings(token_id, timing, Date.now())
         setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
       })
@@ -334,7 +334,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
   let retryCount = 4
   const retryInterval = 5000
 
-  return new Promise((res, rej) => {
+  return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
       AccountService.accountPositionsApiAccountsPositionsPost({
         requestBody: orderDto.accounts,
@@ -348,7 +348,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
           positions.filter(pos => pos.market_id === orderDto.unit.token_id).length ===
           4
         if (isPositionsFullyOpened) {
-          res('ok')
+          res(data)
 
           clearInterval(interval)
 

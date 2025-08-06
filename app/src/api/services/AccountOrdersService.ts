@@ -8,68 +8,67 @@
 import type { CancelablePromise } from '../core/CancelablePromise'
 import { OpenAPI } from '../core/OpenAPI'
 import { request as __request } from '../core/request'
-import type { AccountDto } from '../models/AccountDto'
+import type { AccountOrderCancelDto } from '../models/AccountOrderCancelDto'
+import type { AccountOrderCreateDto } from '../models/AccountOrderCreateDto'
 import type { AccountWithPositionsDto } from '../models/AccountWithPositionsDto'
 import type { BatchAccountDto } from '../models/BatchAccountDto'
-import type { LighterAccountDto } from '../models/LighterAccountDto'
 
-export class AccountService {
+export class AccountOrdersService {
+  /**
+   * Create Account Order
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static createAccountOrderApiAccountOrdersPost({
+    requestBody,
+  }: {
+    requestBody: AccountOrderCreateDto
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/api/account/orders',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Cancel Account Order
+   * @returns void
+   * @throws ApiError
+   */
+  public static cancelAccountOrderApiAccountOrdersCancelPost({
+    requestBody,
+  }: {
+    requestBody: AccountOrderCancelDto
+  }): CancelablePromise<void> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/api/account/orders/cancel',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
   /**
    * Account Positions
    * @returns AccountWithPositionsDto Successful Response
    * @throws ApiError
    */
-  public static accountPositionsApiAccountsPositionsPost({
+  public static accountPositionsApiAccountPositionsPost({
     requestBody,
   }: {
-    requestBody: Array<BatchAccountDto>
-  }): CancelablePromise<Array<AccountWithPositionsDto>> {
+    requestBody: BatchAccountDto
+  }): CancelablePromise<AccountWithPositionsDto> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/api/accounts/positions',
+      url: '/api/account/positions',
       body: requestBody,
       mediaType: 'application/json',
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Account Refresh
-   * @returns AccountDto Successful Response
-   * @throws ApiError
-   */
-  public static accountRefreshApiAccountsRefreshPost({
-    requestBody,
-  }: {
-    requestBody: Array<BatchAccountDto>
-  }): CancelablePromise<Array<AccountDto>> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/api/accounts/refresh',
-      body: requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Account Retrieve
-   * @returns LighterAccountDto Successful Response
-   * @throws ApiError
-   */
-  public static accountRetrieveApiAccountsAddressGet({
-    address,
-  }: {
-    address: string
-  }): CancelablePromise<LighterAccountDto> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/api/accounts/{address}',
-      path: {
-        address: address,
-      },
       errors: {
         422: `Validation Error`,
       },

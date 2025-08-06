@@ -54,7 +54,7 @@ export const Batch: React.FC<{
   }
 
   const handleUpdateUnitTiming = (timing: number) => {
-    if (!updatingUnit) {
+    if (updatingUnit === undefined) {
       return
     }
     setTimings(updatingUnit, timing, getUnitTimingOpened(updatingUnit))
@@ -165,7 +165,7 @@ export const Batch: React.FC<{
         />
       )}
 
-      {updatingUnit && (
+      {updatingUnit !== undefined && (
         <UpdateUnitTimingModal
           handleUpdate={handleUpdateUnitTiming}
           open
