@@ -33,6 +33,10 @@ export const CreateSpreadUnitModal: React.FC<{
     if (form.asset && form.size && form.openSpread && form.closeSpread) {
       handleCreateSpread({
         ...form,
+        tokenId: marketData.find(market => market.symbol === form.asset)?.market_id ?? 0,
+        minLifetime: 10,
+        lighterPositions: [],
+        backpackPositions: [],
       })
       handleClose()
     }
