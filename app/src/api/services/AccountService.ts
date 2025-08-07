@@ -8,18 +8,17 @@
 import type { CancelablePromise } from '../core/CancelablePromise'
 import { OpenAPI } from '../core/OpenAPI'
 import { request as __request } from '../core/request'
-import type { AccountDto } from '../models/AccountDto'
 import type { AccountWithPositionsDto } from '../models/AccountWithPositionsDto'
 import type { BatchAccountDto } from '../models/BatchAccountDto'
-import type { LighterAccountDto } from '../models/LighterAccountDto'
+import type { RefreshDto } from '../models/RefreshDto'
 
 export class AccountService {
   /**
-   * Account Positions
+   * Accounts Positions
    * @returns AccountWithPositionsDto Successful Response
    * @throws ApiError
    */
-  public static accountPositionsApiAccountsPositionsPost({
+  public static accountsPositionsApiAccountsPositionsPost({
     requestBody,
   }: {
     requestBody: Array<BatchAccountDto>
@@ -35,15 +34,15 @@ export class AccountService {
     })
   }
   /**
-   * Account Refresh
-   * @returns AccountDto Successful Response
+   * Accounts Refresh
+   * @returns void
    * @throws ApiError
    */
-  public static accountRefreshApiAccountsRefreshPost({
+  public static accountsRefreshApiAccountsRefreshPost({
     requestBody,
   }: {
-    requestBody: Array<BatchAccountDto>
-  }): CancelablePromise<Array<AccountDto>> {
+    requestBody: RefreshDto
+  }): CancelablePromise<void> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/accounts/refresh',
@@ -55,21 +54,20 @@ export class AccountService {
     })
   }
   /**
-   * Account Retrieve
-   * @returns LighterAccountDto Successful Response
+   * Account Positions
+   * @returns AccountWithPositionsDto Successful Response
    * @throws ApiError
    */
-  public static accountRetrieveApiAccountsAddressGet({
-    address,
+  public static accountPositionsApiAccountPositionsPost({
+    requestBody,
   }: {
-    address: string
-  }): CancelablePromise<LighterAccountDto> {
+    requestBody: BatchAccountDto
+  }): CancelablePromise<AccountWithPositionsDto> {
     return __request(OpenAPI, {
-      method: 'GET',
-      url: '/api/accounts/{address}',
-      path: {
-        address: address,
-      },
+      method: 'POST',
+      url: '/api/account/positions',
+      body: requestBody,
+      mediaType: 'application/json',
       errors: {
         422: `Validation Error`,
       },

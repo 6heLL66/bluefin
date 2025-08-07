@@ -120,7 +120,7 @@ export const useBatch = ({
   )
 
   const fetchUserStates = useCallback((): Promise<Array<AccountWithPositionsDto>> => {
-    return AccountService.accountPositionsApiAccountsPositionsPost({
+    return AccountService.accountsPositionsApiAccountsPositionsPost({
       requestBody: batchAccounts.map(acc =>
         getBatchAccount(acc, getAccountProxy(acc)),
       ),
@@ -158,7 +158,7 @@ export const useBatch = ({
         },
       })
         .catch(async e => {
-          await OrderService.orderCancelApiOrdersCancelPost({
+          await OrderService.accountsOrdersCancelApiOrdersCancelPost({
             requestBody: {accounts: batchAccounts.map(acc =>
               getBatchAccount(acc, getAccountProxy(acc)),
             ), token_id}
@@ -243,6 +243,7 @@ export const useBatch = ({
     Promise.all([
       getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
       fetchUserStates(),
+      AccountService.accountsRefreshApiAccountsRefreshPost({ requestBody: { accounts: batchAccounts.map((a) => ({ account: { private_key: a.private_key } })), from_api_key_index: 52, to_api_key_index: 52}})
     ]).finally(() => {
       setInitialLoading(false)
     })
@@ -277,7 +278,7 @@ export const useBatch = ({
         },
       };
 
-      return OrderService.orderCreateApiOrdersPost({
+      return OrderService.accountsOrdersApiOrdersPost({
         requestBody: dto,
       }).then(() => {
         return checkPositionsOpened(dto)
@@ -293,7 +294,7 @@ export const useBatch = ({
     (unit: Unit) => {
       setClosingUnits(prev => [...prev, unit.base_unit_info.token_id])
 
-      return OrderService.orderCancelApiOrdersCancelPost({
+      return OrderService.accountsOrdersCancelApiOrdersCancelPost({
         requestBody: {accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ), token_id: unit.base_unit_info.token_id}
@@ -323,11 +324,11 @@ export const useBatch = ({
 }
 
 const recreateRequest = async (requestBody: OrderCreateDto) => {
-  await OrderService.orderCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
+  await OrderService.accountsOrdersCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
 
   await new Promise(res => setTimeout(res, 5000))
 
-  await OrderService.orderCreateApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+  await OrderService.accountsOrdersApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
@@ -336,7 +337,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
 
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
-      AccountService.accountPositionsApiAccountsPositionsPost({
+      AccountService.accountsPositionsApiAccountsPositionsPost({
         requestBody: orderDto.accounts,
       }).then(data => {
         const positions = data.reduce(

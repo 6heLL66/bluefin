@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { AccountOrdersService, ORDER_SIDE } from '../../api'
+import { OrderService as OrderServiceApi, ORDER_SIDE, AccountService } from '../../api'
 import {
   FuturesService,
   OrderService,
@@ -225,7 +225,7 @@ export const useSpreads = () => {
 
             const token = lighterMarkets.find(token => token.symbol === s.split('_')[0])!
 
-            await AccountOrdersService.createAccountOrderApiAccountOrdersPost({
+            await OrderServiceApi.accountOrderApiAccountOrdersPost({
               requestBody: {
                 unit: {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
@@ -315,7 +315,7 @@ export const useSpreads = () => {
     if (spreads.length === 0) return
 
     const lighterPositions =
-      await AccountOrdersService.accountPositionsApiAccountPositionsPost({
+      await AccountService.accountPositionsApiAccountPositionsPost({
         requestBody: {
           account: {
             private_key: lighterPrivateKey,
@@ -570,7 +570,7 @@ export const useSpreads = () => {
         })
         .concat(
           lighterPositions.map(async position => {
-            return AccountOrdersService.cancelAccountOrderApiAccountOrdersCancelPost(
+            return OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost(
               {
                 requestBody: {
                   token_id: position.market_id,

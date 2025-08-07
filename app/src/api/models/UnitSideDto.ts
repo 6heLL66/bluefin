@@ -12,4 +12,5 @@ export type UnitSideDto = {
   leverage?: number
   size: number | string
   side: ORDER_SIDE
+  reduce_only?: boolean
 }

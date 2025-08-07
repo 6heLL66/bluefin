@@ -10,8 +10,6 @@ import type { PositionDto } from './PositionDto'
 export type AccountWithPositionsDto = {
   private_key: string
   lighter_id: number
-  lighter_private_key: string
-  lighter_public_key: string
   balance: string
   free_balance: string
   positions: Array<PositionDto>

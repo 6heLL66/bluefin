@@ -6,7 +6,6 @@
 
 /* eslint-disable */
 import type { ORDER_SIDE } from './ORDER_SIDE'
-import type { OrderDto } from './OrderDto'
 
 export type PositionDto = {
   market_id: number
@@ -15,5 +14,6 @@ export type PositionDto = {
   entry_price: string
   size: string
   side: ORDER_SIDE
-  orders: Array<OrderDto>
+  unrealized_pnl: string
+  realized_pnl: string
 }
