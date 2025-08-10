@@ -43,6 +43,26 @@ export const useSpreads = () => {
   const openedOrders = useRef<Record<string, OrderType & { price: string }>>({})
   const openedOrdersReduceOnly = useRef<Record<string, OrderType>>({})
 
+  const testLighter = () => {
+    for (let i = 0; i < 10; i++) {
+      OrderServiceApi.accountOrderApiAccountOrdersPost({
+        requestBody: {
+          unit: {
+            side: ORDER_SIDE.BUY,
+            token_id: 0,
+            size: '5',
+          },
+          token: lighterMarkets.find((token) => token.market_id === 0)!,
+          account: {
+            account: {
+              private_key: lighterPrivateKey,
+            },
+          },
+        },
+      })
+    }
+  }
+
   const connectLighterWebsocket = () => {
     try {
       lighterWebsocket.current = new WebSocket(
@@ -386,7 +406,7 @@ export const useSpreads = () => {
       const lighterAskQty = lighterBook[spread.asset.toUpperCase()]?.askQty
       const lighterBidQty = lighterBook[spread.asset.toUpperCase()]?.bidQty
 
-      const positionsSize = Math.abs(Number(spread.backpackPositions[0]?.netCost ?? 0))
+      const positionsSize = Math.abs(Number(spread.backpackPositions[0]?.netQuantity ?? 0) * Number(spread.backpackPositions[0]?.entryPrice ?? 0))
       const isSpreadFulfilled =
         spread.size - positionsSize < spread.size * 0.01 ||
         spread.size - positionsSize < 15
@@ -613,6 +633,7 @@ export const useSpreads = () => {
     addLighterSpreadSubscription,
     openBackpackLimitOrder,
     closeAllPositionsMarket,
+    testLighter,
     isLighterConnected,
     isBackpackConnected,
   }
