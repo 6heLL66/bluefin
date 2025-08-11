@@ -252,7 +252,7 @@ export const useSpreads = () => {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
                   token_id: token?.market_id ?? 0,
                   size: l * L,
-                  reduce_only: !!openedOrdersReduceOnly.current
+                  reduce_only: !!openedOrdersReduceOnly.current[spread.id]
                 },
                 token: {...token, price: l},
                 account: {
