@@ -270,7 +270,7 @@ export const Spread = () => {
   return (
     <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Button variant='contained' onClick={testLighter}>test</Button>
-      <Button onClick={() => AccountService.accountsRefreshApiAccountsRefreshPost({ requestBody: { accounts: [{ account: { private_key: lighterPrivateKey } }], from_api_key_index: 51, to_api_key_index: 53}})}>Auth lighter</Button>
+      <Button onClick={() => AccountService.accountsRefreshApiAccountsRefreshPost({ requestBody: { accounts: [{ account: { private_key: lighterPrivateKey } }], from_api_key_index: 52, to_api_key_index: 72}})}>Auth lighter</Button>
       <Card
         sx={{
           background: theme => theme.palette.background.paper,
