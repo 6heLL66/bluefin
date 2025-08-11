@@ -72,9 +72,7 @@ export const useSpreads = () => {
       lighterWebsocket.current.onopen = () => {
         console.log('WebSocket connected to Lighter Exchange')
 
-        spreads.forEach(spread => {
-          addLighterSpreadSubscription(spread)
-        })
+        addLighterSpreadSubscription(spreads)
       }
 
       lighterWebsocket.current.onmessage = event => {
@@ -332,9 +330,9 @@ export const useSpreads = () => {
     backpackWebsocket.current?.send(JSON.stringify(subscribeMessage))
   }
 
-  const addLighterSpreadSubscription = (spread: SpreadData) => {
+  const addLighterSpreadSubscription = (spreads: SpreadData[]) => {
     const lighterSubscribeMessage = {
-      token_ids: [spread.tokenId],
+      token_ids: spreads.map(spread => spread.tokenId),
     }
 
     lighterWebsocket.current?.send(JSON.stringify(lighterSubscribeMessage))
@@ -407,6 +405,7 @@ export const useSpreads = () => {
 
   useEffect(() => {
     if (backpackWebsocket.current?.readyState !== WebSocket.OPEN || lighterWebsocket.current?.readyState !== WebSocket.OPEN) return
+    console.log(lighterBook, backpackBook)
     spreads.forEach(spread => {
       const backpackBidPrice =
         backpackBook[spread.asset.toUpperCase()]?.bidPrice
@@ -643,6 +642,7 @@ export const useSpreads = () => {
     addBackpackSpreadSubscription,
     addLighterSpreadSubscription,
     openBackpackLimitOrder,
+    connectLighterWebsocket,
     closeAllPositionsMarket,
     testLighter,
     isLighterConnected,
