@@ -254,7 +254,7 @@ export const useSpreads = () => {
                   size: l * L,
                   reduce_only: !!openedOrdersReduceOnly.current[spread.id]
                 },
-                token: {...token, price: l},
+                token: {...token, price: L},
                 account: {
                   account: {
                     private_key: lighterPrivateKey,
