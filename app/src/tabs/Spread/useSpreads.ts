@@ -126,7 +126,7 @@ export const useSpreads = () => {
       return
     }
 
-    const reduceOnlyQuantity = (Math.min(Number(quantity) * 1.025 / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]!.netQuantity)))
+    const reduceOnlyQuantity = (Math.min(Number(quantity) * 1.025 / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]?.netQuantity)))
 
     console.log('reduceOnlyQuantity', reduceOnlyQuantity, quantity)
 
@@ -514,7 +514,7 @@ export const useSpreads = () => {
             //console.log(actualSpread, backpackBidPrice, lighterBidPrice, spread.asset, 'long_bp')
         }
 
-        console.log(actualSpread, spread.asset)
+        console.log(actualSpread, spread.asset,actualSpread >= spread.openSpread, !openedOrders.current[spread.id], Math.min(size, spread.size - positionsSize) > 0)
 
         if (
           actualSpread >= spread.openSpread &&
@@ -544,7 +544,7 @@ export const useSpreads = () => {
 
           if (
             !allGood ||
-            openedOrders.current[spread.id].createdAt + 15000 < Date.now()
+            openedOrders.current[spread.id].createdAt + 6000 < Date.now()
           ) {
             closeBackpackOrder(spread, openedOrders.current[spread.id])
           }
