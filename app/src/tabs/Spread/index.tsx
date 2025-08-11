@@ -38,7 +38,7 @@ export const Spread = () => {
     updateSpread,
   } = useSpreadStore()
 
-  const { addBackpackSpreadSubscription, connectLighterWebsocket, closeAllPositionsMarket, testLighter, isLighterConnected, isBackpackConnected } = useSpreads();
+  const { connectBackpackWebsocket, connectLighterWebsocket, closeAllPositionsMarket, testLighter, isLighterConnected, isBackpackConnected } = useSpreads();
 
   const [open, setOpen] = useState(false)
 
@@ -65,8 +65,8 @@ export const Spread = () => {
         id: Date.now().toString(),
     }
     createSpread(data)
-    addBackpackSpreadSubscription(data);
-    connectLighterWebsocket()
+    connectBackpackWebsocket();
+    connectLighterWebsocket();
     setOpen(false)
   }
 

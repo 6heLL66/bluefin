@@ -65,6 +65,11 @@ export const useSpreads = () => {
 
   const connectLighterWebsocket = () => {
     try {
+      if (lighterWebsocket.current) {
+        lighterWebsocket.current.close()
+        lighterWebsocket.current = null
+      }
+
       lighterWebsocket.current = new WebSocket(
         import.meta.env.VITE_WEBSOCKET_URL,
       )
@@ -225,14 +230,17 @@ export const useSpreads = () => {
 
   const connectBackpackWebsocket = () => {
     try {
+      if (backpackWebsocket.current) {
+        backpackWebsocket.current.close()
+        backpackWebsocket.current = null
+      }
+
       backpackWebsocket.current = new WebSocket('wss://ws.backpack.exchange')
 
       backpackWebsocket.current.onopen = () => {
         console.log('WebSocket connected to Backpack Exchange')
 
-        spreads.forEach(spread => {
-          addBackpackSpreadSubscription(spread)
-        })
+        addBackpackSpreadSubscription(spreads)
       }
 
       backpackWebsocket.current.onmessage = async event => {
@@ -245,7 +253,7 @@ export const useSpreads = () => {
             const spread = spreads.find(
               spread => spread.asset === s.split('_')[0],
             )
-            console.log('orderFill', spread)
+            console.log('orderFill', spreads, s, spread)
             if (!spread) return
 
             const token = lighterMarkets.find(token => token.symbol === s.split('_')[0])!
@@ -298,10 +306,10 @@ export const useSpreads = () => {
     }
   }
 
-  const addBackpackSpreadSubscription = async (spread: SpreadData) => {
+  const addBackpackSpreadSubscription = async (spreads: SpreadData[]) => {
     const backpackSubscribeMessage = {
       method: 'SUBSCRIBE',
-      params: [`bookTicker.${spread.asset.toUpperCase()}_USDC_PERP`],
+      params: spreads.map(spread => `bookTicker.${spread.asset.toUpperCase()}_USDC_PERP`),
       id: Date.now(),
     }
 
@@ -318,7 +326,7 @@ export const useSpreads = () => {
 
     const subscribeMessage = {
       method: 'SUBSCRIBE',
-      params: [`account.orderUpdate.${spread.asset.toUpperCase()}_USDC_PERP`],
+      params: spreads.map(spread => `account.orderUpdate.${spread.asset.toUpperCase()}_USDC_PERP`),
       signature: [
         backpackApiPublicKey,
         subscribeSignature,
@@ -641,6 +649,7 @@ export const useSpreads = () => {
     cleanup,
     addBackpackSpreadSubscription,
     addLighterSpreadSubscription,
+    connectBackpackWebsocket,
     openBackpackLimitOrder,
     connectLighterWebsocket,
     closeAllPositionsMarket,
