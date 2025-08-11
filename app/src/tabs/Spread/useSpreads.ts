@@ -126,12 +126,17 @@ export const useSpreads = () => {
       return
     }
 
+    const reduceOnlyQuantity = (Math.min(Number(quantity) * 1.025 / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]!.netQuantity)))
+
+    console.log('reduceOnlyQuantity', reduceOnlyQuantity, quantity)
+
     const order = {
       orderType: OrderTypeEnum.LIMIT,
       price: lowerPrice.toFixed(market?.filters.price.tickSize.split('.')[1].length ?? 2),
-      quantity: (Number(quantity) / Number(lowerPrice)).toFixed(
+      quantity: (reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice)).toFixed(
         market?.filters.quantity.stepSize.split('.')[1].length ?? 2,
       ),
+      reduceOnly,
       side: side,
       symbol: spread.asset.toUpperCase() + '_USDC_PERP',
     }
@@ -148,6 +153,7 @@ export const useSpreads = () => {
       xWindow: 60000,
       requestBody: {
         ...order,
+        reduceOnly,
       },
     })
 
@@ -245,6 +251,7 @@ export const useSpreads = () => {
             if (!spread) return
 
             const token = lighterMarkets.find(token => token.symbol === s.split('_')[0])!
+            const isReduceOnly = !!openedOrdersReduceOnly.current[spread.id]
 
             await OrderServiceApi.accountOrderApiAccountOrdersPost({
               requestBody: {
@@ -252,7 +259,7 @@ export const useSpreads = () => {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
                   token_id: token?.market_id ?? 0,
                   size: l * L,
-                  reduce_only: !!openedOrdersReduceOnly.current[spread.id]
+                  reduce_only: isReduceOnly
                 },
                 token: {...token, price: L},
                 account: {
@@ -537,7 +544,7 @@ export const useSpreads = () => {
 
           if (
             !allGood ||
-            openedOrders.current[spread.id].createdAt + 30000 < Date.now()
+            openedOrders.current[spread.id].createdAt + 15000 < Date.now()
           ) {
             closeBackpackOrder(spread, openedOrders.current[spread.id])
           }
