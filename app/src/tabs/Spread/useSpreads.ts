@@ -268,6 +268,10 @@ export const useSpreads = () => {
 
             const reduceOnlyQuantity = (Math.min(l * 1.025, Math.abs(+spread.lighterPositions[0]?.position)))
 
+            if (isReduceOnly && spread.lighterPositions[0]?.position) {
+              spread.lighterPositions[0].position = (Number(spread.lighterPositions[0].position) - reduceOnlyQuantity).toString()
+            }
+
             await OrderServiceApi.accountOrderApiAccountOrdersPost({
               requestBody: {
                 unit: {

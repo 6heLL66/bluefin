@@ -14,6 +14,8 @@ import { useEffect, useState } from 'react'
 
 import { TokenDto_Output, TokenService } from '../../api'
 import { SpreadData } from '../../tabs/Spread/constants'
+import { MarketsService } from '../../bp-api'
+import { useQuery } from '@tanstack/react-query'
 
 export const CreateSpreadUnitModal: React.FC<{
   open: boolean
@@ -25,6 +27,13 @@ export const CreateSpreadUnitModal: React.FC<{
     size: 0,
     openSpread: 0,
     closeSpread: 0,
+  })
+
+  const {data: backpackMarkets} = useQuery({
+    queryKey: ['backpack-tokens'],
+    queryFn: () => {
+      return MarketsService.getMarkets()
+    }
   })
 
   const [marketData, setMarketData] = useState<TokenDto_Output[]>([])
@@ -97,7 +106,7 @@ export const CreateSpreadUnitModal: React.FC<{
               <MenuItem value="">
                 <em>No asset</em>
               </MenuItem>
-              {marketData?.map(market => (
+              {marketData.filter(market => backpackMarkets?.some(bpMarket => bpMarket.symbol.split('_')[0] === market.symbol)).sort((a, b) => a.symbol.localeCompare(b.symbol)).map(market => (
                 <MenuItem value={market.symbol} key={market.symbol}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="body2" fontWeight={500}>
