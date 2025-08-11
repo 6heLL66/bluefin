@@ -12,6 +12,7 @@ export type PositionDto = {
   symbol: string
   leverage: number
   entry_price: string
+  position: string
   size: string
   side: ORDER_SIDE
   unrealized_pnl: string

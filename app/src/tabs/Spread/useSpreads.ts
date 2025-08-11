@@ -43,6 +43,12 @@ export const useSpreads = () => {
   const openedOrders = useRef<Record<string, OrderType & { price: string }>>({})
   const openedOrdersReduceOnly = useRef<Record<string, OrderType>>({})
 
+  const spreadsRef = useRef<SpreadData[]>([])
+
+  useEffect(() => {
+    spreadsRef.current = spreads
+  }, [spreads])
+
   const testLighter = () => {
     for (let i = 0; i < 10; i++) {
       OrderServiceApi.accountOrderApiAccountOrdersPost({
@@ -87,14 +93,15 @@ export const useSpreads = () => {
           const symbol =
             lighterMarkets.find(token => token.market_id === +token_id)
               ?.symbol ?? ''
+
           setLighterBook(prev => ({
             ...prev,
             [symbol]: {
               symbol,
-              bidPrice: bid?.price ?? prev[symbol]?.bidPrice ?? 0,
-              bidQty: bid?.size ?? prev[symbol]?.bidQty ?? 0,
-              askPrice: ask?.price ?? prev[symbol]?.askPrice ?? 0,
-              askQty: ask?.size ?? prev[symbol]?.askQty ?? 0,
+              bidPrice: bid?.price && +bid?.size > 0 ? bid.price : prev[symbol].bidPrice,
+              bidQty: bid?.size && +bid?.size > 0 ? bid.size : prev[symbol].bidQty,
+              askPrice: ask?.price && +ask?.size > 0 ? ask.price : prev[symbol].askPrice,
+              askQty: ask?.size && +ask?.size > 0 ?ask.size : prev[symbol].askQty,
             },
           }))
         }
@@ -250,21 +257,23 @@ export const useSpreads = () => {
           const { e, l, S, s, L, X } = data
 
           if (e === 'orderFill') {
-            const spread = spreads.find(
+            const spread = spreadsRef.current.find(
               spread => spread.asset === s.split('_')[0],
             )
-            console.log('orderFill', spreads, s, spread)
+            console.log('orderFill', spreadsRef.current, s, spread)
             if (!spread) return
 
             const token = lighterMarkets.find(token => token.symbol === s.split('_')[0])!
             const isReduceOnly = !!openedOrdersReduceOnly.current[spread.id]
+
+            const reduceOnlyQuantity = (Math.min(l * 1.025, Math.abs(+spread.lighterPositions[0]?.position)))
 
             await OrderServiceApi.accountOrderApiAccountOrdersPost({
               requestBody: {
                 unit: {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
                   token_id: token?.market_id ?? 0,
-                  size: l * L,
+                  size: isReduceOnly ? reduceOnlyQuantity * L : l * L,
                   reduce_only: isReduceOnly
                 },
                 token: {...token, price: L},
@@ -307,6 +316,7 @@ export const useSpreads = () => {
   }
 
   const addBackpackSpreadSubscription = async (spreads: SpreadData[]) => {
+    if (spreads.length === 0) return
     const backpackSubscribeMessage = {
       method: 'SUBSCRIBE',
       params: spreads.map(spread => `bookTicker.${spread.asset.toUpperCase()}_USDC_PERP`),
@@ -339,6 +349,8 @@ export const useSpreads = () => {
   }
 
   const addLighterSpreadSubscription = (spreads: SpreadData[]) => {
+    if (spreads.length === 0) return
+
     const lighterSubscribeMessage = {
       token_ids: spreads.map(spread => spread.tokenId),
     }
