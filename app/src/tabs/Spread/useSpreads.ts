@@ -205,6 +205,7 @@ export const useSpreads = () => {
 
       updateSpreadStatus(spread.id, 'WAITING')
     } catch (error) {
+      await fetchPositions()
       if (reduceOnly) {
         delete openedOrdersReduceOnly.current[spread.id]
       } else {
@@ -251,8 +252,9 @@ export const useSpreads = () => {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
                   token_id: token?.market_id ?? 0,
                   size: l * L,
+                  reduce_only: !!openedOrdersReduceOnly.current
                 },
-                token: token,
+                token: {...token, price: l},
                 account: {
                   account: {
                     private_key: lighterPrivateKey,
@@ -367,6 +369,8 @@ export const useSpreads = () => {
         ),
       )
     })
+
+    await new Promise(resolve => setTimeout(resolve, 200))
   }
 
   const interval = useRef<NodeJS.Timeout | null>(null)
@@ -406,7 +410,7 @@ export const useSpreads = () => {
       const lighterAskQty = lighterBook[spread.asset.toUpperCase()]?.askQty
       const lighterBidQty = lighterBook[spread.asset.toUpperCase()]?.bidQty
 
-      const positionsSize = Math.abs(Number(spread.backpackPositions[0]?.netQuantity ?? 0) * Number(spread.backpackPositions[0]?.entryPrice ?? 0))
+      const positionsSize = Math.max(Math.abs(Number(spread.backpackPositions[0]?.netCost ?? 0)), Number(spread.lighterPositions[0]?.size ?? 0))
       const isSpreadFulfilled =
         spread.size - positionsSize < spread.size * 0.01 ||
         spread.size - positionsSize < 15

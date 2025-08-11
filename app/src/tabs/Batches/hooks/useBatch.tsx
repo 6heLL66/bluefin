@@ -147,13 +147,15 @@ export const useBatch = ({
     async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
       setRecreatingUnits(prev => [...prev, token_id])
 
+      console.log('recreateUnit', token_id, leverage, sz)
+
       const promise = recreateRequest({
         accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ),
         unit: {
           token_id,
-          size: sz,
+          size: Math.ceil(sz),
           leverage,
         },
       })
@@ -333,7 +335,7 @@ const recreateRequest = async (requestBody: OrderCreateDto) => {
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
   let retryCount = 4
-  const retryInterval = 5000
+  const retryInterval = 1500
 
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
