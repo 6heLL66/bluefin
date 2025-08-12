@@ -280,6 +280,8 @@ export const useBatch = ({
         },
       };
 
+      await Promise.all(batchAccounts.map(acc => AccountService.accountLeverageApiAccountLeveragePost({ requestBody: { account: { private_key: acc.private_key }, leverage, token_id, proxy: getAccountProxy(acc) } })))
+
       return OrderService.accountsOrdersApiOrdersPost({
         requestBody: dto,
       }).then(() => {

@@ -15,91 +15,7 @@ export class BackpackService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static proxyApiBackpackPathPatch({
-    path,
-  }: {
-    path: string
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'PATCH',
-      url: '/api/backpack/{path}',
-      path: {
-        path: path,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Proxy
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public static proxyApiBackpackPathPatch1({
-    path,
-  }: {
-    path: string
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'OPTIONS',
-      url: '/api/backpack/{path}',
-      path: {
-        path: path,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Proxy
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public static proxyApiBackpackPathPatch2({
-    path,
-  }: {
-    path: string
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/api/backpack/{path}',
-      path: {
-        path: path,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Proxy
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public static proxyApiBackpackPathPatch3({
-    path,
-  }: {
-    path: string
-  }): CancelablePromise<any> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/api/backpack/{path}',
-      path: {
-        path: path,
-      },
-      errors: {
-        422: `Validation Error`,
-      },
-    })
-  }
-  /**
-   * Proxy
-   * @returns any Successful Response
-   * @throws ApiError
-   */
-  public static proxyApiBackpackPathPatch4({
+  public static proxyApiBackpackPathPut({
     path,
   }: {
     path: string
@@ -120,13 +36,97 @@ export class BackpackService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static proxyApiBackpackPathPatch5({
+  public static proxyApiBackpackPathPut1({
+    path,
+  }: {
+    path: string
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'PATCH',
+      url: '/api/backpack/{path}',
+      path: {
+        path: path,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Proxy
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static proxyApiBackpackPathPut2({
+    path,
+  }: {
+    path: string
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/api/backpack/{path}',
+      path: {
+        path: path,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Proxy
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static proxyApiBackpackPathPut3({
     path,
   }: {
     path: string
   }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'GET',
+      url: '/api/backpack/{path}',
+      path: {
+        path: path,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Proxy
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static proxyApiBackpackPathPut4({
+    path,
+  }: {
+    path: string
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'OPTIONS',
+      url: '/api/backpack/{path}',
+      path: {
+        path: path,
+      },
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Proxy
+   * @returns any Successful Response
+   * @throws ApiError
+   */
+  public static proxyApiBackpackPathPut5({
+    path,
+  }: {
+    path: string
+  }): CancelablePromise<any> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
       url: '/api/backpack/{path}',
       path: {
         path: path,

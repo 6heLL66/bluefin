@@ -25,6 +25,7 @@ export const CreateSpreadUnitModal: React.FC<{
   const [form, setForm] = useState({
     asset: '',
     size: 0,
+    leverage: 1,
     openSpread: 0,
     closeSpread: 0,
   })
@@ -132,6 +133,16 @@ export const CreateSpreadUnitModal: React.FC<{
           </Box>
 
           <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Lighter Leverage"
+              variant="outlined"
+              type="number"
+              value={form.leverage}
+              onChange={e => onChange('leverage', Number(e.target.value))}
+              inputProps={{ step: 1, min: 1 }}
+            />
             <TextField
               fullWidth
               size="small"

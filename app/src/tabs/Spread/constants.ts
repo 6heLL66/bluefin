@@ -6,6 +6,7 @@ export interface SpreadData {
     id: string
     asset: string
     tokenId: number
+    leverage: number
     size: number
     timeOpened: string
     status: 'ORDER FILLING' | 'WAITING'

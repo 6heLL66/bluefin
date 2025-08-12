@@ -13,7 +13,7 @@ import { OpenAPI, TokenService } from './api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext } from './context'
-import { Accounts, Batches, Proxy } from './tabs'
+import { Accounts, Batches, Proxy, Logs } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
 import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
@@ -35,6 +35,10 @@ const Tabs = {
   Spread: {
     label: 'Spread (lighter + backpack)',
     id: 'spread',
+  },
+  Logs: {
+    label: 'Logs',
+    id: 'logs',
   },
 } as const
 
@@ -151,6 +155,9 @@ const App = () => {
         </div>
         <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
           <Spread />
+        </div>
+        <div style={{ display: tabId === Tabs.Logs.id ? 'block' : 'none' }}>
+          <Logs />
         </div>
       </Box>
       <ToastContainer

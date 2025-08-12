@@ -113,3 +113,23 @@ export interface LogRow {
   user_id: string
   text: string
 }
+
+export interface LogEntry {
+  id: string
+  timestamp: Date
+  level: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS'
+  category: 'WEBSOCKET' | 'ORDER' | 'POSITION' | 'SPREAD' | 'SYSTEM'
+  message: string
+  details?: Record<string, unknown>
+  spreadId?: string
+  asset?: string
+}
+
+export interface LogStore {
+  logs: LogEntry[]
+  addLog: (log: Omit<LogEntry, 'id' | 'timestamp'>) => void
+  clearLogs: () => void
+  getLogsByCategory: (category: LogEntry['category']) => LogEntry[]
+  getLogsBySpread: (spreadId: string) => LogEntry[]
+  getLogsByAsset: (asset: string) => LogEntry[]
+}
