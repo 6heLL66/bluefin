@@ -16,11 +16,7 @@ import {
   Chip,
   Paper,
   Grid,
-  IconButton,
   Collapse,
-  Divider,
-  Stack,
-  Alert,
   Tooltip
 } from '@mui/material'
 import {
@@ -31,7 +27,6 @@ import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   CheckCircle as CheckCircleIcon,
-  Refresh as RefreshIcon
 } from '@mui/icons-material'
 
 const LogsViewer = () => {
