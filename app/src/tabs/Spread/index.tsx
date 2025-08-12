@@ -286,103 +286,6 @@ export const Spread = () => {
           border: theme => `1px solid ${theme.palette.divider}`,
         }}
       >
-        <CardContent>
-          <Typography variant="h6" fontWeight={600} mb={3}>
-            Connection & Testing
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-              <Button 
-                variant='contained' 
-                disabled={authorizingLighter} 
-                onClick={authLighter}
-                sx={{
-                  minWidth: 140,
-                  height: 48,
-                  borderRadius: 2,
-                  background: theme => theme.palette.primary.main,
-                  boxShadow: theme => theme.shadows[2],
-                  '&:hover': {
-                    background: theme => theme.palette.primary.dark,
-                    boxShadow: theme => theme.shadows[4],
-                    transform: 'translateY(-1px)',
-                  },
-                  '&:active': {
-                    transform: 'translateY(0px)',
-                  },
-                  '&:disabled': {
-                    background: theme => theme.palette.action.disabledBackground,
-                    boxShadow: 'none',
-                    transform: 'none',
-                  },
-                  transition: 'all 0.2s ease-in-out',
-                }}
-              >
-                {authorizingLighter ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={20} color='inherit' />
-                    <Typography variant="body2">Authorizing...</Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" fontWeight={600}>🔐 Auth Lighter</Typography>
-                  </Box>
-                )}
-              </Button>
-              <Typography variant="caption" color="text.secondary" textAlign="center">
-                Authenticate with Lighter API
-              </Typography>
-            </Box>
-            
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-              <Button 
-                variant='outlined' 
-                disabled={authorizingLighter} 
-                onClick={testLighter}
-                sx={{
-                  minWidth: 140,
-                  height: 48,
-                  borderRadius: 2,
-                  borderWidth: 2,
-                  boxShadow: theme => theme.shadows[1],
-                  '&:hover': {
-                    borderWidth: 2,
-                    background: theme => theme.palette.action.hover,
-                    boxShadow: theme => theme.shadows[3],
-                    transform: 'translateY(-1px)',
-                  },
-                  '&:active': {
-                    transform: 'translateY(0px)',
-                  },
-                  '&:disabled': {
-                    borderColor: theme => theme.palette.action.disabled,
-                    color: theme => theme.palette.action.disabled,
-                    boxShadow: 'none',
-                    transform: 'none',
-                  },
-                  transition: 'all 0.2s ease-in-out',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" fontWeight={600}>🧪 Test Lighter</Typography>
-                </Box>
-              </Button>
-              <Typography variant="caption" color="text.secondary" textAlign="center">
-                Test Lighter connection
-              </Typography>
-            </Box>
-          </Box>
-          
-
-        </CardContent>
-      </Card>
-      
-      <Card
-        sx={{
-          background: theme => theme.palette.background.paper,
-          border: theme => `1px solid ${theme.palette.divider}`,
-        }}
-      >
         <Box 
           sx={{ 
             p: 2,
@@ -502,7 +405,7 @@ export const Spread = () => {
             </Box>
           )}
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
             <Box sx={{ 
               p: 2, 
               borderRadius: 2, 
@@ -589,6 +492,35 @@ export const Spread = () => {
                 Maximum leverage available
               </Typography>
             </Box>
+
+            <Box sx={{ 
+              p: 2, 
+              borderRadius: 2, 
+              bgcolor: 'background.default',
+              border: '1px solid',
+              borderColor: 'divider',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <Box sx={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                height: 4, 
+                bgcolor: 'success.main',
+                opacity: 0.7
+              }} />
+              <Typography variant="subtitle2" color="text.secondary" mb={1}>
+                Total Balance
+              </Typography>
+              <Typography variant="h4" fontWeight={700} color="success.main">
+                ${(parseFloat(balances?.lighterBalance || '0') + parseFloat(balances?.backpackBalance || '0')).toFixed(2)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Combined available balance
+              </Typography>
+            </Box>
           </Box>
 
           <Box sx={{ mt: 3, p: 2, borderRadius: 2, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
@@ -652,6 +584,103 @@ export const Spread = () => {
               />
             </Box>
           </Box>
+        </CardContent>
+      </Card>
+
+      <Card
+        sx={{
+          background: theme => theme.palette.background.paper,
+          border: theme => `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <CardContent>
+          <Typography variant="h6" fontWeight={600} mb={3}>
+            Connection & Testing
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <Button 
+                variant='contained' 
+                disabled={authorizingLighter} 
+                onClick={authLighter}
+                sx={{
+                  minWidth: 140,
+                  height: 48,
+                  borderRadius: 2,
+                  background: theme => theme.palette.primary.main,
+                  boxShadow: theme => theme.shadows[2],
+                  '&:hover': {
+                    background: theme => theme.palette.primary.dark,
+                    boxShadow: theme => theme.shadows[4],
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0px)',
+                  },
+                  '&:disabled': {
+                    background: theme => theme.palette.action.disabledBackground,
+                    boxShadow: 'none',
+                    transform: 'none',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                {authorizingLighter ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={20} color='inherit' />
+                    <Typography variant="body2">Authorizing...</Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="body2" fontWeight={600}>🔐 Auth Lighter</Typography>
+                  </Box>
+                )}
+              </Button>
+              <Typography variant="caption" color="text.secondary" textAlign="center">
+                Authenticate with Lighter API
+              </Typography>
+            </Box>
+            
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <Button 
+                variant='outlined' 
+                disabled={authorizingLighter} 
+                onClick={testLighter}
+                sx={{
+                  minWidth: 140,
+                  height: 48,
+                  borderRadius: 2,
+                  borderWidth: 2,
+                  boxShadow: theme => theme.shadows[1],
+                  '&:hover': {
+                    borderWidth: 2,
+                    background: theme => theme.palette.action.hover,
+                    boxShadow: theme => theme.shadows[3],
+                    transform: 'translateY(-1px)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0px)',
+                  },
+                  '&:disabled': {
+                    borderColor: theme => theme.palette.action.disabled,
+                    color: theme => theme.palette.action.disabled,
+                    boxShadow: 'none',
+                    transform: 'none',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" fontWeight={600}>🧪 Test Lighter</Typography>
+                </Box>
+              </Button>
+              <Typography variant="caption" color="text.secondary" textAlign="center">
+                Test Lighter connection
+              </Typography>
+            </Box>
+          </Box>
+          
+
         </CardContent>
       </Card>
 

@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { useLogStore } from '../../store/logStore'
 import { LogEntry } from '../../types'
-import { FixedSizeList as List } from 'react-window'
+import { VariableSizeList as List } from 'react-window'
 import {
   Box,
   Card,
@@ -36,6 +36,8 @@ const LogsViewer = () => {
   const [selectedAsset, setSelectedAsset] = useState<string>('ALL')
   const [searchTerm, setSearchTerm] = useState('')
   const [expandedLogs, setExpandedLogs] = useState<Set<string>>(new Set())
+  const listRef = useRef<List>(null)
+  const prevLogsLengthRef = useRef(logs.length)
 
   const categories = ['ALL', 'WEBSOCKET', 'ORDER', 'POSITION', 'SPREAD', 'SYSTEM']
   
@@ -48,6 +50,12 @@ const LogsViewer = () => {
     const assets = [...new Set(logs.map(log => log.asset).filter(Boolean))]
     return ['ALL', ...assets]
   }, [logs])
+
+  useEffect(() => {
+    if (logs.length > prevLogsLengthRef.current && listRef.current) {
+      prevLogsLengthRef.current = logs.length
+    }
+  }, [logs.length])
 
   const filteredLogs = useMemo(() => {
     let filtered = logs
@@ -71,7 +79,7 @@ const LogsViewer = () => {
       )
     }
 
-    return filtered
+    return [...filtered].reverse()
   }, [logs, selectedCategory, selectedSpread, selectedAsset, searchTerm])
 
   const getLevelIcon = (level: LogEntry['level']) => {
@@ -122,17 +130,23 @@ const LogsViewer = () => {
       newExpanded.add(logId)
     }
     setExpandedLogs(newExpanded)
+    
+    if (listRef.current) {
+      listRef.current.resetAfterIndex(0)
+    }
   }
 
   const LogRow = ({ index, style }: { index: number; style: React.CSSProperties }) => {
     const log = filteredLogs[index]
+    const isExpanded = expandedLogs.has(log.id)
+    const hasDetails = log.details && Object.keys(log.details).length > 0
     
     return (
       <div style={style}>
-        <Card elevation={2} sx={{ borderRadius: 2, overflow: 'hidden', m: 1 }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+        <Card elevation={1} sx={{ borderRadius: 1, overflow: 'visible', m: 0.5, border: '1px solid', borderColor: 'divider' }}>
+          <CardContent sx={{ p: 1.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
                 <Tooltip title={log.level}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     {getLevelIcon(log.level)}
@@ -144,6 +158,7 @@ const LogsViewer = () => {
                   color={getLevelColor(log.level)}
                   size="small"
                   variant="outlined"
+                  sx={{ height: 20, fontSize: '0.7rem' }}
                 />
                 
                 <Chip
@@ -151,14 +166,16 @@ const LogsViewer = () => {
                   color={getCategoryColor(log.category)}
                   size="small"
                   variant="outlined"
+                  sx={{ height: 20, fontSize: '0.7rem' }}
                 />
                 
                 {log.spreadId && (
                   <Chip
-                    label={`Spread: ${log.spreadId}`}
+                    label={`S:${log.spreadId}`}
                     color="secondary"
                     size="small"
                     variant="outlined"
+                    sx={{ height: 20, fontSize: '0.7rem' }}
                   />
                 )}
                 
@@ -168,41 +185,84 @@ const LogsViewer = () => {
                     color="info"
                     size="small"
                     variant="outlined"
+                    sx={{ height: 20, fontSize: '0.7rem' }}
                   />
                 )}
               </Box>
               
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
                 {formatTimestamp(log.timestamp)}
               </Typography>
             </Box>
             
-            <Typography variant="body2" color="text.primary" sx={{ mb: 2, lineHeight: 1.6 }}>
+            <Typography variant="body2" color="white" sx={{ mb: 1, lineHeight: 1.4, fontWeight: 500, fontSize: '0.8rem' }}>
               {log.message}
             </Typography>
             
-            {log.details && Object.keys(log.details).length > 0 && (
+            {hasDetails && (
               <Box>
                 <Button
                   size="small"
+                  variant="text"
                   onClick={() => toggleLogExpansion(log.id)}
-                  endIcon={expandedLogs.has(log.id) ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  sx={{ mb: 1 }}
+                  endIcon={isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  sx={{ mb: 1, p: 0.5, minWidth: 'auto', fontSize: '0.7rem' }}
                 >
-                  Детали
+                  {isExpanded ? 'Скрыть' : 'Детали'}
                 </Button>
                 
-                <Collapse in={expandedLogs.has(log.id)}>
-                  <Paper elevation={1} sx={{ p: 2, backgroundColor: 'grey.100' }}>
+                <Collapse in={isExpanded}>
+                  <Paper 
+                    elevation={2} 
+                    sx={{ 
+                      p: 2, 
+                      backgroundColor: 'grey',
+                      border: '2px solid',
+                      borderColor: 'black',
+                      borderRadius: 1,
+                      position: 'relative',
+                      mb: 1,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}
+                  >
+                    <Box sx={{ position: 'absolute', top: -6, left: 12, backgroundColor: 'grey', px: 0.5 }}>
+                      <Typography variant="caption" color="primary.main" sx={{ fontWeight: 700, fontSize: '0.65rem' }}>
+                        ДЕТАЛИ
+                      </Typography>
+                    </Box>
                     <Typography
                       component="pre"
-                      variant="caption"
+                      variant="body2"
                       sx={{
-                        fontFamily: 'monospace',
+                        fontFamily: 'Consolas, Monaco, "Courier New", monospace',
                         fontSize: '0.75rem',
                         overflow: 'auto',
                         whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
+                        wordBreak: 'break-word',
+                        backgroundColor: 'white',
+                        color: '#2c3e50',
+                        p: 1.5,
+                        borderRadius: 0.5,
+                        border: '1px solid',
+                        borderColor: 'grey.400',
+                        maxHeight: '200px',
+                        boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.1)',
+                        fontWeight: 500,
+                        lineHeight: 1.3,
+                        '&::-webkit-scrollbar': {
+                          width: '6px',
+                        },
+                        '&::-webkit-scrollbar-track': {
+                          backgroundColor: 'grey.100',
+                          borderRadius: '3px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                          backgroundColor: 'grey.400',
+                          borderRadius: '3px',
+                          '&:hover': {
+                            backgroundColor: 'grey.500',
+                          },
+                        },
                       }}
                     >
                       {JSON.stringify(log.details, null, 2)}
@@ -216,6 +276,19 @@ const LogsViewer = () => {
       </div>
     )
   }
+
+  const getItemSize = useMemo(() => (index: number) => {
+    const log = filteredLogs[index]
+    if (!log) return 120
+    
+    const hasDetails = log.details && Object.keys(log.details).length > 0
+    const isExpanded = expandedLogs.has(log.id)
+    
+    if (hasDetails && isExpanded) {
+      return 300
+    }
+    return 120
+  }, [filteredLogs, expandedLogs])
 
   return (
     <Box sx={{ p: 3, maxHeight: '100vh', overflow: 'hidden' }}>
@@ -232,6 +305,14 @@ const LogsViewer = () => {
                 color="primary"
                 icon={<InfoIcon />}
               />
+              {logs.length > prevLogsLengthRef.current && (
+                <Chip
+                  label={`Новых: ${logs.length - prevLogsLengthRef.current}`}
+                  variant="outlined"
+                  color="success"
+                  size="small"
+                />
+              )}
               <Button
                 variant="contained"
                 color="error"
@@ -305,9 +386,9 @@ const LogsViewer = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ height: '60vh' }}>
+          <Box sx={{ height: '70vh' }}>
             {filteredLogs.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Box sx={{ textAlign: 'center', py: 6 }}>
                 <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
                   Логи не найдены
                 </Typography>
@@ -317,9 +398,10 @@ const LogsViewer = () => {
               </Box>
             ) : (
               <List
+                ref={listRef}
                 height={600}
                 itemCount={filteredLogs.length}
-                itemSize={200}
+                itemSize={getItemSize}
                 width="100%"
                 itemData={filteredLogs}
               >
