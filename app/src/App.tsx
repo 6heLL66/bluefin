@@ -66,7 +66,7 @@ const App = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       sendToDb()
-    }, 5000)
+    }, 20000)
 
     return () => clearInterval(interval)
   }, [logs])
