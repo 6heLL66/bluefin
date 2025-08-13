@@ -13,6 +13,7 @@ export interface SpreadData {
     openSpread: number
     closeSpread: number
     minLifetime: number
+    lastTimeFilled: number
     lighterPositions: AccountWithPositionsDto["positions"]
     backpackPositions: FuturePositionWithMargin[]
   }

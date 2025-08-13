@@ -15,7 +15,7 @@ export const useLogStore = create<LogStore>()(
         }
         
         set((state) => ({
-          logs: [newLog, ...state.logs].slice(0, 1000)
+          logs: [newLog, ...state.logs]
         }))
       },
       

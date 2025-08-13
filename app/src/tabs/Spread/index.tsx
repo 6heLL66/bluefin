@@ -221,11 +221,11 @@ export const Spread = () => {
         value={spread.openSpread}
         onChange={(e) => handleSpreadChange(spread.id, 'openSpread', parseFloat(e.target.value) || 0)}
         sx={{ 
-          width: 80,
+          width: 120,
           '& .MuiInputBase-input': { 
             textAlign: 'center',
-            fontSize: '0.875rem',
-            padding: '4px 8px'
+            fontSize: '0.9rem',
+            padding: '2px 4px'
           }
         }}
         InputProps={{
@@ -238,11 +238,11 @@ export const Spread = () => {
         value={spread.closeSpread}
         onChange={(e) => handleSpreadChange(spread.id, 'closeSpread', parseFloat(e.target.value) || 0)}
         sx={{ 
-          width: 80,
+          width: 120,
           '& .MuiInputBase-input': { 
             textAlign: 'center',
-            fontSize: '0.875rem',
-            padding: '4px 8px'
+            fontSize: '0.9rem',
+            padding: '2px 4px'
           }
         }}
         InputProps={{

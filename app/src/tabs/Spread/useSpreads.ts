@@ -33,6 +33,8 @@ export const useSpreads = () => {
     lighterPrivateKey,
     setSpreadPositions,
     updateSpreadStatus,
+    setLastTimeFilled,
+    updateSpread,
   } = useSpreadStore()
   
   const logger = useLogger()
@@ -52,6 +54,25 @@ export const useSpreads = () => {
 
   useEffect(() => {
     spreadsRef.current = spreads
+
+    spreads.forEach(spread => {
+      if (spread.lighterPositions[0] && spread.backpackPositions[0] && +spread.lighterPositions[0].position === Math.abs(+spread.backpackPositions[0].netQuantity)) {
+        if ((spread.lighterPositions[0].side === ORDER_SIDE.BUY && +spread.lighterPositions[0].entry_price > +spread.backpackPositions[0].entryPrice
+          || spread.lighterPositions[0].side === ORDER_SIDE.SELL && +spread.lighterPositions[0].entry_price < +spread.backpackPositions[0].entryPrice)
+          && (spread.lastTimeFilled && Date.now() - spread.lastTimeFilled > 1000 * 60 * 60)
+        ) {
+          closeAllPositionsMarket(spread)
+
+          return
+        }
+
+        const spr = (Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) - Math.min(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) / Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) * 100
+
+        if (spr < spread.closeSpread) {
+          updateSpread(spread.id, { closeSpread: spr * 0.9 })
+        }
+      }
+    })
   }, [spreads])
 
   const testLighter = async () => {
@@ -432,6 +453,7 @@ export const useSpreads = () => {
               delete openedOrders.current[spread.id]
               delete openedOrdersReduceOnly.current[spread.id]
               updateSpreadStatus(spread.id, 'WAITING')
+              setLastTimeFilled(spread.id, Date.now())
             }
           }
         }
