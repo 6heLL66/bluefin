@@ -56,17 +56,17 @@ export const useSpreads = () => {
     spreadsRef.current = spreads
 
     spreads.forEach(spread => {
+      
       if (spread.lighterPositions[0] && spread.backpackPositions[0] && +spread.lighterPositions[0].position === Math.abs(+spread.backpackPositions[0].netQuantity)) {
+        const spr = (Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) - Math.min(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) / Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) * 100
         if ((spread.lighterPositions[0].side === ORDER_SIDE.BUY && +spread.lighterPositions[0].entry_price > +spread.backpackPositions[0].entryPrice
           || spread.lighterPositions[0].side === ORDER_SIDE.SELL && +spread.lighterPositions[0].entry_price < +spread.backpackPositions[0].entryPrice)
           && (spread.lastTimeFilled && Date.now() - spread.lastTimeFilled > 1000 * 60 * 60)
         ) {
-          closeAllPositionsMarket(spread)
+          updateSpread(spread.id, { closeSpread: spr * -1 })
 
           return
         }
-
-        const spr = (Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) - Math.min(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) / Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) * 100
 
         if (spr < spread.closeSpread) {
           updateSpread(spread.id, { closeSpread: spr * 0.9 })
