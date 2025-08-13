@@ -128,7 +128,10 @@ export const Spread = () => {
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="caption" color="text.secondary">
-                Size: {parseFloat(position.size).toFixed(4)}$
+                Value: {parseFloat(position.size).toFixed(2)}$
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Size: {parseFloat(position.position)} {position.symbol}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Entry: ${parseFloat(position.entry_price).toFixed(2)}
@@ -182,7 +185,10 @@ export const Spread = () => {
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="caption" color="text.secondary">
-                  Size: {Math.abs(parseFloat(position.netCost)).toFixed(2)}$
+                  Value: {Math.abs(parseFloat(position.netCost)).toFixed(2)}$
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Size: {Math.abs(parseFloat(position.netQuantity))} {position.symbol.split('_')[0]}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   Entry: ${parseFloat(position.entryPrice).toFixed(2)}
