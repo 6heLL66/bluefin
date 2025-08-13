@@ -45,6 +45,7 @@ export const CreateSpreadUnitModal: React.FC<{
         ...form,
         tokenId: marketData.find(market => market.symbol === form.asset)?.market_id ?? 0,
         minLifetime: 10,
+        lastTimeFilled: 0,
         lighterPositions: [],
         backpackPositions: [],
       })

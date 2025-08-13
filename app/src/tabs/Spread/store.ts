@@ -20,6 +20,7 @@ interface SpreadStore extends SpreadConfig {
   setBackpackApiPublicKey: (key: string) => void
   setBackpackApiSecretKey: (key: string) => void
   setSpreads: (spreads: SpreadData[]) => void
+  setLastTimeFilled: (id: string, time: number) => void
   setSpreadPositions: (id: string, lighterPositions: AccountWithPositionsDto["positions"], backpackPositions: FuturePositionWithMargin[]) => void
   updateSpreadStatus: (id: string, status: SpreadData['status']) => void
   updateSpread: (id: string, updates: Partial<SpreadData>) => void
@@ -52,6 +53,9 @@ export const useSpreadStore = create<SpreadStore>()(
 
       setLighterPrivateKey: (key: string) =>
         set({ lighterPrivateKey: key }),
+
+      setLastTimeFilled: (id: string, time: number) =>
+        set(state => ({ spreads: state.spreads.map(spread => spread.id === id ? { ...spread, lastTimeFilled: time } : spread) })),
 
       setBackpackApiPublicKey: (key: string) =>
         set({ backpackApiPublicKey: key }),
