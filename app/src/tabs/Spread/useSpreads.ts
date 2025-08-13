@@ -63,7 +63,7 @@ export const useSpreads = () => {
           || spread.lighterPositions[0].side === ORDER_SIDE.SELL && +spread.lighterPositions[0].entry_price < +spread.backpackPositions[0].entryPrice)
           && (spread.lastTimeFilled && Date.now() - spread.lastTimeFilled > 1000 * 60 * 60)
         ) {
-          updateSpread(spread.id, { closeSpread: spr * -1 })
+          updateSpread(spread.id, { closeSpread: spr * -0.9 })
 
           return
         }
