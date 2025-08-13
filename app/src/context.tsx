@@ -1,5 +1,4 @@
 import { CircularProgress } from '@mui/material'
-import { invoke } from '@tauri-apps/api'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -251,28 +250,6 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     setAuthenticating(false)
-  }, [])
-
-  useEffect(() => {
-    let t: NodeJS.Timeout
-
-    const insertLogs = async () => {
-      await invoke('get_logs').then(logs => {
-        return db.insertLogs(logs as string[]).then(() => {
-          return invoke('clear_logs', { rows: logs })
-        })
-      })
-
-      t = setTimeout(() => {
-        insertLogs()
-      }, 30000)
-    }
-
-    insertLogs()
-
-    return () => {
-      clearTimeout(t)
-    }
   }, [])
 
   return (
