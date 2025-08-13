@@ -12,12 +12,13 @@ import Box from '@mui/material/Box'
 import { OpenAPI, TokenService } from './api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
-import { GlobalContext } from './context'
-import { Accounts, Batches, Proxy, Logs } from './tabs'
+import { db, GlobalContext } from './context'
+import { Accounts, Batches, Proxy } from './tabs'
 import { Theme, ThemeContext } from './themeContext'
 import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
 import { MarketsService } from './bp-api'
+import { useLogStore } from './store/logStore'
 
 const Tabs = {
   Accounts: {
@@ -35,11 +36,7 @@ const Tabs = {
   Spread: {
     label: 'Spread (lighter + backpack)',
     id: 'spread',
-  },
-  Logs: {
-    label: 'Logs',
-    id: 'logs',
-  },
+  }
 } as const
 
 OpenAPI.BASE = import.meta.env.VITE_API_URL
@@ -52,6 +49,27 @@ const App = () => {
   )
 
   const [isLoading, setIsLoading] = useState(true)
+
+  const { logs, clearLogs } = useLogStore()
+
+
+  const sendToDb = () => {
+    if (logs.length === 0) {
+      return
+    }
+
+    db.insertLogs(logs).then(() => {
+      clearLogs()
+    })
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      sendToDb()
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [logs])
 
   const {data: lighterMarkets} = useQuery({
     queryKey: ['lighter-tokens'],
@@ -155,9 +173,6 @@ const App = () => {
         </div>
         <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
           <Spread />
-        </div>
-        <div style={{ display: tabId === Tabs.Logs.id ? 'block' : 'none' }}>
-          <Logs />
         </div>
       </Box>
       <ToastContainer

@@ -1,3 +1,5 @@
+import { SpreadData } from "./tabs/Spread/constants"
+
 export interface Account {
   id?: string
   name: string
@@ -115,13 +117,11 @@ export interface LogRow {
 }
 
 export interface LogEntry {
-  id: string
-  timestamp: Date
-  level: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS'
-  category: 'WEBSOCKET' | 'ORDER' | 'POSITION' | 'SPREAD' | 'SYSTEM'
+  timestamp: string | number
+  category: 'SPREAD' | 'BATCH'
   message: string
   details?: Record<string, unknown>
-  spreadId?: string
+  spread?: SpreadData
   asset?: string
 }
 
@@ -129,7 +129,4 @@ export interface LogStore {
   logs: LogEntry[]
   addLog: (log: Omit<LogEntry, 'id' | 'timestamp'>) => void
   clearLogs: () => void
-  getLogsByCategory: (category: LogEntry['category']) => LogEntry[]
-  getLogsBySpread: (spreadId: string) => LogEntry[]
-  getLogsByAsset: (asset: string) => LogEntry[]
 }

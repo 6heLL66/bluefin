@@ -76,12 +76,6 @@ export const useSpreads = () => {
   }, [spreads])
 
   const testLighter = async () => {
-    logger.info('Начало тестирования Lighter API', { 
-      totalRequests: 10,
-      tokenId: 24,
-      size: '5'
-    })
-    
     try {
       const requests = []
       for (let i = 0; i < 10; i++) {
@@ -103,10 +97,6 @@ export const useSpreads = () => {
       }
 
       await Promise.all(requests)
-      logger.success('Тестовые ордера Lighter созданы', { 
-        totalCreated: 10,
-        tokenId: 24
-      })
       
       await OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost({
         requestBody: {
@@ -119,12 +109,7 @@ export const useSpreads = () => {
         },
       })
       
-      logger.success('Тестовые ордера Lighter отменены', { tokenId: 24 })
     } catch (error) {
-      logger.error('Ошибка при тестировании Lighter API', { 
-        error: String(error),
-        tokenId: 24
-      })
       throw error
     }
   }
@@ -134,7 +119,6 @@ export const useSpreads = () => {
       if (lighterWebsocket.current) {
         lighterWebsocket.current.close()
         lighterWebsocket.current = null
-        logger.websocket('Lighter WebSocket закрыт для переподключения')
       }
 
       lighterWebsocket.current = new WebSocket(
@@ -142,7 +126,6 @@ export const useSpreads = () => {
       )
 
       lighterWebsocket.current.onopen = () => {
-        logger.websocket('WebSocket подключен к Lighter Exchange', { url: import.meta.env.VITE_WEBSOCKET_URL })
         addLighterSpreadSubscription(spreadsRef.current)
       }
 
@@ -166,16 +149,7 @@ export const useSpreads = () => {
           }))
         }
       }
-
-      lighterWebsocket.current.onerror = (error) => {
-        logger.error('Ошибка WebSocket Lighter', { error: String(error) })
-      }
-
-      lighterWebsocket.current.onclose = () => {
-        logger.warning('WebSocket Lighter закрыт')
-      }
     } catch (error) {
-      logger.error('Ошибка подключения к Lighter Exchange', { error: String(error) })
       setTimeout(connectLighterWebsocket, 2000)
     }
   }
@@ -197,7 +171,7 @@ export const useSpreads = () => {
     const isConnected = lighterWebsocket.current?.readyState === WebSocket.OPEN
 
     if (!isConnected) {
-      logger.warning('WebSocket не подключен, переподключение...', { spreadId: spread.id, asset: spread.asset })
+      logger.spread('WebSocket не подключен, при создании ордера переподключение...', { spread: spread, asset: spread.asset })
       connectLighterWebsocket()
       delete openedOrders.current[spread.id]
       delete openedOrdersReduceOnly.current[spread.id]
@@ -206,18 +180,6 @@ export const useSpreads = () => {
     }
 
     const reduceOnlyQuantity = (Math.min(Number(quantity) * 1.025 / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]?.netQuantity)))
-
-    logger.order('Открытие ордера Backpack', {
-      spreadId: spread.id,
-      asset: spread.asset,
-      price: lowerPrice,
-      quantity: reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice),
-      side,
-      reduceOnly,
-      stepSize,
-      originalPrice: price,
-      originalQuantity: quantity
-    })
 
     const order = {
       orderType: OrderTypeEnum.LIMIT,
@@ -230,6 +192,15 @@ export const useSpreads = () => {
       side: side,
       symbol: spread.asset.toUpperCase() + '_USDC_PERP',
     }
+
+    logger.spread('Открытие ордера Backpack', {
+      market,
+      isConnected,
+      openedOrder: openedOrders.current[spread.id],
+      openedOrderReduceOnly: openedOrdersReduceOnly.current[spread.id],
+      order,
+      spread: spread,
+    })
     
     try {
       const dateNow = Date.now()
@@ -246,13 +217,13 @@ export const useSpreads = () => {
         requestBody: order,
       })
 
-      logger.success('Ордер Backpack успешно создан', {
-        spreadId: spread.id,
-        asset: spread.asset,
-        orderId: resultOrder.id,
-        order: resultOrder,
-        calculatedPrice: lowerPrice,
-        calculatedQuantity: order.quantity
+      logger.spread('Ордер Backpack успешно создан', {
+        market,
+        isConnected,
+        openedOrder: openedOrders.current[spread.id],
+        openedOrderReduceOnly: openedOrdersReduceOnly.current[spread.id],
+        order,
+        spread: spread,
       })
 
       if (reduceOnly) {
@@ -266,7 +237,7 @@ export const useSpreads = () => {
         updateSpreadStatus(spread.id, 'ORDER FILLING')
       }
     } catch (error) {
-      logger.error('Ошибка создания ордера Backpack', {
+      logger.spread('Ошибка создания ордера Backpack', {
         spreadId: spread.id,
         asset: spread.asset,
         error: String(error),
@@ -293,11 +264,9 @@ export const useSpreads = () => {
   ) => {
     if (closingOrders.current[spread.id]) return
 
-    logger.order('Закрытие ордера Backpack', {
-      spreadId: spread.id,
-      asset: spread.asset,
-      orderId: order.id,
-      symbol: order.symbol,
+    logger.spread('Ордер Backpack закрывается так как спред пропал', {
+      spread: spread,
+      order,
       reduceOnly
     })
 
@@ -324,11 +293,9 @@ export const useSpreads = () => {
         },
       })
 
-      logger.success('Ордер Backpack успешно закрыт', {
-        spreadId: spread.id,
-        asset: spread.asset,
-        orderId: order.id,
-        symbol: order.symbol,
+      logger.spread('Ордер Backpack успешно закрыт', {
+        spread: spread,
+        order,
         reduceOnly
       })
 
@@ -340,10 +307,9 @@ export const useSpreads = () => {
 
       updateSpreadStatus(spread.id, 'WAITING')
     } catch (error) {
-      logger.error('Ошибка закрытия ордера Backpack', {
-        spreadId: spread.id,
-        asset: spread.asset,
-        orderId: order.id,
+      logger.spread('Ошибка закрытия ордера Backpack', {
+        spread: spread,
+        order,
         error: String(error)
       })
       
@@ -366,13 +332,11 @@ export const useSpreads = () => {
       if (backpackWebsocket.current) {
         backpackWebsocket.current.close()
         backpackWebsocket.current = null
-        logger.websocket('Backpack WebSocket закрыт для переподключения')
       }
 
       backpackWebsocket.current = new WebSocket('wss://ws.backpack.exchange')
 
       backpackWebsocket.current.onopen = () => {
-        logger.websocket('WebSocket подключен к Backpack Exchange', { url: 'wss://ws.backpack.exchange' })
         addBackpackSpreadSubscription(spreadsRef.current)
       }
 
@@ -387,15 +351,15 @@ export const useSpreads = () => {
               spread => spread.asset === s.split('_')[0],
             )
             
-            logger.order('Получено уведомление о заполнении ордера', {
+            logger.spread('Получено уведомление о заполнении ордера', {
               event: e,
               symbol: s,
               side: S,
               price: L,
               quantity: l,
               status: X,
-              spreadId: spread?.id,
-              asset: spread?.asset
+              data,
+              spread: spread,
             })
             
             if (!spread) return
@@ -413,14 +377,14 @@ export const useSpreads = () => {
               spread.lighterPositions[0].position = (Number(spread.lighterPositions[0].position) - reduceOnlyQuantity).toString()
             }
 
-            logger.order('Создание ордера Lighter в ответ на заполнение Backpack', {
-              spreadId: spread.id,
-              asset: spread.asset,
-              side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
-              tokenId: token?.market_id,
-              size: isReduceOnly ? reduceOnlyQuantity * L : l * L,
-              reduceOnly: isReduceOnly,
-              price: L
+            logger.spread('Создание ордера Lighter в ответ на заполнение Backpack', {
+              spread: spread,
+              data,
+              token,
+              isReduceOnly,
+              reduceOnlyQuantity,
+              l,
+              L,
             })
 
             await OrderServiceApi.accountOrderApiAccountOrdersPost({
@@ -441,12 +405,14 @@ export const useSpreads = () => {
             })
             
             if (X === 'Filled') {
-              logger.success('Ордер Backpack полностью заполнен', {
-                spreadId: spread.id,
-                asset: spread.asset,
-                symbol: s,
-                price: L,
-                quantity: l
+              logger.spread('Ордер Backpack полностью заполнен', {
+                spread: spread,
+                data,
+                token,
+                isReduceOnly,
+                reduceOnlyQuantity,
+                l,
+                L,
               })
               
               await fetchPositions()
@@ -473,27 +439,13 @@ export const useSpreads = () => {
           }))
         }
       }
-
-      backpackWebsocket.current.onerror = (error) => {
-        logger.error('Ошибка WebSocket Backpack', { error: String(error) })
-      }
-
-      backpackWebsocket.current.onclose = () => {
-        logger.warning('WebSocket Backpack закрыт')
-      }
     } catch (error) {
-      logger.error('Ошибка подключения к Backpack Exchange', { error: String(error) })
       setTimeout(connectBackpackWebsocket, 2000)
     }
   }
 
   const addBackpackSpreadSubscription = async (spreads: SpreadData[]) => {
     if (spreads.length === 0) return
-    
-    logger.websocket('Подписка на спреды Backpack', {
-      totalSpreads: spreads.length,
-      spreads: spreads.map(s => ({ id: s.id, asset: s.asset }))
-    })
     
     const backpackSubscribeMessage = {
       method: 'SUBSCRIBE',
@@ -502,7 +454,6 @@ export const useSpreads = () => {
     }
 
     backpackWebsocket.current?.send(JSON.stringify(backpackSubscribeMessage))
-    logger.websocket('Отправлена подписка на bookTicker', { message: backpackSubscribeMessage })
 
     const dateNow = Date.now()
 
@@ -525,29 +476,21 @@ export const useSpreads = () => {
     }
 
     backpackWebsocket.current?.send(JSON.stringify(subscribeMessage))
-    logger.websocket('Отправлена подписка на orderUpdate', { message: subscribeMessage })
   }
 
   const addLighterSpreadSubscription = (spreads: SpreadData[]) => {
     if (spreads.length === 0) return
 
-    logger.websocket('Подписка на спреды Lighter', {
-      totalSpreads: spreads.length,
-      spreads: spreads.map(s => ({ id: s.id, asset: s.asset, tokenId: s.tokenId }))
-    })
 
     const lighterSubscribeMessage = {
       token_ids: spreads.map(spread => spread.tokenId),
     }
 
     lighterWebsocket.current?.send(JSON.stringify(lighterSubscribeMessage))
-    logger.websocket('Отправлена подписка на Lighter', { message: lighterSubscribeMessage })
   }
 
   const fetchPositions = async () => {
     if (spreads.length === 0) return
-
-    logger.position('Начало получения позиций', { totalSpreads: spreads.length })
 
     try {
       const lighterPositions =
@@ -558,11 +501,6 @@ export const useSpreads = () => {
             },
           },
         })
-
-      logger.position('Позиции Lighter получены', { 
-        totalPositions: lighterPositions.positions.length,
-        positions: lighterPositions.positions.map(p => ({ symbol: p.symbol, size: p.size }))
-      })
 
       const dateNow = Date.now()
       const signature = await getSignature(
@@ -579,30 +517,18 @@ export const useSpreads = () => {
         xWindow: 60000,
       })
 
-      logger.position('Позиции Backpack получены', { 
-        totalPositions: backpackPositions.length,
-        positions: backpackPositions.map(p => ({ symbol: p.symbol, netQuantity: p.netQuantity }))
-      })
-
       spreads.forEach(async spread => {
         const lighterPos = lighterPositions.positions.filter(pos => pos.symbol === spread.asset)
         const backpackPos = backpackPositions.filter(
           pos => pos.symbol === spread.asset + '_USDC_PERP',
         )
         
-        logger.position('Обновление позиций для спреда', {
-          spreadId: spread.id,
-          asset: spread.asset,
-          lighterPositions: lighterPos.length,
-          backpackPositions: backpackPos.length
-        })
-        
         setSpreadPositions(spread.id, lighterPos, backpackPos)
       })
 
       await new Promise(resolve => setTimeout(resolve, 200))
     } catch (error) {
-      logger.error('Ошибка получения позиций', { error: String(error) })
+      logger.spread('Ошибка получения позиций', { error: String(error) })
     }
   }
 
@@ -612,24 +538,17 @@ export const useSpreads = () => {
   const [isBackpackConnected, setIsBackpackConnected] = useState(false)
 
   const init = () => {
-    logger.info('Инициализация системы спредов', { 
-      totalSpreads: spreads.length,
-      spreads: spreads.map(s => ({ id: s.id, asset: s.asset }))
-    })
-    
     connectBackpackWebsocket()
     connectLighterWebsocket()
 
     interval.current = setInterval(() => {
       if (backpackWebsocket.current?.readyState !== WebSocket.OPEN) {
-        logger.warning('Backpack WebSocket не подключен, переподключение...')
         connectBackpackWebsocket()
         setIsBackpackConnected(false)
       } else if (backpackWebsocket.current?.readyState === WebSocket.OPEN) {
         setIsBackpackConnected(true)
       }
       if (lighterWebsocket.current?.readyState !== WebSocket.OPEN) {
-        logger.warning('Lighter WebSocket не подключен, переподключение...')
         connectLighterWebsocket()
         setIsLighterConnected(false)
       } else if (lighterWebsocket.current?.readyState === WebSocket.OPEN) {
@@ -640,10 +559,6 @@ export const useSpreads = () => {
 
   useEffect(() => {
     if (backpackWebsocket.current?.readyState !== WebSocket.OPEN || lighterWebsocket.current?.readyState !== WebSocket.OPEN) {
-      logger.warning('WebSocket не подключены, пропуск анализа спредов', {
-        backpackConnected: backpackWebsocket.current?.readyState === WebSocket.OPEN,
-        lighterConnected: lighterWebsocket.current?.readyState === WebSocket.OPEN
-      })
       return
     }
     checkBalancesEnough()
@@ -891,7 +806,6 @@ export const useSpreads = () => {
 
     if (backpackWebsocket.current) {
       backpackWebsocket.current.onclose = () => {
-        logger.warning('WebSocket Backpack переподключение')
         connectBackpackWebsocket()
       }
     }
@@ -903,13 +817,6 @@ export const useSpreads = () => {
   }, [])
 
   const closeAllPositionsMarket = async (spread: SpreadData) => {
-    logger.warning('Закрытие всех позиций для спреда', {
-      spreadId: spread.id,
-      asset: spread.asset,
-      lighterPositions: spread.lighterPositions.length,
-      backpackPositions: spread.backpackPositions.length
-    })
-    
     const { lighterPositions, backpackPositions } = spread
 
     try {
@@ -924,9 +831,8 @@ export const useSpreads = () => {
               symbol: spread.asset.toUpperCase() + '_USDC_PERP',
             }
             
-            logger.order('Создание market ордера для закрытия позиции Backpack', {
-              spreadId: spread.id,
-              asset: spread.asset,
+            logger.spread('Создание market ордера для закрытия позиции Backpack', {
+              spread: spread,
               isLong,
               quantity: order.quantity,
               side: order.side,
@@ -949,10 +855,9 @@ export const useSpreads = () => {
           })
           .concat(
             lighterPositions.map(async position => {
-              logger.order('Отмена ордеров Lighter для закрытия позиции', {
-                spreadId: spread.id,
-                asset: spread.asset,
-                tokenId: position.market_id
+              logger.spread('Отмена ордеров Lighter для закрытия позиции', {
+                spread: spread,
+                token: position,
               })
               
               return OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost(
@@ -971,16 +876,14 @@ export const useSpreads = () => {
           ),
       )
 
-      logger.success('Все позиции успешно закрыты', {
-        spreadId: spread.id,
-        asset: spread.asset
+      logger.spread('Все позиции успешно закрыты', {
+        spread: spread,
       })
 
       await fetchPositions()
     } catch (error) {
-      logger.error('Ошибка при закрытии всех позиций', {
-        spreadId: spread.id,
-        asset: spread.asset,
+      logger.spread('Ошибка при закрытии всех позиций', {
+        spread: spread,
         error: String(error)
       })
       throw error
@@ -1002,24 +905,20 @@ export const useSpreads = () => {
   }
 
   const cleanup = () => {
-    logger.info('Очистка системы спредов')
     
     if (backpackWebsocket.current) {
       backpackWebsocket.current.close()
       backpackWebsocket.current = null
-      logger.websocket('Backpack WebSocket закрыт при очистке')
     }
 
     if (lighterWebsocket.current) {
       lighterWebsocket.current.close()
       lighterWebsocket.current = null
-      logger.websocket('Lighter WebSocket закрыт при очистке')
     }
 
     if (interval.current) {
       clearInterval(interval.current)
       interval.current = null
-      logger.info('Интервал очищен')
     }
   }
 

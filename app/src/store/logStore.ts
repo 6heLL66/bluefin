@@ -4,14 +4,13 @@ import { LogEntry, LogStore } from '../types'
 
 export const useLogStore = create<LogStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       logs: [],
       
       addLog: (log) => {
         const newLog: LogEntry = {
           ...log,
-          id: crypto.randomUUID(),
-          timestamp: new Date(),
+          timestamp: Date.now(),
         }
         
         set((state) => ({
@@ -21,18 +20,6 @@ export const useLogStore = create<LogStore>()(
       
       clearLogs: () => {
         set({ logs: [] })
-      },
-      
-      getLogsByCategory: (category) => {
-        return get().logs.filter(log => log.category === category)
-      },
-      
-      getLogsBySpread: (spreadId) => {
-        return get().logs.filter(log => log.spreadId === spreadId)
-      },
-      
-      getLogsByAsset: (asset) => {
-        return get().logs.filter(log => log.asset === asset)
       },
     }),
     {

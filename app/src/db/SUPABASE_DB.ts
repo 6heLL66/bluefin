@@ -7,7 +7,7 @@ import {
 } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
 
-import { Account, Batch, LogRow, Proxy, Trader, TraderOrder } from '../types'
+import { Account, Batch, LogEntry, LogRow, Proxy, Trader, TraderOrder } from '../types'
 import { formatLogs } from '../utils'
 
 if (
@@ -414,7 +414,7 @@ export class SUPABASE_DB {
     ).data
   }
 
-  public insertLogs = async (logs: string[]) => {
+  public insertLogs = async (logs: LogEntry[]) => {
     return this.client.from('logs').insert(formatLogs(logs, this.auth?.user.id))
   }
 }

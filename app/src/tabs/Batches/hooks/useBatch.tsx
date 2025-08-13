@@ -18,6 +18,7 @@ import {
 import { GlobalContext } from '../../../context'
 import { Account, Unit } from '../../../types'
 import { getBatchAccount, transformAccountStatesToUnits } from '../../../utils'
+import { useLogger } from '../../../hooks/useLogger'
 
 interface Props {
   accounts: string[]
@@ -60,6 +61,8 @@ export const useBatch = ({
 }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } =
     useContext(GlobalContext)
+
+  const logger = useLogger()
 
   const batchAccounts = useMemo(
     () =>
@@ -140,12 +143,28 @@ export const useBatch = ({
       setAccountState(res)
 
       return res
+    }).catch(error => {
+      logger.batch('Ошибка при обновлении состояний аккаунтов', {
+        batch_name: name,
+        batch_id: id,
+        error: String(error)
+      })
+      throw error
     })
-  }, [batchAccounts])
+  }, [batchAccounts, logger])
 
   const recreateUnit = useCallback(
     async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
       setRecreatingUnits(prev => [...prev, token_id])
+
+      logger.batch('Пересоздание юнита', {
+        batch_name: name,
+        batch_id: id,
+        token_id,
+        size: sz,
+        leverage,
+        accounts_count: batchAccounts.length
+      }, token_id.toString())
 
       console.log('recreateUnit', token_id, leverage, sz)
 
@@ -160,6 +179,15 @@ export const useBatch = ({
         },
       })
         .catch(async e => {
+          logger.batch('Ошибка при пересоздании юнита', {
+            batch_name: name,
+            batch_id: id,
+            token_id,
+            size: sz,
+            leverage,
+            error: String(e)
+          }, token_id.toString())
+
           await OrderService.accountsOrdersCancelApiOrdersCancelPost({
             requestBody: {accounts: batchAccounts.map(acc =>
               getBatchAccount(acc, getAccountProxy(acc)),
@@ -218,6 +246,16 @@ export const useBatch = ({
             now - unitOpenedTiming >= unitRecreateTiming ||
             unit.positions.length !== accountsProps.length
           ) {
+            logger.batch('Автоматическое пересоздание юнита по таймингу', {
+              batch_name: name,
+              batch_id: id,
+              token_id: unit.base_unit_info.token_id,
+              time_since_opened: now - unitOpenedTiming,
+              recreate_timing: unitRecreateTiming,
+              positions_count: unit.positions.length,
+              expected_positions: accountsProps.length
+            }, unit.base_unit_info.token_id.toString())
+
             recreateUnit({
               token_id: unit.base_unit_info.token_id,
               leverage: unit.base_unit_info.leverage,
@@ -269,6 +307,16 @@ export const useBatch = ({
       setCreatingUnits(prev => [...prev, token_id])
       setTimings(token_id, timing, Date.now())
 
+      logger.batch('Создание юнита', {
+        batch_name: name,
+        batch_id: id,
+        token_id,
+        size: sz,
+        leverage,
+        timing,
+        accounts_count: batchAccounts.length
+      }, token_id.toString())
+
       const dto: OrderCreateDto = {
         accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
@@ -285,6 +333,13 @@ export const useBatch = ({
       return OrderService.accountsOrdersApiOrdersPost({
         requestBody: dto,
       }).then(() => {
+        logger.batch('Юнит успешно создан', {
+          batch_name: name,
+          batch_id: id,
+          token_id,
+          size: sz,
+          leverage
+        }, token_id.toString())
         return checkPositionsOpened(dto)
       }).then((data) => setAccountState(data)).finally(async () => {
         setTimings(token_id, timing, Date.now())
@@ -298,11 +353,29 @@ export const useBatch = ({
     (unit: Unit) => {
       setClosingUnits(prev => [...prev, unit.base_unit_info.token_id])
 
+      logger.batch('Закрытие юнита', {
+        batch_name: name,
+        batch_id: id,
+        token_id: unit.base_unit_info.token_id,
+        size: unit.base_unit_info.size,
+        leverage: unit.base_unit_info.leverage,
+        accounts_count: batchAccounts.length
+      }, unit.base_unit_info.token_id.toString())
+
       return OrderService.accountsOrdersCancelApiOrdersCancelPost({
         requestBody: {accounts: batchAccounts.map(acc =>
           getBatchAccount(acc, getAccountProxy(acc)),
         ), token_id: unit.base_unit_info.token_id}
-      }).then(() => fetchUserStates()).finally(async () => {
+      }).then(() => {
+        logger.batch('Юнит успешно закрыт', {
+          batch_name: name,
+          batch_id: id,
+          token_id: unit.base_unit_info.token_id,
+          size: unit.base_unit_info.size,
+          leverage: unit.base_unit_info.leverage
+        }, unit.base_unit_info.token_id.toString())
+        return fetchUserStates()
+      }).finally(async () => {
         setClosingUnits(prev =>
           prev.filter(asset => asset !== unit.base_unit_info.token_id),
         )

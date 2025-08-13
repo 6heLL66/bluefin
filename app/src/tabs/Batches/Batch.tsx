@@ -113,14 +113,14 @@ export const Batch: React.FC<{
             flexGrow: 1,
           }}
         >
-          <Button
+          {/* <Button
             variant='outlined'
             color='primary'
             disabled={initialLoading}
             onClick={() => setModalId('importUnitsModal')}
           >
             Import units
-          </Button>
+          </Button> */}
           <Button
             variant='contained'
             color='primary'
@@ -197,8 +197,8 @@ export const Batch: React.FC<{
               </strong>
             </div>
             balance: <strong>{balances[account.private_key]?.all}$</strong>
-            {/* free_balance:
-            <strong>{balances[account.private_key]?.free}$</strong> */}
+            free_balance:
+            <strong>{balances[account.private_key]?.free}$</strong>
           </Typography>
         )
       })}

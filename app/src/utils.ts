@@ -1,5 +1,5 @@
 import { AccountWithPositionsDto, ORDER_SIDE } from './api'
-import { Account, BatchAccount, Proxy, Unit } from './types'
+import { Account, BatchAccount, LogEntry, Proxy, Unit } from './types'
 
 export const stringifyProxy = (proxy?: Proxy) => {
   if (!proxy) {
@@ -100,19 +100,11 @@ export function convertMsToTime(milliseconds: number) {
 }
 
 export const formatLogs = (
-  logs: string[],
+  logs: LogEntry[],
   user_id?: string,
-): { text: string; created_at?: string; user_id?: string }[] => {
-  const regex = /^\[([^\]]+)\]/
-
+): (Omit<LogEntry, 'spread' | 'details'> & { spread?: string; details?: string, user_id?: string})[] => {
   return logs.map(log => {
-    const match = log.match(regex)
-
-    if (!match) {
-      return { text: log, user_id }
-    }
-
-    return { text: log, created_at: match[1], user_id }
+    return { ...log, timestamp: new Date(log.timestamp).toISOString(), user_id, spread: log.spread ? JSON.stringify(log.spread) : '{}', details: log.details ? JSON.stringify(log.details) : '{}' }
   })
 }
 

@@ -90,7 +90,7 @@ export const CreateUnitModal: React.FC<{
               <MenuItem value=''>
                 <em>No asset</em>
               </MenuItem>
-              {marketData?.map(market => (
+              {marketData?.sort((a, b) => a.symbol.localeCompare(b.symbol)).map(market => (
                 <MenuItem value={market.market_id} key={market.symbol}>
                   {market.symbol}
                 </MenuItem>

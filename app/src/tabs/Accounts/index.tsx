@@ -54,7 +54,7 @@ const headCells: HeadCell[] = [
     id: 'private_key',
     align: 'center',
     disablePadding: false,
-    label: 'Passphrase',
+    label: 'Private key',
   },
   {
     id: 'proxy',
