@@ -34,9 +34,7 @@ export const connectSocket = (cb: (socket: WebSocket | null) => void) => {
   }
 }
 
-export const transformAccountStatesToUnits = (
-  accountStates: Array<AccountWithPositionsDto>,
-): Unit[] => {
+export const transformAccountStatesToUnits = (accountStates: Array<AccountWithPositionsDto>): Unit[] => {
   if (!accountStates.length) return []
 
   const unitsMap: { [key: string]: Unit } = {}
@@ -71,10 +69,7 @@ export const transformAccountStatesToUnits = (
   return Object.values(unitsMap)
 }
 
-export const getBatchAccount = (
-  account: Account,
-  proxy?: Proxy,
-): BatchAccount => {
+export const getBatchAccount = (account: Account, proxy?: Proxy): BatchAccount => {
   return {
     account,
     proxy,
@@ -94,17 +89,25 @@ export function convertMsToTime(milliseconds: number) {
   minutes = minutes % 60
   hours = hours % 24
 
-  return `${padTo2Digits(hours)}:${padTo2Digits(minutes)}:${padTo2Digits(
-    seconds,
-  )}`
+  return `${padTo2Digits(hours)}:${padTo2Digits(minutes)}:${padTo2Digits(seconds)}`
 }
 
 export const formatLogs = (
   logs: LogEntry[],
   user_id?: string,
-): (Omit<LogEntry, 'spread' | 'details'> & { spread?: string; details?: string, user_id?: string})[] => {
+): (Omit<LogEntry, 'spread' | 'details'> & {
+  spread?: string
+  details?: string
+  user_id?: string
+})[] => {
   return logs.map(log => {
-    return { ...log, timestamp: new Date(log.timestamp).toISOString(), user_id, spread: log.spread ? JSON.stringify(log.spread) : '{}', details: log.details ? JSON.stringify(log.details) : '{}' }
+    return {
+      ...log,
+      timestamp: new Date(log.timestamp).toISOString(),
+      user_id,
+      spread: log.spread ? JSON.stringify(log.spread) : '{}',
+      details: log.details ? JSON.stringify(log.details) : '{}',
+    }
   })
 }
 

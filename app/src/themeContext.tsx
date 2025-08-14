@@ -17,11 +17,7 @@ export const ThemeContext = createContext<ThemeContextType>({
   changeTheme: () => {},
 })
 
-export const OwnThemeProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
+export const OwnThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
 
   const changeTheme = (theme: Theme) => {

@@ -1,24 +1,11 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import {
-  AccountWithPositionsDto,
-  AccountService,
-  OrderCreateDto,
-  PositionDto,
-  OrderService,
-} from '../../../api'
+import { AccountService, AccountWithPositionsDto, OrderCreateDto, OrderService, PositionDto } from '../../../api'
 import { GlobalContext } from '../../../context'
+import { useLogger } from '../../../hooks/useLogger'
 import { Account, Unit } from '../../../types'
 import { getBatchAccount, transformAccountStatesToUnits } from '../../../utils'
-import { useLogger } from '../../../hooks/useLogger'
 
 interface Props {
   accounts: string[]
@@ -41,11 +28,7 @@ interface ReturnType {
   closingUnits: number[]
   recreatingUnits: number[]
   initialLoading: boolean
-  setTimings: (
-    token_id: number,
-    recreateTiming: number,
-    openedTiming: number,
-  ) => Promise<void>
+  setTimings: (token_id: number, recreateTiming: number, openedTiming: number) => Promise<void>
   getUnitTimingOpened: (token_id: number) => number
   getUnitTimingReacreate: (token_id: number) => number
   createUnit: (payload: CreateUnitPayload) => Promise<unknown>
@@ -54,13 +37,8 @@ interface ReturnType {
 
 const UPDATE_INTERVAL = 20000
 
-export const useBatch = ({
-  accounts: accountsProps,
-  id,
-  name,
-}: Props): ReturnType => {
-  const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } =
-    useContext(GlobalContext)
+export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnType => {
+  const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } = useContext(GlobalContext)
 
   const logger = useLogger()
 
@@ -80,15 +58,11 @@ export const useBatch = ({
   const [creatingUnits, setCreatingUnits] = useState<number[]>([])
   const [recreatingUnits, setRecreatingUnits] = useState<number[]>([])
 
-  const [balances, setBalances] = useState<
-    Record<string, { free: string; all: string }>
-  >({})
+  const [balances, setBalances] = useState<Record<string, { free: string; all: string }>>({})
 
   const [accountStates, setAccountState] = useState<AccountWithPositionsDto[]>([])
 
-  const [unitTimings, setUnitTimings] = useState<
-    Record<string, { openedTiming: number; recreateTiming: number }>
-  >({})
+  const [unitTimings, setUnitTimings] = useState<Record<string, { openedTiming: number; recreateTiming: number }>>({})
 
   const units = useMemo(() => {
     return transformAccountStatesToUnits(Object.values(accountStates))
@@ -124,54 +98,56 @@ export const useBatch = ({
 
   const fetchUserStates = useCallback((): Promise<Array<AccountWithPositionsDto>> => {
     return AccountService.accountsPositionsApiAccountsPositionsPost({
-      requestBody: batchAccounts.map(acc =>
-        getBatchAccount(acc, getAccountProxy(acc)),
-      ),
-    }).then(res => {
-      setBalances(
-        res.reduce((acc, account) => {
-          return {
-            ...acc,
-            [account.private_key]: {
-              all: Number(account.balance).toFixed(2),
-              free: Number(account.balance).toFixed(2),
-            },
-          }
-        }, {}),
-      )
-
-      setAccountState(res)
-
-      return res
-    }).catch(error => {
-      logger.batch('Ошибка при обновлении состояний аккаунтов', {
-        batch_name: name,
-        batch_id: id,
-        error: String(error)
-      })
-      throw error
+      requestBody: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
     })
+      .then(res => {
+        setBalances(
+          res.reduce((acc, account) => {
+            return {
+              ...acc,
+              [account.private_key]: {
+                all: Number(account.balance).toFixed(2),
+                free: Number(account.balance).toFixed(2),
+              },
+            }
+          }, {}),
+        )
+
+        setAccountState(res)
+
+        return res
+      })
+      .catch(error => {
+        logger.batch('Ошибка при обновлении состояний аккаунтов', {
+          batch_name: name,
+          batch_id: id,
+          error: String(error),
+        })
+        throw error
+      })
   }, [batchAccounts, logger])
 
   const recreateUnit = useCallback(
     async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
       setRecreatingUnits(prev => [...prev, token_id])
 
-      logger.batch('Пересоздание юнита', {
-        batch_name: name,
-        batch_id: id,
-        token_id,
-        size: sz,
-        leverage,
-        accounts_count: batchAccounts.length
-      }, token_id.toString())
+      logger.batch(
+        'Пересоздание юнита',
+        {
+          batch_name: name,
+          batch_id: id,
+          token_id,
+          size: sz,
+          leverage,
+          accounts_count: batchAccounts.length,
+        },
+        token_id.toString(),
+      )
 
       console.log('recreateUnit', token_id, leverage, sz)
 
       const promise = recreateRequest({
-        accounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ),
+        accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
         unit: {
           token_id,
           size: Math.ceil(sz),
@@ -179,19 +155,24 @@ export const useBatch = ({
         },
       })
         .catch(async e => {
-          logger.batch('Ошибка при пересоздании юнита', {
-            batch_name: name,
-            batch_id: id,
-            token_id,
-            size: sz,
-            leverage,
-            error: String(e)
-          }, token_id.toString())
+          logger.batch(
+            'Ошибка при пересоздании юнита',
+            {
+              batch_name: name,
+              batch_id: id,
+              token_id,
+              size: sz,
+              leverage,
+              error: String(e),
+            },
+            token_id.toString(),
+          )
 
           await OrderService.accountsOrdersCancelApiOrdersCancelPost({
-            requestBody: {accounts: batchAccounts.map(acc =>
-              getBatchAccount(acc, getAccountProxy(acc)),
-            ), token_id}
+            requestBody: {
+              accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
+              token_id,
+            },
           })
 
           throw e
@@ -208,13 +189,7 @@ export const useBatch = ({
         error: `${name}: Error while re-creating unit with asset ${token_id} error 🤯`,
       })
     },
-    [
-      batchAccounts,
-      getUnitTimingReacreate,
-      fetchUserStates,
-      setTimings,
-      setRecreatingUnits,
-    ],
+    [batchAccounts, getUnitTimingReacreate, fetchUserStates, setTimings, setRecreatingUnits],
   )
 
   const updateLoop = useCallback(() => {
@@ -225,12 +200,8 @@ export const useBatch = ({
         const units = transformAccountStatesToUnits(res)
 
         units.forEach((unit: Unit) => {
-          const unitOpenedTiming = getUnitTimingOpened(
-            unit.base_unit_info.token_id,
-          )
-          const unitRecreateTiming = getUnitTimingReacreate(
-            unit.base_unit_info.token_id,
-          )
+          const unitOpenedTiming = getUnitTimingOpened(unit.base_unit_info.token_id)
+          const unitRecreateTiming = getUnitTimingReacreate(unit.base_unit_info.token_id)
 
           if (
             closingUnits.includes(unit.base_unit_info.token_id) ||
@@ -242,19 +213,20 @@ export const useBatch = ({
             return
           }
 
-          if (
-            now - unitOpenedTiming >= unitRecreateTiming ||
-            unit.positions.length !== accountsProps.length
-          ) {
-            logger.batch('Автоматическое пересоздание юнита по таймингу', {
-              batch_name: name,
-              batch_id: id,
-              token_id: unit.base_unit_info.token_id,
-              time_since_opened: now - unitOpenedTiming,
-              recreate_timing: unitRecreateTiming,
-              positions_count: unit.positions.length,
-              expected_positions: accountsProps.length
-            }, unit.base_unit_info.token_id.toString())
+          if (now - unitOpenedTiming >= unitRecreateTiming || unit.positions.length !== accountsProps.length) {
+            logger.batch(
+              'Автоматическое пересоздание юнита по таймингу',
+              {
+                batch_name: name,
+                batch_id: id,
+                token_id: unit.base_unit_info.token_id,
+                time_since_opened: now - unitOpenedTiming,
+                recreate_timing: unitRecreateTiming,
+                positions_count: unit.positions.length,
+                expected_positions: accountsProps.length,
+              },
+              unit.base_unit_info.token_id.toString(),
+            )
 
             recreateUnit({
               token_id: unit.base_unit_info.token_id,
@@ -267,23 +239,21 @@ export const useBatch = ({
       .finally(() => {
         updatingRef.current = false
       })
-  }, [
-    accountsProps,
-    fetchUserStates,
-    closingUnits,
-    recreatingUnits,
-    creatingUnits,
-    getUnitTimingOpened,
-    getUnitTimingReacreate,
-    recreateUnit,
-    unitTimings,
-  ])
+  }, [accountsProps, fetchUserStates, closingUnits, recreatingUnits, creatingUnits, getUnitTimingOpened, getUnitTimingReacreate, recreateUnit, unitTimings])
 
   useEffect(() => {
     Promise.all([
       getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
       fetchUserStates(),
-      AccountService.accountsRefreshApiAccountsRefreshPost({ requestBody: { accounts: batchAccounts.map((a) => ({ account: { private_key: a.private_key } })), from_api_key_index: 52, to_api_key_index: 52}})
+      AccountService.accountsRefreshApiAccountsRefreshPost({
+        requestBody: {
+          accounts: batchAccounts.map(a => ({
+            account: { private_key: a.private_key },
+          })),
+          from_api_key_index: 52,
+          to_api_key_index: 52,
+        },
+      }),
     ]).finally(() => {
       setInitialLoading(false)
     })
@@ -307,44 +277,64 @@ export const useBatch = ({
       setCreatingUnits(prev => [...prev, token_id])
       setTimings(token_id, timing, Date.now())
 
-      logger.batch('Создание юнита', {
-        batch_name: name,
-        batch_id: id,
-        token_id,
-        size: sz,
-        leverage,
-        timing,
-        accounts_count: batchAccounts.length
-      }, token_id.toString())
+      logger.batch(
+        'Создание юнита',
+        {
+          batch_name: name,
+          batch_id: id,
+          token_id,
+          size: sz,
+          leverage,
+          timing,
+          accounts_count: batchAccounts.length,
+        },
+        token_id.toString(),
+      )
 
       const dto: OrderCreateDto = {
-        accounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ),
+        accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
         unit: {
           token_id,
           size: sz,
           leverage,
         },
-      };
+      }
 
-      await Promise.all(batchAccounts.map(acc => AccountService.accountLeverageApiAccountLeveragePost({ requestBody: { account: { private_key: acc.private_key }, leverage, token_id, proxy: getAccountProxy(acc) } })))
+      await Promise.all(
+        batchAccounts.map(acc =>
+          AccountService.accountLeverageApiAccountLeveragePost({
+            requestBody: {
+              account: { private_key: acc.private_key },
+              leverage,
+              token_id,
+              proxy: getAccountProxy(acc),
+            },
+          }),
+        ),
+      )
 
       return OrderService.accountsOrdersApiOrdersPost({
         requestBody: dto,
-      }).then(() => {
-        logger.batch('Юнит успешно создан', {
-          batch_name: name,
-          batch_id: id,
-          token_id,
-          size: sz,
-          leverage
-        }, token_id.toString())
-        return checkPositionsOpened(dto)
-      }).then((data) => setAccountState(data)).finally(async () => {
-        setTimings(token_id, timing, Date.now())
-        setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
       })
+        .then(() => {
+          logger.batch(
+            'Юнит успешно создан',
+            {
+              batch_name: name,
+              batch_id: id,
+              token_id,
+              size: sz,
+              leverage,
+            },
+            token_id.toString(),
+          )
+          return checkPositionsOpened(dto)
+        })
+        .then(data => setAccountState(data))
+        .finally(async () => {
+          setTimings(token_id, timing, Date.now())
+          setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
+        })
     },
     [batchAccounts, fetchUserStates, setTimings, setCreatingUnits],
   )
@@ -353,33 +343,42 @@ export const useBatch = ({
     (unit: Unit) => {
       setClosingUnits(prev => [...prev, unit.base_unit_info.token_id])
 
-      logger.batch('Закрытие юнита', {
-        batch_name: name,
-        batch_id: id,
-        token_id: unit.base_unit_info.token_id,
-        size: unit.base_unit_info.size,
-        leverage: unit.base_unit_info.leverage,
-        accounts_count: batchAccounts.length
-      }, unit.base_unit_info.token_id.toString())
-
-      return OrderService.accountsOrdersCancelApiOrdersCancelPost({
-        requestBody: {accounts: batchAccounts.map(acc =>
-          getBatchAccount(acc, getAccountProxy(acc)),
-        ), token_id: unit.base_unit_info.token_id}
-      }).then(() => {
-        logger.batch('Юнит успешно закрыт', {
+      logger.batch(
+        'Закрытие юнита',
+        {
           batch_name: name,
           batch_id: id,
           token_id: unit.base_unit_info.token_id,
           size: unit.base_unit_info.size,
-          leverage: unit.base_unit_info.leverage
-        }, unit.base_unit_info.token_id.toString())
-        return fetchUserStates()
-      }).finally(async () => {
-        setClosingUnits(prev =>
-          prev.filter(asset => asset !== unit.base_unit_info.token_id),
-        )
+          leverage: unit.base_unit_info.leverage,
+          accounts_count: batchAccounts.length,
+        },
+        unit.base_unit_info.token_id.toString(),
+      )
+
+      return OrderService.accountsOrdersCancelApiOrdersCancelPost({
+        requestBody: {
+          accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
+          token_id: unit.base_unit_info.token_id,
+        },
       })
+        .then(() => {
+          logger.batch(
+            'Юнит успешно закрыт',
+            {
+              batch_name: name,
+              batch_id: id,
+              token_id: unit.base_unit_info.token_id,
+              size: unit.base_unit_info.size,
+              leverage: unit.base_unit_info.leverage,
+            },
+            unit.base_unit_info.token_id.toString(),
+          )
+          return fetchUserStates()
+        })
+        .finally(async () => {
+          setClosingUnits(prev => prev.filter(asset => asset !== unit.base_unit_info.token_id))
+        })
     },
     [batchAccounts, fetchUserStates, setClosingUnits],
   )
@@ -401,7 +400,12 @@ export const useBatch = ({
 }
 
 const recreateRequest = async (requestBody: OrderCreateDto) => {
-  await OrderService.accountsOrdersCancelApiOrdersCancelPost({ requestBody: {accounts: requestBody.accounts, token_id: requestBody.unit.token_id} })
+  await OrderService.accountsOrdersCancelApiOrdersCancelPost({
+    requestBody: {
+      accounts: requestBody.accounts,
+      token_id: requestBody.unit.token_id,
+    },
+  })
 
   await new Promise(res => setTimeout(res, 5000))
 
@@ -417,14 +421,9 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
       AccountService.accountsPositionsApiAccountsPositionsPost({
         requestBody: orderDto.accounts,
       }).then(data => {
-        const positions = data.reduce(
-          (acc, account) => [...acc, ...account.positions],
-          [] as PositionDto[],
-        )
+        const positions = data.reduce((acc, account) => [...acc, ...account.positions], [] as PositionDto[])
 
-        const isPositionsFullyOpened =
-          positions.filter(pos => pos.market_id === orderDto.unit.token_id).length ===
-          4
+        const isPositionsFullyOpened = positions.filter(pos => pos.market_id === orderDto.unit.token_id).length === 4
         if (isPositionsFullyOpened) {
           res(data)
 

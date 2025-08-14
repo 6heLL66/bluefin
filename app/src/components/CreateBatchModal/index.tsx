@@ -78,12 +78,7 @@ export const CreateBatchModal: React.FC<{
         <Box sx={{ gap: 5, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <TextField
-                label='Name'
-                type='text'
-                variant='outlined'
-                onChange={e => onChange('name', e.target.value)}
-              />
+              <TextField label='Name' type='text' variant='outlined' onChange={e => onChange('name', e.target.value)} />
             </FormControl>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id='demo-multiple-chip-label'>Accounts</InputLabel>
@@ -93,15 +88,11 @@ export const CreateBatchModal: React.FC<{
                 value={batchAccounts.accounts}
                 onChange={onAccountsChange}
                 maxRows={6}
-                input={
-                  <OutlinedInput id='select-multiple-chip' label='Accounts' />
-                }
+                input={<OutlinedInput id='select-multiple-chip' label='Accounts' />}
                 renderValue={selected => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map(value => {
-                      const name = filteredAccounts.find(
-                        a => a.id === value,
-                      )?.name
+                      const name = filteredAccounts.find(a => a.id === value)?.name
                       return <Chip key={value} label={name} />
                     })}
                   </Box>
@@ -114,13 +105,9 @@ export const CreateBatchModal: React.FC<{
                   </MenuItem>
                 ))}
 
-                {!filteredAccounts.length && (
-                  <Typography sx={{ p: 1 }}>No available accounts</Typography>
-                )}
+                {!filteredAccounts.length && <Typography sx={{ p: 1 }}>No available accounts</Typography>}
               </Select>
-              <FormHelperText variant='standard'>
-                Supported only 4 accounts in batch
-              </FormHelperText>
+              <FormHelperText variant='standard'>Supported only 4 accounts in batch</FormHelperText>
             </FormControl>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
@@ -130,10 +117,7 @@ export const CreateBatchModal: React.FC<{
                 variant='outlined'
                 onChange={e => onChange('timing', Number(e.target.value))}
               />
-              <FormHelperText variant='standard'>
-                Not required, default 60 mins (you can change this value for
-                every single unit)
-              </FormHelperText>
+              <FormHelperText variant='standard'>Not required, default 60 mins (you can change this value for every single unit)</FormHelperText>
             </FormControl>
           </Box>
 
@@ -147,12 +131,7 @@ export const CreateBatchModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              variant='contained'
-              color='success'
-              onClick={onConfirm}
-              disabled={![2, 4, 6].includes(batchAccounts.accounts.length)}
-            >
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={![2, 4, 6].includes(batchAccounts.accounts.length)}>
               Confirm
             </Button>
           </Box>

@@ -18,29 +18,11 @@ interface GlobalContextType {
   removeProxies: (proxyIds: string[]) => void
   getAccounts: () => void
   addProxy: (proxy: Proxy) => void
-  linkAccountsProxy: (
-    accounts: Account['public_address'][],
-    stringifyProxy: string,
-  ) => void
-  createBatch: ({
-    name,
-    accounts,
-    timing,
-  }: {
-    name: string
-    accounts: string[]
-    timing: number
-  }) => void
+  linkAccountsProxy: (accounts: Account['public_address'][], stringifyProxy: string) => void
+  createBatch: ({ name, accounts, timing }: { name: string; accounts: string[]; timing: number }) => void
   closeBatch: (batchId: string) => void
-  getUnitTimings: (
-    batchId: string,
-  ) => Promise<Record<string, { openedTiming: number; recreateTiming: number }>>
-  setUnitInitTimings: (
-    batchId: string,
-    asset: string,
-    recreateTiming: number,
-    openedTiming: number,
-  ) => Promise<void>
+  getUnitTimings: (batchId: string) => Promise<Record<string, { openedTiming: number; recreateTiming: number }>>
+  setUnitInitTimings: (batchId: string, asset: string, recreateTiming: number, openedTiming: number) => Promise<void>
   logout: () => void
 }
 
@@ -60,8 +42,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   linkAccountsProxy: () => {},
   createBatch: () => {},
   closeBatch: () => {},
-  getUnitTimings: async () =>
-    ({}) as Record<string, { openedTiming: number; recreateTiming: number }>,
+  getUnitTimings: async () => ({}) as Record<string, { openedTiming: number; recreateTiming: number }>,
   setUnitInitTimings: async () => {},
 })
 
@@ -134,53 +115,22 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     })
   }, [])
 
-  const getUnitTimings = useCallback(
-    (
-      batchId: string,
-    ): Promise<
-      Record<string, { openedTiming: number; recreateTiming: number }>
-    > => {
-      return db.getUnitTimings(batchId)
-    },
-    [],
-  )
+  const getUnitTimings = useCallback((batchId: string): Promise<Record<string, { openedTiming: number; recreateTiming: number }>> => {
+    return db.getUnitTimings(batchId)
+  }, [])
 
-  const setUnitInitTimings = useCallback(
-    (
-      batchId: string,
-      asset: string,
-      recreateTiming: number,
-      openedTiming: number,
-    ): Promise<void> => {
-      return db.setUnitInitTiming(
-        batchId,
-        asset,
-        recreateTiming,
-        openedTiming,
-      ) as unknown as Promise<void>
-    },
-    [],
-  )
+  const setUnitInitTimings = useCallback((batchId: string, asset: string, recreateTiming: number, openedTiming: number): Promise<void> => {
+    return db.setUnitInitTiming(batchId, asset, recreateTiming, openedTiming) as unknown as Promise<void>
+  }, [])
 
-  const linkAccountsProxy = useCallback(
-    (accountIds: string[], proxyId: string) => {
-      db.connectProxyToAccounts(accountIds, proxyId).then(() => {
-        getAccounts()
-      })
-    },
-    [],
-  )
+  const linkAccountsProxy = useCallback((accountIds: string[], proxyId: string) => {
+    db.connectProxyToAccounts(accountIds, proxyId).then(() => {
+      getAccounts()
+    })
+  }, [])
 
   const createBatch = useCallback(
-    ({
-      name,
-      accounts,
-      timing,
-    }: {
-      name: string
-      accounts: string[]
-      timing: number
-    }) => {
+    ({ name, accounts, timing }: { name: string; accounts: string[]; timing: number }) => {
       db.createBatch(name, accounts, timing).then(() => {
         getBatches()
       })
@@ -252,9 +202,5 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     setAuthenticating(false)
   }, [])
 
-  return (
-    <GlobalContext.Provider value={value}>
-      {loading || authenticating ? <CircularProgress size={64} /> : children}
-    </GlobalContext.Provider>
-  )
+  return <GlobalContext.Provider value={value}>{loading || authenticating ? <CircularProgress size={64} /> : children}</GlobalContext.Provider>
 }

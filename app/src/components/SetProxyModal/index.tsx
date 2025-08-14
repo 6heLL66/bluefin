@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Paper,
-  Select,
-} from '@mui/material'
+import { Box, Button, FormControl, InputLabel, MenuItem, Modal, Paper, Select } from '@mui/material'
 import { useContext, useState } from 'react'
 
 import { GlobalContext } from '../../context'
@@ -42,13 +33,7 @@ export const SetProxyModal: React.FC<{
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <InputLabel id='proxy-label'>Proxy</InputLabel>
-              <Select
-                labelId='proxy-label'
-                id='proxy-select'
-                value={proxyId}
-                label='Proxy'
-                onChange={e => setProxyId(e.target.value)}
-              >
+              <Select labelId='proxy-label' id='proxy-select' value={proxyId} label='Proxy' onChange={e => setProxyId(e.target.value)}>
                 <MenuItem value=''>
                   <em>No proxy</em>
                 </MenuItem>

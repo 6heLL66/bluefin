@@ -4,12 +4,7 @@ import { Box, CircularProgress, Tooltip, Typography } from '@mui/material'
 
 import { Row } from '../../../components/Table'
 import { Unit } from '../../../types'
-import {
-  convertMsToTime,
-  getLongPositions,
-  getPositionsSummary,
-  getShortPositions,
-} from '../../../utils'
+import { convertMsToTime, getLongPositions, getPositionsSummary, getShortPositions } from '../../../utils'
 
 export const createRows = (
   units: Unit[],
@@ -17,10 +12,7 @@ export const createRows = (
   reCreatingUnitAssets: number[],
   getUnitTimingOpened: (token_id: number) => number,
   getUnitTimingReacreate: (token_id: number) => number,
-  handleAction?: (
-    type: 'close_unit' | 'update_unit_timing',
-    unit: Unit,
-  ) => void,
+  handleAction?: (type: 'close_unit' | 'update_unit_timing', unit: Unit) => void,
 ): Row[] => {
   return units.map(unit => ({
     id: unit.base_unit_info.token_id.toString(),
@@ -28,15 +20,8 @@ export const createRows = (
       <div>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <strong>{unit.base_unit_info.symbol}</strong>
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', gap: '2px' }}
-            onClick={() =>
-              handleAction && handleAction('update_unit_timing', unit)
-            }
-          >
-            <RefreshOutlined
-              sx={{ width: '18px', height: '18px', marginTop: '-2px' }}
-            />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }} onClick={() => handleAction && handleAction('update_unit_timing', unit)}>
+            <RefreshOutlined sx={{ width: '18px', height: '18px', marginTop: '-2px' }} />
             {getUnitTimingReacreate(unit.base_unit_info.token_id) / 60000} min
           </Box>
         </Box>
@@ -48,9 +33,7 @@ export const createRows = (
         ) : (
           <div>
             Time opened:
-            {convertMsToTime(
-              Date.now() - getUnitTimingOpened(unit.base_unit_info.token_id),
-            )}
+            {convertMsToTime(Date.now() - getUnitTimingOpened(unit.base_unit_info.token_id))}
           </div>
         )}
       </div>,
@@ -94,10 +77,7 @@ export const createRows = (
         <LoadingButton
           variant='contained'
           color='error'
-          loading={
-            closingUnitAsset.includes(unit.base_unit_info.token_id) ||
-            reCreatingUnitAssets.includes(unit.base_unit_info.token_id)
-          }
+          loading={closingUnitAsset.includes(unit.base_unit_info.token_id) || reCreatingUnitAssets.includes(unit.base_unit_info.token_id)}
           onClick={() => handleAction && handleAction('close_unit', unit)}
         >
           Close Unit

@@ -41,11 +41,7 @@ export class MarketsService {
    * @returns Market Success.
    * @throws ApiError
    */
-  public static getMarket({
-    symbol,
-  }: {
-    symbol: string
-  }): CancelablePromise<Market> {
+  public static getMarket({ symbol }: { symbol: string }): CancelablePromise<Market> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/market',
@@ -65,13 +61,7 @@ export class MarketsService {
    * @returns Ticker Success.
    * @throws ApiError
    */
-  public static getTicker({
-    symbol,
-    interval,
-  }: {
-    symbol: string
-    interval?: TickerInterval
-  }): CancelablePromise<Ticker> {
+  public static getTicker({ symbol, interval }: { symbol: string; interval?: TickerInterval }): CancelablePromise<Ticker> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/ticker',
@@ -92,11 +82,7 @@ export class MarketsService {
    * @returns Ticker Success.
    * @throws ApiError
    */
-  public static getTickers({
-    interval,
-  }: {
-    interval?: TickerInterval
-  }): CancelablePromise<Array<Ticker>> {
+  public static getTickers({ interval }: { interval?: TickerInterval }): CancelablePromise<Array<Ticker>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/tickers',
@@ -114,11 +100,7 @@ export class MarketsService {
    * @returns Depth Success.
    * @throws ApiError
    */
-  public static getDepth({
-    symbol,
-  }: {
-    symbol: string
-  }): CancelablePromise<Depth> {
+  public static getDepth({ symbol }: { symbol: string }): CancelablePromise<Depth> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/depth',
@@ -189,11 +171,7 @@ export class MarketsService {
    * @returns MarkPrice Success.
    * @throws ApiError
    */
-  public static getMarkPrices({
-    symbol,
-  }: {
-    symbol?: string
-  }): CancelablePromise<Array<MarkPrice>> {
+  public static getMarkPrices({ symbol }: { symbol?: string }): CancelablePromise<Array<MarkPrice>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/markPrices',
@@ -213,11 +191,7 @@ export class MarketsService {
    * @returns OpenInterest Success.
    * @throws ApiError
    */
-  public static getOpenInterest({
-    symbol,
-  }: {
-    symbol?: string
-  }): CancelablePromise<Array<OpenInterest>> {
+  public static getOpenInterest({ symbol }: { symbol?: string }): CancelablePromise<Array<OpenInterest>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/openInterest',

@@ -1,7 +1,7 @@
 import { ThemeOptions, ThemeProvider, createTheme } from '@mui/material'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useContext } from 'react'
 import ReactDOM from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import App from './App'
 import { GlobalProvider } from './context'
@@ -69,9 +69,7 @@ const AppWithThemeProvider = () => {
   const { theme } = useContext(ThemeContext)
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider
-        theme={createTheme(theme === Theme.Dark ? darkTheme : undefined)}
-      >
+      <ThemeProvider theme={createTheme(theme === Theme.Dark ? darkTheme : undefined)}>
         <App />
       </ThemeProvider>
     </QueryClientProvider>

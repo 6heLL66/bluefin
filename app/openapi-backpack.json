@@ -198,9 +198,7 @@
   "paths": {
     "/api/v1/account": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Get account.",
         "description": "**Instruction:** `accountQuery`",
         "parameters": [
@@ -286,9 +284,7 @@
         "operationId": "get_account"
       },
       "patch": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Update account.",
         "description": "Update account settings.\n\n**Instruction:** `accountUpdate`",
         "parameters": [
@@ -399,9 +395,7 @@
     },
     "/api/v1/account/convertDust": {
       "post": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Convert a dust balance on an account.",
         "description": "Converts a dust balance to USDC. The balance (including lend) must be\nless than the minimum quantity tradable on the spot order book.\n\n**Instruction:** `convertDust`",
         "parameters": [
@@ -502,9 +496,7 @@
     },
     "/api/v1/account/limits/borrow": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Get max borrow quantity.",
         "description": "Retrieves the maxmimum quantity an account can borrow\nfor a given asset based on the accounts existing exposure\nand margin requirements\n\n**Instruction:** `maxBorrowQuantity`",
         "parameters": [
@@ -613,9 +605,7 @@
     },
     "/api/v1/account/limits/order": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Get max order quantity.",
         "description": "Retrieves the maxmimum quantity an account can trade\nfor a given symbol based on the account's balances, existing exposure\nand margin requirements.\n\n**Instruction:** `maxOrderQuantity`",
         "parameters": [
@@ -781,9 +771,7 @@
     },
     "/api/v1/account/limits/withdrawal": {
       "get": {
-        "tags": [
-          "Account"
-        ],
+        "tags": ["Account"],
         "summary": "Get max withdrawal quantity.",
         "description": "Retrieves the maxmimum quantity an account can withdraw\nfor a given asset based on the accounts existing exposure\nand margin requirements\nThe response will include the maximum quantity that can be withdrawn\nand whether the withdrawal is with auto borrow or auto lend redeem\nenabled.\n\n**Instruction:** `maxWithdrawalQuantity`",
         "parameters": [
@@ -904,9 +892,7 @@
     },
     "/api/v1/assets": {
       "get": {
-        "tags": [
-          "Assets"
-        ],
+        "tags": ["Assets"],
         "summary": "Get assets.",
         "description": "Get all supported assets.",
         "responses": {
@@ -939,9 +925,7 @@
     },
     "/api/v1/collateral": {
       "get": {
-        "tags": [
-          "Assets"
-        ],
+        "tags": ["Assets"],
         "summary": "Get collateral.",
         "description": "Get collateral parameters for assets.",
         "responses": {
@@ -974,9 +958,7 @@
     },
     "/api/v1/borrowLend/positions": {
       "get": {
-        "tags": [
-          "Borrow Lend"
-        ],
+        "tags": ["Borrow Lend"],
         "summary": "Get borrow lend positions.",
         "description": "Retrieves all the open borrow lending positions for the account.\n\n**Instruction:** `borrowLendPositionQuery`",
         "parameters": [
@@ -1067,9 +1049,7 @@
     },
     "/api/v1/borrowLend": {
       "post": {
-        "tags": [
-          "Borrow Lend"
-        ],
+        "tags": ["Borrow Lend"],
         "summary": "Execute borrow lend.",
         "description": "**Instruction:** `borrowLendExecute`",
         "parameters": [
@@ -1170,9 +1150,7 @@
     },
     "/api/v1/borrowLend/markets": {
       "get": {
-        "tags": [
-          "Borrow Lend Markets"
-        ],
+        "tags": ["Borrow Lend Markets"],
         "summary": "Get borrow lend markets.",
         "responses": {
           "200": {
@@ -1204,9 +1182,7 @@
     },
     "/api/v1/borrowLend/markets/history": {
       "get": {
-        "tags": [
-          "Borrow Lend Markets"
-        ],
+        "tags": ["Borrow Lend Markets"],
         "summary": "Get borrow lend market history.",
         "parameters": [
           {
@@ -1262,9 +1238,7 @@
     },
     "/api/v1/capital": {
       "get": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Get balances.",
         "description": "Retrieves account balances and the state of the balances (locked or\navailable).\n\nLocked assets are those that are currently in an open order.\n\n**Instruction:** `balanceQuery`",
         "parameters": [
@@ -1355,9 +1329,7 @@
     },
     "/api/v1/capital/collateral": {
       "get": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Get collateral.",
         "description": "Retrieves collateral information for an account.\n\n**Instruction:** `collateralQuery`",
         "parameters": [
@@ -1456,9 +1428,7 @@
     },
     "/wapi/v1/capital/deposits": {
       "get": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Get deposits.",
         "description": "Retrieves deposit history.\n\n**Instruction:** `depositQueryAll`",
         "parameters": [
@@ -1607,9 +1577,7 @@
     },
     "/wapi/v1/capital/deposit/address": {
       "get": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Get deposit address.",
         "description": "Retrieves the user specific deposit address if the user were to deposit\non the specified blockchain.\n\n**Instruction:** `depositAddressQuery`",
         "parameters": [
@@ -1728,9 +1696,7 @@
     },
     "/api/v1/markets": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get markets.",
         "description": "Retrieves all the markets that are supported by the exchange.",
         "responses": {
@@ -1763,9 +1729,7 @@
     },
     "/api/v1/market": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get market.",
         "description": "Retrieves a market supported by the exchange.",
         "parameters": [
@@ -1817,9 +1781,7 @@
     },
     "/api/v1/ticker": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get ticker.",
         "description": "Retrieves summarised statistics for the last 24 hours for the given\nmarket symbol.",
         "parameters": [
@@ -1884,9 +1846,7 @@
     },
     "/api/v1/tickers": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get tickers.",
         "description": "Retrieves summarised statistics for the last 24 hours for all market\nsymbols.",
         "parameters": [
@@ -1931,9 +1891,7 @@
     },
     "/api/v1/depth": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get depth.",
         "description": "Retrieves the order book depth for a given market symbol.",
         "parameters": [
@@ -1985,9 +1943,7 @@
     },
     "/api/v1/klines": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get K-lines.",
         "description": "Get K-Lines for the given market symbol, optionally providing a\n`startTime` and `endTime`. If no `endTime` is provided, the current time\nwill be used.\n\nThe `priceType` parameter can be used to specify the price type of the\nkline. If not provided, the default is `LastPrice`.",
         "parameters": [
@@ -2088,9 +2044,7 @@
     },
     "/api/v1/markPrices": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get all mark prices.",
         "description": "Retrieves mark price, index price and the funding rate for the current\ninterval for all symbols, or the symbol specified.",
         "parameters": [
@@ -2145,9 +2099,7 @@
     },
     "/api/v1/openInterest": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get open interest.",
         "description": "Retrieves the current open interest for the given market.\nIf no market is provided, then all markets are returned.",
         "parameters": [
@@ -2202,9 +2154,7 @@
     },
     "/api/v1/fundingRates": {
       "get": {
-        "tags": [
-          "Markets"
-        ],
+        "tags": ["Markets"],
         "summary": "Get funding interval rates.",
         "description": "Funding interval rate history for futures.",
         "parameters": [
@@ -2325,9 +2275,7 @@
     },
     "/api/v1/order": {
       "get": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Get open order.",
         "description": "Retrieves an open order from the order book. This only returns the order\nif it is resting on the order book (i.e. has not been completely filled,\nexpired, or cancelled).\n\nOne of `orderId` or `clientId` must be specified. If both are specified\nthen the request will be rejected.\n\n**Instruction:** `orderQuery`",
         "parameters": [
@@ -2457,9 +2405,7 @@
         "operationId": "get_order"
       },
       "post": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Execute order.",
         "description": "Submits an order to the matching engine for execution.\n\n**Instruction:** `orderExecute`",
         "parameters": [
@@ -2565,9 +2511,7 @@
         "operationId": "execute_order"
       },
       "delete": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Cancel open order.",
         "description": "Cancels an open order from the order book.\n\nOne of `orderId` or `clientId` must be specified. If both are specified\nthen the request will be rejected.\n\n**Instruction:** `orderCancel`",
         "parameters": [
@@ -2678,9 +2622,7 @@
     },
     "/api/v1/orders": {
       "post": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Execute orders.",
         "description": "Submits a set of orders to the matching engine for execution in a batch.\n\n**Batch commands instruction:** `orderExecute`",
         "parameters": [
@@ -2792,9 +2734,7 @@
         "operationId": "execute_order_batch"
       },
       "get": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Get open orders.",
         "description": "Retrieves all open orders. If a symbol is provided, only open orders for\nthat market will be returned, otherwise all open orders are\nreturned.\n\n**Instruction:** `orderQueryAll`",
         "parameters": [
@@ -2905,9 +2845,7 @@
         "operationId": "get_open_orders"
       },
       "delete": {
-        "tags": [
-          "Order"
-        ],
+        "tags": ["Order"],
         "summary": "Cancel open orders.",
         "description": "Cancels all open orders on the specified market.\n\n**Instruction:** `orderCancelAll`",
         "parameters": [
@@ -3021,9 +2959,7 @@
     },
     "/api/v1/position": {
       "get": {
-        "tags": [
-          "Futures"
-        ],
+        "tags": ["Futures"],
         "summary": "Get open positions.",
         "description": "Retrieves account position summary.\n\n**Instruction:** `positionQuery`",
         "parameters": [
@@ -3124,9 +3060,7 @@
     },
     "/api/v1/rfq": {
       "post": {
-        "tags": [
-          "Request For Quote"
-        ],
+        "tags": ["Request For Quote"],
         "summary": "Submit RFQ.",
         "description": "Submit a Request for Quote (RFQ). The RFQ will be available for\na specified time window for makers to respond to.\n\n**Instruction:** `rfqSubmit`",
         "parameters": [
@@ -3234,9 +3168,7 @@
     },
     "/api/v1/rfq/accept": {
       "post": {
-        "tags": [
-          "Request For Quote"
-        ],
+        "tags": ["Request For Quote"],
         "summary": "Accept quote.",
         "description": "Accept a specific quote from a maker in response to an RFQ.\n\n**Instruction:** `quoteAccept`",
         "parameters": [
@@ -3344,9 +3276,7 @@
     },
     "/api/v1/rfq/refresh": {
       "post": {
-        "tags": [
-          "Request For Quote"
-        ],
+        "tags": ["Request For Quote"],
         "summary": "Refresh RFQ.",
         "description": "Refresh a RFQ, extending the time window it is available for.\n\n**Instruction:** `rfqRefresh`",
         "parameters": [
@@ -3454,9 +3384,7 @@
     },
     "/api/v1/rfq/cancel": {
       "post": {
-        "tags": [
-          "Request For Quote"
-        ],
+        "tags": ["Request For Quote"],
         "summary": "Cancel RFQ.",
         "description": "**Instruction:** `rfqCancel`",
         "parameters": [
@@ -3564,9 +3492,7 @@
     },
     "/api/v1/rfq/quote": {
       "post": {
-        "tags": [
-          "Request For Quote"
-        ],
+        "tags": ["Request For Quote"],
         "summary": "Submit quote.",
         "description": "Submit a quote in response to an RFQ. If valid, the quote may be\naccepted within the specified time window.\n\n**Instruction:** `quoteSubmit`",
         "parameters": [
@@ -3674,9 +3600,7 @@
     },
     "/api/v1/strategy": {
       "get": {
-        "tags": [
-          "Strategy"
-        ],
+        "tags": ["Strategy"],
         "summary": "Get open strategy.",
         "description": "Retrieves an open strategy from the engine. This only returns the\nstrategy if it is active (i.e. has not been completely filled,\ncancelled by the user, or cancelled by the system).\n\nOne of `strategyId` or `clientStrategyId` must be specified.\n\n**Instruction:** `strategyQuery`",
         "parameters": [
@@ -3806,9 +3730,7 @@
         "operationId": "get_strategy"
       },
       "post": {
-        "tags": [
-          "Strategy"
-        ],
+        "tags": ["Strategy"],
         "summary": "Create strategy.",
         "description": "Submits a strategy to the engine for processing.\n\n**Instruction:** `strategyCreate`",
         "parameters": [
@@ -3914,9 +3836,7 @@
         "operationId": "strategy_create"
       },
       "delete": {
-        "tags": [
-          "Strategy"
-        ],
+        "tags": ["Strategy"],
         "summary": "Cancel open strategy.",
         "description": "Cancels an open strategy currently being run.\n\nOne of `strategyId` or `clientStrategyId` must be specified.\n\n**Instruction:** `strategyCancel`",
         "parameters": [
@@ -4027,9 +3947,7 @@
     },
     "/api/v1/strategies": {
       "get": {
-        "tags": [
-          "Strategy"
-        ],
+        "tags": ["Strategy"],
         "summary": "Get open strategies.",
         "description": "Retrieves all open strategies. If a symbol is provided, only open\nstrategies for that market will be returned, otherwise all open\nstrategies are returned.\n\n**Instruction:** `strategyQueryAll`",
         "parameters": [
@@ -4151,9 +4069,7 @@
         "operationId": "get_open_strategies"
       },
       "delete": {
-        "tags": [
-          "Strategy"
-        ],
+        "tags": ["Strategy"],
         "summary": "Cancel open strategies.",
         "description": "Cancels all open strategies on the specified market.\n\n**Instruction:** `strategyCancelAll`",
         "parameters": [
@@ -4267,9 +4183,7 @@
     },
     "/api/v1/status": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Status.",
         "description": "Get the system status, and the status message, if any.",
         "responses": {
@@ -4289,9 +4203,7 @@
     },
     "/api/v1/ping": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Ping.",
         "description": "Responds with `pong`.",
         "responses": {
@@ -4311,9 +4223,7 @@
     },
     "/api/v1/time": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Get system time.",
         "description": "Retrieves the current system time.",
         "responses": {
@@ -4333,9 +4243,7 @@
     },
     "/api/v1/trades": {
       "get": {
-        "tags": [
-          "Trades"
-        ],
+        "tags": ["Trades"],
         "summary": "Get recent trades.",
         "description": "Retrieve the most recent trades for a symbol. This is public data and\nis not specific to any account.\n\nThe maximum available recent trades is `1000`. If you need more than\n`1000` trades use the historical trades endpoint.",
         "parameters": [
@@ -4403,9 +4311,7 @@
     },
     "/api/v1/trades/history": {
       "get": {
-        "tags": [
-          "Trades"
-        ],
+        "tags": ["Trades"],
         "summary": "Get historical trades.",
         "description": "Retrieves all historical trades for the given symbol. This is public\ntrade data and is not specific to any account.",
         "parameters": [
@@ -4484,9 +4390,7 @@
     },
     "/api/v1/wallets": {
       "get": {
-        "tags": [
-          "System"
-        ],
+        "tags": ["System"],
         "summary": "Get wallets.",
         "description": "Returns all configured blockchain wallets and their addresses.",
         "responses": {
@@ -4509,9 +4413,7 @@
     },
     "/wapi/v1/capital/withdrawals": {
       "get": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Get withdrawals.",
         "description": "Retrieves withdrawal history.\n\n**Instruction:** `withdrawalQueryAll`",
         "parameters": [
@@ -4658,9 +4560,7 @@
         "operationId": "get_withdrawals"
       },
       "post": {
-        "tags": [
-          "Capital"
-        ],
+        "tags": ["Capital"],
         "summary": "Request withdrawal.",
         "description": "Requests a withdrawal from the exchange.\n\nThe `twoFactorToken` field is required if the withdrawal address is not\nan address that is configured in the address book to not require\n2FA. These addresses can be configured [here](https://backpack.exchange/settings/withdrawal-addresses?twoFactorWithdrawalAddress=true).\n\n**Instruction:** `withdraw`",
         "parameters": [
@@ -4798,9 +4698,7 @@
     },
     "/wapi/v1/history/borrowLend": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get borrow history.",
         "description": "History of borrow and lend operations for the account.\n\n**Instruction:** `borrowHistoryQueryAll`",
         "parameters": [
@@ -5021,9 +4919,7 @@
     },
     "/wapi/v1/history/interest": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get interest history.",
         "description": "History of the interest payments for borrows and lends for the account.\n\n**Instruction:** `interestHistoryQueryAll`",
         "parameters": [
@@ -5244,9 +5140,7 @@
     },
     "/wapi/v1/history/borrowLend/positions": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get borrow position history.",
         "description": "History of borrow and lend positions for the account.\n\n**Instruction:** `borrowPositionHistoryQueryAll`",
         "parameters": [
@@ -5456,9 +5350,7 @@
     },
     "/wapi/v1/history/dust": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get dust conversion history.",
         "description": "Retrieves the dust conversion history for the user.\n\n**Instruction:** `dustHistoryQueryAll`",
         "parameters": [
@@ -5658,9 +5550,7 @@
     },
     "/wapi/v1/history/fills": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get fill history.",
         "description": "Retrieves historical fills, with optional filtering for a specific order\nor symbol.\n\n**Instruction:** `fillHistoryQueryAll`",
         "parameters": [
@@ -5919,9 +5809,7 @@
     },
     "/wapi/v1/history/funding": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get funding payments.",
         "description": "Users funding payment history for futures.\n\n**Instruction:** `fundingHistoryQueryAll`",
         "parameters": [
@@ -6121,9 +6009,7 @@
     },
     "/wapi/v1/history/orders": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get order history.",
         "description": "Retrieves the order history for the user. This includes orders that have\nbeen filled and are no longer on the book. It may include orders\nthat are on the book, but the `/orders` endpoint contains more up to\ndate data.\n\n**Instruction:** `orderHistoryQueryAll`",
         "parameters": [
@@ -6347,9 +6233,7 @@
     },
     "/wapi/v1/history/pnl": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get profit and loss history.",
         "description": "History of profit and loss realization for an account.\n\n**Instruction:** `pnlHistoryQueryAll`",
         "parameters": [
@@ -6549,9 +6433,7 @@
     },
     "/wapi/v1/history/rfq": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get rfq history.",
         "description": "Retrieves the rfq history for the user. This includes RFQs that have\nbeen filled or expired.\n\n**Instruction:** `rfqHistoryQueryAll`",
         "parameters": [
@@ -6772,9 +6654,7 @@
     },
     "/wapi/v1/history/quote": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get quote history.",
         "description": "Retrieves the quote history for the user. This includes quotes that have\nbeen filled or expired.\n\n**Instruction:** `quoteHistoryQueryAll`",
         "parameters": [
@@ -6984,9 +6864,7 @@
     },
     "/wapi/v1/history/settlement": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get settlement history.",
         "description": "History of settlement operations for the account.\n\n**Instruction:** `settlementHistoryQueryAll`",
         "parameters": [
@@ -7173,9 +7051,7 @@
     },
     "/wapi/v1/history/strategies": {
       "get": {
-        "tags": [
-          "History"
-        ],
+        "tags": ["History"],
         "summary": "Get strategy history.",
         "description": "Retrieves the strategy history for the user. This returns strategies\nthat are no longer active as they have either been\ncompleted, cancelled by the user or cancelled by the system.\n\n**Instruction:** `strategyHistoryQueryAll`",
         "parameters": [
@@ -7496,12 +7372,7 @@
       "AccountWithdrawalPayload": {
         "type": "object",
         "title": "AccountWithdrawalPayload",
-        "required": [
-          "address",
-          "blockchain",
-          "quantity",
-          "symbol"
-        ],
+        "required": ["address", "blockchain", "quantity", "symbol"],
         "properties": {
           "address": {
             "type": "string",
@@ -7594,10 +7465,7 @@
       "ApiErrorResponse": {
         "type": "object",
         "title": "ApiErrorResponse",
-        "required": [
-          "code",
-          "message"
-        ],
+        "required": ["code", "message"],
         "properties": {
           "code": {
             "$ref": "#/components/schemas/ApiErrorCode"
@@ -7734,11 +7602,7 @@
       "Balance": {
         "type": "object",
         "title": "Balance",
-        "required": [
-          "available",
-          "locked",
-          "staked"
-        ],
+        "required": ["available", "locked", "staked"],
         "properties": {
           "available": {
             "type": "string",
@@ -7779,15 +7643,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "operation"
-            ],
+            "required": ["operation"],
             "properties": {
               "operation": {
                 "type": "string",
-                "enum": [
-                  "Err"
-                ],
+                "enum": ["Err"],
                 "example": "Err"
               }
             }
@@ -7801,15 +7661,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "operation"
-            ],
+            "required": ["operation"],
             "properties": {
               "operation": {
                 "type": "string",
-                "enum": [
-                  "Ok"
-                ],
+                "enum": ["Ok"],
                 "example": "Ok"
               }
             }
@@ -7849,29 +7705,16 @@
       "BorrowLendBookState": {
         "type": "string",
         "description": "Borrow lend book state",
-        "enum": [
-          "Open",
-          "Closed",
-          "RepayOnly"
-        ]
+        "enum": ["Open", "Closed", "RepayOnly"]
       },
       "BorrowLendEventType": {
         "type": "string",
-        "enum": [
-          "Borrow",
-          "BorrowRepay",
-          "Lend",
-          "LendRedeem"
-        ]
+        "enum": ["Borrow", "BorrowRepay", "Lend", "LendRedeem"]
       },
       "BorrowLendExecutePayload": {
         "type": "object",
         "title": "BorrowLendExecutePayload",
-        "required": [
-          "quantity",
-          "side",
-          "symbol"
-        ],
+        "required": ["quantity", "side", "symbol"],
         "properties": {
           "quantity": {
             "type": "string",
@@ -7905,14 +7748,7 @@
       "BorrowLendHistory": {
         "type": "object",
         "title": "BorrowLendHistory",
-        "required": [
-          "borrowInterestRate",
-          "borrowedQuantity",
-          "lendInterestRate",
-          "lentQuantity",
-          "timestamp",
-          "utilization"
-        ],
+        "required": ["borrowInterestRate", "borrowedQuantity", "lendInterestRate", "lentQuantity", "timestamp", "utilization"],
         "properties": {
           "borrowInterestRate": {
             "type": "string",
@@ -8071,24 +7907,12 @@
       },
       "BorrowLendMarketHistoryInterval": {
         "type": "string",
-        "enum": [
-          "1d",
-          "1w",
-          "1month",
-          "1year"
-        ]
+        "enum": ["1d", "1w", "1month", "1year"]
       },
       "BorrowLendMovement": {
         "type": "object",
         "title": "BorrowLendMovement",
-        "required": [
-          "eventType",
-          "positionId",
-          "quantity",
-          "source",
-          "symbol",
-          "timestamp"
-        ],
+        "required": ["eventType", "positionId", "quantity", "source", "symbol", "timestamp"],
         "properties": {
           "eventType": {
             "description": "Type of event.",
@@ -8144,16 +7968,7 @@
       "BorrowLendPositionRow": {
         "type": "object",
         "title": "BorrowLendPositionRow",
-        "required": [
-          "positionId",
-          "quantity",
-          "symbol",
-          "source",
-          "cumulativeInterest",
-          "avgInterestRate",
-          "side",
-          "createdAt"
-        ],
+        "required": ["positionId", "quantity", "symbol", "source", "cumulativeInterest", "avgInterestRate", "side", "createdAt"],
         "properties": {
           "positionId": {
             "type": "string",
@@ -8209,10 +8024,7 @@
       },
       "BorrowLendPositionState": {
         "type": "string",
-        "enum": [
-          "Open",
-          "Closed"
-        ]
+        "enum": ["Open", "Closed"]
       },
       "BorrowLendPositionWithMargin": {
         "type": "object",
@@ -8307,10 +8119,7 @@
       },
       "BorrowLendSide": {
         "type": "string",
-        "enum": [
-          "Borrow",
-          "Lend"
-        ]
+        "enum": ["Borrow", "Lend"]
       },
       "BorrowLendSource": {
         "type": "string",
@@ -8332,10 +8141,7 @@
       },
       "CancelOrderTypeEnum": {
         "type": "string",
-        "enum": [
-          "RestingLimitOrder",
-          "ConditionalOrder"
-        ]
+        "enum": ["RestingLimitOrder", "ConditionalOrder"]
       },
       "Collateral": {
         "type": "object",
@@ -8401,10 +8207,7 @@
       "CollateralFunction": {
         "type": "object",
         "title": "CollateralFunction",
-        "required": [
-          "weight",
-          "kind"
-        ],
+        "required": ["weight", "kind"],
         "properties": {
           "weight": {
             "type": "string",
@@ -8437,15 +8240,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "properties": {
               "type": {
                 "type": "string",
-                "enum": [
-                  "identity"
-                ],
+                "enum": ["identity"],
                 "example": "identity"
               }
             }
@@ -8459,15 +8258,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "properties": {
               "type": {
                 "type": "string",
-                "enum": [
-                  "inverseSqrt"
-                ],
+                "enum": ["inverseSqrt"],
                 "example": "inverseSqrt"
               }
             }
@@ -8480,12 +8275,7 @@
       "CollateralSummary": {
         "type": "object",
         "title": "CollateralSummary",
-        "required": [
-          "symbol",
-          "imfFunction",
-          "mmfFunction",
-          "haircutFunction"
-        ],
+        "required": ["symbol", "imfFunction", "mmfFunction", "haircutFunction"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -8529,14 +8319,7 @@
       "Deposit": {
         "type": "object",
         "title": "Deposit",
-        "required": [
-          "id",
-          "source",
-          "status",
-          "symbol",
-          "quantity",
-          "createdAt"
-        ],
+        "required": ["id", "source", "status", "symbol", "quantity", "createdAt"],
         "properties": {
           "id": {
             "type": "integer",
@@ -8627,9 +8410,7 @@
       "DepositAddress": {
         "type": "object",
         "title": "DepositAddress",
-        "required": [
-          "address"
-        ],
+        "required": ["address"],
         "properties": {
           "address": {
             "type": "string",
@@ -8669,25 +8450,12 @@
       },
       "DepositStatus": {
         "type": "string",
-        "enum": [
-          "cancelled",
-          "confirmed",
-          "declined",
-          "expired",
-          "initiated",
-          "pending",
-          "refunded"
-        ]
+        "enum": ["cancelled", "confirmed", "declined", "expired", "initiated", "pending", "refunded"]
       },
       "Depth": {
         "type": "object",
         "title": "Depth",
-        "required": [
-          "asks",
-          "bids",
-          "lastUpdateId",
-          "timestamp"
-        ],
+        "required": ["asks", "bids", "lastUpdateId", "timestamp"],
         "properties": {
           "asks": {
             "type": "array",
@@ -8725,24 +8493,12 @@
         },
         "example": {
           "asks": [
-            [
-              "21.9",
-              "500.123"
-            ],
-            [
-              "22.1",
-              "2321.11"
-            ]
+            ["21.9", "500.123"],
+            ["22.1", "2321.11"]
           ],
           "bids": [
-            [
-              "20.12",
-              "255.123"
-            ],
-            [
-              "20.5",
-              "499.555"
-            ]
+            ["20.12", "255.123"],
+            ["20.5", "499.555"]
           ],
           "lastUpdateId": "1684026955123",
           "timestamp": 1684026955123
@@ -8751,13 +8507,7 @@
       "DustConversion": {
         "type": "object",
         "title": "DustConversion",
-        "required": [
-          "id",
-          "quantity",
-          "symbol",
-          "usdcReceived",
-          "timestamp"
-        ],
+        "required": ["id", "quantity", "symbol", "usdcReceived", "timestamp"],
         "properties": {
           "id": {
             "type": "integer",
@@ -8859,11 +8609,7 @@
       "FundingIntervalRate": {
         "type": "object",
         "title": "FundingIntervalRate",
-        "required": [
-          "symbol",
-          "intervalEndTimestamp",
-          "fundingRate"
-        ],
+        "required": ["symbol", "intervalEndTimestamp", "fundingRate"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -8884,13 +8630,7 @@
       "FundingPayment": {
         "type": "object",
         "title": "FundingPayment",
-        "required": [
-          "userId",
-          "symbol",
-          "quantity",
-          "intervalEndTimestamp",
-          "fundingRate"
-        ],
+        "required": ["userId", "symbol", "quantity", "intervalEndTimestamp", "fundingRate"],
         "properties": {
           "userId": {
             "type": "integer",
@@ -9067,16 +8807,7 @@
       "InterestPayment": {
         "type": "object",
         "title": "InterestPayment",
-        "required": [
-          "paymentType",
-          "interestRate",
-          "interval",
-          "marketSymbol",
-          "positionId",
-          "quantity",
-          "symbol",
-          "timestamp"
-        ],
+        "required": ["paymentType", "interestRate", "interval", "marketSymbol", "positionId", "quantity", "symbol", "timestamp"],
         "properties": {
           "paymentType": {
             "description": "Type of payment.",
@@ -9132,18 +8863,12 @@
       },
       "InterestPaymentSource": {
         "type": "string",
-        "enum": [
-          "UnrealizedPnl",
-          "BorrowLend"
-        ]
+        "enum": ["UnrealizedPnl", "BorrowLend"]
       },
       "InverseSqrtFunction": {
         "type": "object",
         "title": "InverseSqrtFunction",
-        "required": [
-          "base",
-          "positiveCurvePenalty"
-        ],
+        "required": ["base", "positiveCurvePenalty"],
         "properties": {
           "base": {
             "type": "string",
@@ -9158,13 +8883,7 @@
       "Kline": {
         "type": "object",
         "title": "Kline",
-        "required": [
-          "start",
-          "end",
-          "volume",
-          "quoteVolume",
-          "trades"
-        ],
+        "required": ["start", "end", "volume", "quoteVolume", "trades"],
         "properties": {
           "start": {
             "type": "string",
@@ -9206,31 +8925,11 @@
       },
       "KlineInterval": {
         "type": "string",
-        "enum": [
-          "1m",
-          "3m",
-          "5m",
-          "15m",
-          "30m",
-          "1h",
-          "2h",
-          "4h",
-          "6h",
-          "8h",
-          "12h",
-          "1d",
-          "3d",
-          "1w",
-          "1month"
-        ]
+        "enum": ["1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1month"]
       },
       "KlinePriceType": {
         "type": "string",
-        "enum": [
-          "Last",
-          "Index",
-          "Mark"
-        ]
+        "enum": ["Last", "Index", "Mark"]
       },
       "LimitOrder": {
         "type": "object",
@@ -9482,13 +9181,7 @@
       "MarkPrice": {
         "type": "object",
         "title": "MarkPrice",
-        "required": [
-          "fundingRate",
-          "indexPrice",
-          "markPrice",
-          "nextFundingTimestamp",
-          "symbol"
-        ],
+        "required": ["fundingRate", "indexPrice", "markPrice", "nextFundingTimestamp", "symbol"],
         "properties": {
           "fundingRate": {
             "type": "string",
@@ -9519,15 +9212,7 @@
       "Market": {
         "type": "object",
         "title": "Market",
-        "required": [
-          "symbol",
-          "baseSymbol",
-          "quoteSymbol",
-          "marketType",
-          "filters",
-          "orderBookState",
-          "createdAt"
-        ],
+        "required": ["symbol", "baseSymbol", "quoteSymbol", "marketType", "filters", "orderBookState", "createdAt"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -9640,11 +9325,7 @@
       "MarketAsset": {
         "type": "object",
         "title": "MarketAsset",
-        "required": [
-          "symbol",
-          "displayName",
-          "tokens"
-        ],
+        "required": ["symbol", "displayName", "tokens"],
         "properties": {
           "symbol": {
             "description": "Symbol of the asset, e.g. ETH.",
@@ -9677,17 +9358,7 @@
       "MarketOrder": {
         "type": "object",
         "title": "MarketOrder",
-        "required": [
-          "id",
-          "createdAt",
-          "executedQuantity",
-          "executedQuoteQuantity",
-          "timeInForce",
-          "selfTradePrevention",
-          "side",
-          "status",
-          "symbol"
-        ],
+        "required": ["id", "createdAt", "executedQuantity", "executedQuoteQuantity", "timeInForce", "selfTradePrevention", "side", "status", "symbol"],
         "properties": {
           "id": {
             "type": "string",
@@ -9829,22 +9500,12 @@
       },
       "MarketType": {
         "type": "string",
-        "enum": [
-          "SPOT",
-          "PERP",
-          "IPERP",
-          "DATED",
-          "PREDICTION",
-          "RFQ"
-        ]
+        "enum": ["SPOT", "PERP", "IPERP", "DATED", "PREDICTION", "RFQ"]
       },
       "MaxBorrowQuantity": {
         "type": "object",
         "title": "MaxBorrowQuantity",
-        "required": [
-          "maxBorrowQuantity",
-          "symbol"
-        ],
+        "required": ["maxBorrowQuantity", "symbol"],
         "properties": {
           "maxBorrowQuantity": {
             "type": "string",
@@ -9858,11 +9519,7 @@
       "MaxOrderQuantity": {
         "type": "object",
         "title": "MaxOrderQuantity",
-        "required": [
-          "maxOrderQuantity",
-          "side",
-          "symbol"
-        ],
+        "required": ["maxOrderQuantity", "side", "symbol"],
         "properties": {
           "autoBorrow": {
             "type": "boolean"
@@ -9895,10 +9552,7 @@
       "MaxWithdrawalQuantity": {
         "type": "object",
         "title": "MaxWithdrawalQuantity",
-        "required": [
-          "maxWithdrawalQuantity",
-          "symbol"
-        ],
+        "required": ["maxWithdrawalQuantity", "symbol"],
         "properties": {
           "autoBorrow": {
             "type": "boolean"
@@ -9918,10 +9572,7 @@
       "OpenInterest": {
         "type": "object",
         "title": "OpenInterest",
-        "required": [
-          "symbol",
-          "timestamp"
-        ],
+        "required": ["symbol", "timestamp"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -9942,16 +9593,7 @@
       "Order": {
         "type": "object",
         "title": "Order",
-        "required": [
-          "id",
-          "createdAt",
-          "orderType",
-          "selfTradePrevention",
-          "status",
-          "side",
-          "symbol",
-          "timeInForce"
-        ],
+        "required": ["id", "createdAt", "orderType", "selfTradePrevention", "status", "side", "symbol", "timeInForce"],
         "properties": {
           "id": {
             "type": "string",
@@ -10124,10 +9766,7 @@
       "OrderBookFilters": {
         "type": "object",
         "title": "OrderBookFilters",
-        "required": [
-          "price",
-          "quantity"
-        ],
+        "required": ["price", "quantity"],
         "properties": {
           "price": {
             "description": "Defines the price rules for the order book.",
@@ -10155,20 +9794,12 @@
       },
       "OrderBookState": {
         "type": "string",
-        "enum": [
-          "Open",
-          "Closed",
-          "CancelOnly",
-          "LimitOnly",
-          "PostOnly"
-        ]
+        "enum": ["Open", "Closed", "CancelOnly", "LimitOnly", "PostOnly"]
       },
       "OrderCancelAllPayload": {
         "type": "object",
         "title": "OrderCancelAllPayload",
-        "required": [
-          "symbol"
-        ],
+        "required": ["symbol"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -10190,9 +9821,7 @@
       "OrderCancelPayload": {
         "type": "object",
         "title": "OrderCancelPayload",
-        "required": [
-          "symbol"
-        ],
+        "required": ["symbol"],
         "properties": {
           "clientId": {
             "type": "integer",
@@ -10212,11 +9841,7 @@
       "OrderExecutePayload": {
         "type": "object",
         "title": "OrderExecutePayload",
-        "required": [
-          "orderType",
-          "side",
-          "symbol"
-        ],
+        "required": ["orderType", "side", "symbol"],
         "properties": {
           "autoLend": {
             "type": "boolean",
@@ -10378,17 +10003,7 @@
       "OrderFill": {
         "type": "object",
         "title": "OrderFill",
-        "required": [
-          "fee",
-          "feeSymbol",
-          "isMaker",
-          "orderId",
-          "price",
-          "quantity",
-          "side",
-          "symbol",
-          "timestamp"
-        ],
+        "required": ["fee", "feeSymbol", "isMaker", "orderId", "price", "quantity", "side", "symbol", "timestamp"],
         "properties": {
           "clientId": {
             "type": "string",
@@ -10461,15 +10076,7 @@
       },
       "OrderStatus": {
         "type": "string",
-        "enum": [
-          "Cancelled",
-          "Expired",
-          "Filled",
-          "New",
-          "PartiallyFilled",
-          "TriggerPending",
-          "TriggerFailed"
-        ]
+        "enum": ["Cancelled", "Expired", "Filled", "New", "PartiallyFilled", "TriggerPending", "TriggerFailed"]
       },
       "OrderType": {
         "type": "object",
@@ -10491,24 +10098,17 @@
       },
       "OrderTypeEnum": {
         "type": "string",
-        "enum": [
-          "Market",
-          "Limit"
-        ]
+        "enum": ["Market", "Limit"]
       },
       "OrderType_LimitOrder": {
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "orderType"
-            ],
+            "required": ["orderType"],
             "properties": {
               "orderType": {
                 "type": "string",
-                "enum": [
-                  "Limit"
-                ],
+                "enum": ["Limit"],
                 "example": "Limit"
               }
             }
@@ -10522,15 +10122,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "orderType"
-            ],
+            "required": ["orderType"],
             "properties": {
               "orderType": {
                 "type": "string",
-                "enum": [
-                  "Market"
-                ],
+                "enum": ["Market"],
                 "example": "Market"
               }
             }
@@ -10542,22 +10138,12 @@
       },
       "PaymentType": {
         "type": "string",
-        "enum": [
-          "EntryFee",
-          "Borrow",
-          "Lend",
-          "UnrealizedPositivePnl",
-          "UnrealizedNegativePnl"
-        ]
+        "enum": ["EntryFee", "Borrow", "Lend", "UnrealizedPositivePnl", "UnrealizedNegativePnl"]
       },
       "PnlPayment": {
         "type": "object",
         "title": "PnlPayment",
-        "required": [
-          "pnlRealized",
-          "symbol",
-          "timestamp"
-        ],
+        "required": ["pnlRealized", "symbol", "timestamp"],
         "properties": {
           "pnlRealized": {
             "type": "string",
@@ -10593,15 +10179,11 @@
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "type"
-            ],
+            "required": ["type"],
             "properties": {
               "type": {
                 "type": "string",
-                "enum": [
-                  "sqrt"
-                ],
+                "enum": ["sqrt"],
                 "example": "sqrt"
               }
             }
@@ -10614,10 +10196,7 @@
       "PriceBandMarkPrice": {
         "type": "object",
         "title": "PriceBandMarkPrice",
-        "required": [
-          "maxMultiplier",
-          "minMultiplier"
-        ],
+        "required": ["maxMultiplier", "minMultiplier"],
         "properties": {
           "maxMultiplier": {
             "type": "string",
@@ -10634,9 +10213,7 @@
       "PriceBandMeanPremium": {
         "type": "object",
         "title": "PriceBandMeanPremium",
-        "required": [
-          "tolerancePct"
-        ],
+        "required": ["tolerancePct"],
         "properties": {
           "tolerancePct": {
             "type": "string",
@@ -10648,10 +10225,7 @@
       "PriceFilter": {
         "type": "object",
         "title": "PriceFilter",
-        "required": [
-          "minPrice",
-          "tickSize"
-        ],
+        "required": ["minPrice", "tickSize"],
         "properties": {
           "minPrice": {
             "type": "string",
@@ -10725,10 +10299,7 @@
       "QuantityFilter": {
         "type": "object",
         "title": "QuantityFilter",
-        "required": [
-          "minQuantity",
-          "stepSize"
-        ],
+        "required": ["minQuantity", "stepSize"],
         "properties": {
           "minQuantity": {
             "type": "string",
@@ -10750,14 +10321,7 @@
       "Quote": {
         "type": "object",
         "title": "Quote",
-        "required": [
-          "rfqId",
-          "quoteId",
-          "bidPrice",
-          "askPrice",
-          "status",
-          "createdAt"
-        ],
+        "required": ["rfqId", "quoteId", "bidPrice", "askPrice", "status", "createdAt"],
         "properties": {
           "rfqId": {
             "type": "string",
@@ -10803,9 +10367,7 @@
       "QuoteAcceptPayload": {
         "type": "object",
         "title": "QuoteAcceptPayload",
-        "required": [
-          "quoteId"
-        ],
+        "required": ["quoteId"],
         "properties": {
           "rfqId": {
             "type": "string",
@@ -10825,15 +10387,7 @@
       "QuoteHistorical": {
         "type": "object",
         "title": "QuoteHistorical",
-        "required": [
-          "userId",
-          "rfqId",
-          "quoteId",
-          "bidPrice",
-          "askPrice",
-          "status",
-          "createdAt"
-        ],
+        "required": ["userId", "rfqId", "quoteId", "bidPrice", "askPrice", "status", "createdAt"],
         "properties": {
           "userId": {
             "type": "integer",
@@ -10889,11 +10443,7 @@
       "QuotePayload": {
         "type": "object",
         "title": "QuotePayload",
-        "required": [
-          "rfqId",
-          "bidPrice",
-          "askPrice"
-        ],
+        "required": ["rfqId", "bidPrice", "askPrice"],
         "properties": {
           "rfqId": {
             "type": "string",
@@ -10919,16 +10469,7 @@
       "RequestForQuote": {
         "type": "object",
         "title": "RequestForQuote",
-        "required": [
-          "rfqId",
-          "symbol",
-          "side",
-          "submissionTime",
-          "expiryTime",
-          "status",
-          "executionMode",
-          "createdAt"
-        ],
+        "required": ["rfqId", "symbol", "side", "submissionTime", "expiryTime", "status", "executionMode", "createdAt"],
         "properties": {
           "rfqId": {
             "type": "string",
@@ -11026,17 +10567,7 @@
       "RequestForQuoteHistorical": {
         "type": "object",
         "title": "RequestForQuoteHistorical",
-        "required": [
-          "userId",
-          "rfqId",
-          "symbol",
-          "side",
-          "submissionTime",
-          "expiryTime",
-          "status",
-          "executionMode",
-          "createdAt"
-        ],
+        "required": ["userId", "rfqId", "symbol", "side", "submissionTime", "expiryTime", "status", "executionMode", "createdAt"],
         "properties": {
           "userId": {
             "type": "integer",
@@ -11129,10 +10660,7 @@
       "RequestForQuotePayload": {
         "type": "object",
         "title": "RequestForQuotePayload",
-        "required": [
-          "symbol",
-          "side"
-        ],
+        "required": ["symbol", "side"],
         "properties": {
           "clientId": {
             "type": "integer",
@@ -11185,9 +10713,7 @@
       "RequestForQuoteRefreshPayload": {
         "type": "object",
         "title": "RequestForQuoteRefreshPayload",
-        "required": [
-          "rfqId"
-        ],
+        "required": ["rfqId"],
         "properties": {
           "rfqId": {
             "type": "string",
@@ -11197,10 +10723,7 @@
       },
       "RfqExecutionMode": {
         "type": "string",
-        "enum": [
-          "AwaitAccept",
-          "Immediate"
-        ]
+        "enum": ["AwaitAccept", "Immediate"]
       },
       "ScheduledStrategy": {
         "type": "object",
@@ -11319,21 +10842,12 @@
       },
       "SelfTradePrevention": {
         "type": "string",
-        "enum": [
-          "RejectTaker",
-          "RejectMaker",
-          "RejectBoth"
-        ]
+        "enum": ["RejectTaker", "RejectMaker", "RejectBoth"]
       },
       "Settlement": {
         "type": "object",
         "title": "Settlement",
-        "required": [
-          "quantity",
-          "source",
-          "timestamp",
-          "userId"
-        ],
+        "required": ["quantity", "source", "timestamp", "userId"],
         "properties": {
           "quantity": {
             "type": "string",
@@ -11400,25 +10914,16 @@
       },
       "Side": {
         "type": "string",
-        "enum": [
-          "Bid",
-          "Ask"
-        ]
+        "enum": ["Bid", "Ask"]
       },
       "SortDirection": {
         "type": "string",
-        "enum": [
-          "Asc",
-          "Desc"
-        ]
+        "enum": ["Asc", "Desc"]
       },
       "SqrtFunction": {
         "type": "object",
         "title": "SqrtFunction",
-        "required": [
-          "base",
-          "factor"
-        ],
+        "required": ["base", "factor"],
         "properties": {
           "base": {
             "type": "string",
@@ -11432,17 +10937,12 @@
       },
       "Status": {
         "type": "string",
-        "enum": [
-          "Ok",
-          "Maintenance"
-        ]
+        "enum": ["Ok", "Maintenance"]
       },
       "StatusAndMessage": {
         "type": "object",
         "title": "StatusAndMessage",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "properties": {
           "status": {
             "description": "Status of the system.",
@@ -11596,9 +11096,7 @@
       "StrategyCancelAllPayload": {
         "type": "object",
         "title": "StrategyCancelAllPayload",
-        "required": [
-          "symbol"
-        ],
+        "required": ["symbol"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -11620,9 +11118,7 @@
       "StrategyCancelPayload": {
         "type": "object",
         "title": "StrategyCancelPayload",
-        "required": [
-          "symbol"
-        ],
+        "required": ["symbol"],
         "properties": {
           "clientStrategyId": {
             "type": "integer",
@@ -11661,11 +11157,7 @@
       "StrategyCreatePayload": {
         "type": "object",
         "title": "StrategyCreatePayload",
-        "required": [
-          "strategyType",
-          "side",
-          "symbol"
-        ],
+        "required": ["strategyType", "side", "symbol"],
         "properties": {
           "autoLend": {
             "type": "boolean",
@@ -11772,12 +11264,7 @@
       },
       "StrategyStatus": {
         "type": "string",
-        "enum": [
-          "Running",
-          "Completed",
-          "Cancelled",
-          "Terminated"
-        ]
+        "enum": ["Running", "Completed", "Cancelled", "Terminated"]
       },
       "StrategyType": {
         "type": "object",
@@ -11795,23 +11282,17 @@
       },
       "StrategyTypeEnum": {
         "type": "string",
-        "enum": [
-          "Scheduled"
-        ]
+        "enum": ["Scheduled"]
       },
       "StrategyType_ScheduledStrategy": {
         "allOf": [
           {
             "type": "object",
-            "required": [
-              "strategyType"
-            ],
+            "required": ["strategyType"],
             "properties": {
               "strategyType": {
                 "type": "string",
-                "enum": [
-                  "Scheduled"
-                ],
+                "enum": ["Scheduled"],
                 "example": "Scheduled"
               }
             }
@@ -11823,30 +11304,12 @@
       },
       "SystemOrderType": {
         "type": "string",
-        "enum": [
-          "CollateralConversion",
-          "FutureExpiry",
-          "LiquidatePositionOnAdl",
-          "LiquidatePositionOnBook",
-          "LiquidatePositionOnBackstop",
-          "OrderBookClosed"
-        ]
+        "enum": ["CollateralConversion", "FutureExpiry", "LiquidatePositionOnAdl", "LiquidatePositionOnBook", "LiquidatePositionOnBackstop", "OrderBookClosed"]
       },
       "Ticker": {
         "type": "object",
         "title": "Ticker",
-        "required": [
-          "symbol",
-          "firstPrice",
-          "lastPrice",
-          "priceChange",
-          "priceChangePercent",
-          "high",
-          "low",
-          "volume",
-          "quoteVolume",
-          "trades"
-        ],
+        "required": ["symbol", "firstPrice", "lastPrice", "priceChange", "priceChangePercent", "high", "low", "volume", "quoteVolume", "trades"],
         "properties": {
           "symbol": {
             "type": "string",
@@ -11900,31 +11363,16 @@
       },
       "TickerInterval": {
         "type": "string",
-        "enum": [
-          "1d",
-          "1w"
-        ]
+        "enum": ["1d", "1w"]
       },
       "TimeInForce": {
         "type": "string",
-        "enum": [
-          "GTC",
-          "IOC",
-          "FOK"
-        ]
+        "enum": ["GTC", "IOC", "FOK"]
       },
       "Token": {
         "type": "object",
         "title": "Token",
-        "required": [
-          "displayName",
-          "blockchain",
-          "depositEnabled",
-          "minimumDeposit",
-          "withdrawEnabled",
-          "minimumWithdrawal",
-          "withdrawalFee"
-        ],
+        "required": ["displayName", "blockchain", "depositEnabled", "minimumDeposit", "withdrawEnabled", "minimumWithdrawal", "withdrawalFee"],
         "properties": {
           "displayName": {
             "type": "string"
@@ -11962,13 +11410,7 @@
       "Trade": {
         "type": "object",
         "title": "Trade",
-        "required": [
-          "price",
-          "quantity",
-          "quoteQuantity",
-          "timestamp",
-          "isBuyerMaker"
-        ],
+        "required": ["price", "quantity", "quoteQuantity", "timestamp", "isBuyerMaker"],
         "properties": {
           "id": {
             "type": "integer",
@@ -12027,10 +11469,7 @@
       "WalletResponse": {
         "type": "object",
         "title": "WalletResponse",
-        "required": [
-          "blockchain",
-          "address"
-        ],
+        "required": ["blockchain", "address"],
         "properties": {
           "blockchain": {
             "type": "string",
@@ -12045,17 +11484,7 @@
       "Withdrawal": {
         "type": "object",
         "title": "Withdrawal",
-        "required": [
-          "id",
-          "blockchain",
-          "quantity",
-          "fee",
-          "symbol",
-          "status",
-          "toAddress",
-          "createdAt",
-          "isInternal"
-        ],
+        "required": ["id", "blockchain", "quantity", "fee", "symbol", "status", "toAddress", "createdAt", "isInternal"],
         "properties": {
           "id": {
             "type": "integer",
@@ -12187,42 +11616,22 @@
       },
       "WithdrawalStatus": {
         "type": "string",
-        "enum": [
-          "confirmed",
-          "information required",
-          "pending"
-        ]
+        "enum": ["confirmed", "information required", "pending"]
       }
     }
   },
   "x-tagGroups": [
     {
       "name": "Public Endpoints",
-      "tags": [
-        "Assets",
-        "Borrow Lend Markets",
-        "Markets",
-        "System",
-        "Trades"
-      ]
+      "tags": ["Assets", "Borrow Lend Markets", "Markets", "System", "Trades"]
     },
     {
       "name": "Authenticated Endpoints",
-      "tags": [
-        "Account",
-        "Borrow Lend",
-        "Capital",
-        "Futures",
-        "History",
-        "Order",
-        "Request For Quote"
-      ]
+      "tags": ["Account", "Borrow Lend", "Capital", "Futures", "History", "Order", "Request For Quote"]
     },
     {
       "name": "Websocket",
-      "tags": [
-        "Streams"
-      ]
+      "tags": ["Streams"]
     }
   ]
 }

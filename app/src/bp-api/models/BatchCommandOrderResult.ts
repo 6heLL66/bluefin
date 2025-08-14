@@ -8,6 +8,4 @@
 import type { BatchCommandOrderResult_ApiErrorResponse } from './BatchCommandOrderResult_ApiErrorResponse'
 import type { BatchCommandOrderResult_OrderType } from './BatchCommandOrderResult_OrderType'
 
-export type BatchCommandOrderResult =
-  | BatchCommandOrderResult_OrderType
-  | BatchCommandOrderResult_ApiErrorResponse
+export type BatchCommandOrderResult = BatchCommandOrderResult_OrderType | BatchCommandOrderResult_ApiErrorResponse

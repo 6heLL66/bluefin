@@ -18,9 +18,7 @@ export class BorrowLendMarketsService {
    * @returns BorrowLendMarket Success.
    * @throws ApiError
    */
-  public static getBorrowLendMarkets(): CancelablePromise<
-    Array<BorrowLendMarket>
-  > {
+  public static getBorrowLendMarkets(): CancelablePromise<Array<BorrowLendMarket>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/borrowLend/markets',

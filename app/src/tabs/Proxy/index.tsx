@@ -10,11 +10,7 @@ import { HeadCell, Proxy as ProxyType } from '../../types'
 const createRows = (proxies: ProxyType[]): Row[] => {
   return proxies.map(proxy => ({
     id: proxy.id!,
-    data: [
-      <ChipWithCopy value={`${proxy.host}:${proxy.port}`} />,
-      <ChipWithCopy value={proxy.username} />,
-      <ChipWithCopy value={proxy.password} />,
-    ],
+    data: [<ChipWithCopy value={`${proxy.host}:${proxy.port}`} />, <ChipWithCopy value={proxy.username} />, <ChipWithCopy value={proxy.password} />],
   }))
 }
 
@@ -90,18 +86,8 @@ export const Proxy = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <AddProxyModal
-        handleAddAccount={addProxy}
-        open={activeModalId === 'addProxyModal'}
-        handleClose={() => setModalId(null)}
-      />
-      <Table
-        headCells={headCells}
-        rows={rows}
-        withCheckbox
-        ActionBar={ActionBar}
-        toolbar={toolbar()}
-      />
+      <AddProxyModal handleAddAccount={addProxy} open={activeModalId === 'addProxyModal'} handleClose={() => setModalId(null)} />
+      <Table headCells={headCells} rows={rows} withCheckbox ActionBar={ActionBar} toolbar={toolbar()} />
     </Box>
   )
 }

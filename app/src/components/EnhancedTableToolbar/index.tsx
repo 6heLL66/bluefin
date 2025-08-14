@@ -8,32 +8,19 @@ interface Props {
   toolBar?: React.ReactNode
 }
 
-export const EnhancedTableToolbar: React.FC<Props> = ({
-  numSelected,
-  children,
-  toolBar,
-}) => {
+export const EnhancedTableToolbar: React.FC<Props> = ({ numSelected, children, toolBar }) => {
   return (
     <Toolbar
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
         ...(numSelected > 0 && {
-          bgcolor: theme =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity,
-            ),
+          bgcolor: theme => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
         }),
       }}
     >
       {numSelected > 0 && (
-        <Typography
-          sx={{ flex: '1 1 100%' }}
-          color='inherit'
-          variant='subtitle1'
-          component='div'
-        >
+        <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
           {numSelected} selected
         </Typography>
       )}

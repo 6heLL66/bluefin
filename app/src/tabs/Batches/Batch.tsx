@@ -39,10 +39,7 @@ export const Batch: React.FC<{
     closeUnit,
   } = useBatch({ accounts, id, name })
 
-  const handleAction = (
-    type: 'close_unit' | 'update_unit_timing',
-    unit: Unit,
-  ) => {
+  const handleAction = (type: 'close_unit' | 'update_unit_timing', unit: Unit) => {
     if (type === 'close_unit') {
       closeUnit(unit)
     }
@@ -60,12 +57,7 @@ export const Batch: React.FC<{
     setUpdatingUnit(undefined)
   }
 
-  const handleCreateUnit = async (form: {
-    token_id: number
-    sz: number
-    leverage: number
-    timing: number
-  }) => {
+  const handleCreateUnit = async (form: { token_id: number; sz: number; leverage: number; timing: number }) => {
     setModalId(null)
     const promise = createUnit(form)
 
@@ -77,23 +69,8 @@ export const Batch: React.FC<{
   }
 
   const rows = useMemo(
-    () =>
-      createRows(
-        units,
-        closingUnits,
-        recreatingUnits,
-        getUnitTimingOpened,
-        getUnitTimingReacreate,
-        handleAction,
-      ),
-    [
-      units,
-      closingUnits,
-      recreatingUnits,
-      unitTimings,
-      getUnitTimingOpened,
-      getUnitTimingReacreate,
-    ],
+    () => createRows(units, closingUnits, recreatingUnits, getUnitTimingOpened, getUnitTimingReacreate, handleAction),
+    [units, closingUnits, recreatingUnits, unitTimings, getUnitTimingOpened, getUnitTimingReacreate],
   )
 
   const toolbar = () => {
@@ -121,12 +98,7 @@ export const Batch: React.FC<{
           >
             Import units
           </Button> */}
-          <Button
-            variant='contained'
-            color='primary'
-            disabled={initialLoading}
-            onClick={() => setModalId('createUnitModal')}
-          >
+          <Button variant='contained' color='primary' disabled={initialLoading} onClick={() => setModalId('createUnitModal')}>
             Create Unit
           </Button>
         </Box>
@@ -139,10 +111,7 @@ export const Batch: React.FC<{
       {modalId === 'createUnitModal' && (
         <CreateUnitModal
           handleCreateUnit={handleCreateUnit}
-          account={getBatchAccount(
-            batchAccounts[0],
-            getAccountProxy(batchAccounts[0]),
-          )}
+          account={getBatchAccount(batchAccounts[0], getAccountProxy(batchAccounts[0]))}
           accountsCount={accounts.length}
           open
           handleClose={() => setModalId(null)}
@@ -171,26 +140,16 @@ export const Batch: React.FC<{
           {name}
         </Typography>
         <Box>
-          <Button
-            variant='contained'
-            color='error'
-            onClick={() => closeBatch(id)}
-            disabled={Boolean(
-              initialLoading || units.length || recreatingUnits.length,
-            )}
-          >
+          <Button variant='contained' color='error' onClick={() => closeBatch(id)} disabled={Boolean(initialLoading || units.length || recreatingUnits.length)}>
             Close Batch
           </Button>
         </Box>
       </Box>
 
-      {batchAccounts.map((account, index) => {
+      {batchAccounts.map(account => {
         return (
-          <Typography
-            key={account.id}
-            sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}
-          >
-            Account {index + 1}:
+          <Typography key={account.id} sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}>
+            {account.name}:
             <div>
               <strong>
                 <ChipWithCopy value={account.public_address} short />
@@ -204,13 +163,7 @@ export const Batch: React.FC<{
       })}
 
       <Box sx={{ mt: 2 }}>
-        <Table
-          headCells={headCells}
-          loading={initialLoading}
-          rows={rows}
-          pagination={false}
-          toolbar={toolbar()}
-        />
+        <Table headCells={headCells} loading={initialLoading} rows={rows} pagination={false} toolbar={toolbar()} />
       </Box>
     </Paper>
   )

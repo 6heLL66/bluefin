@@ -1,14 +1,5 @@
 import { LoadingButton } from '@mui/lab'
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Paper,
-  Select,
-  TextField,
-} from '@mui/material'
+import { Button, FormControl, InputLabel, MenuItem, Modal, Paper, Select, TextField } from '@mui/material'
 import { invoke } from '@tauri-apps/api'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -72,18 +63,13 @@ export const CreateTraderOrderModal: React.FC<{
 
   const decimals = order.coin
 
-  const tokenName = order.coin
-    ? meta.tokens[meta.universe.find(a => a.name === order.coin)!.tokens[0]]
-        .name
-    : null
+  const tokenName = order.coin ? meta.tokens[meta.universe.find(a => a.name === order.coin)!.tokens[0]].name : null
 
   const getStep = () => {
     if (!order.coin) {
       return undefined
     }
-    const decimals =
-      meta.tokens[meta.universe.find(a => a.name === order.coin)!.tokens[0]]
-        .szDecimals
+    const decimals = meta.tokens[meta.universe.find(a => a.name === order.coin)!.tokens[0]].szDecimals
 
     if (decimals === 0 || decimals === undefined) {
       return '1'
@@ -104,13 +90,7 @@ export const CreateTraderOrderModal: React.FC<{
         <Box sx={{ gap: 5, display: 'flex', flexDirection: 'column' }}>
           <FormControl fullWidth>
             <InputLabel id='asset-label'>Select Asset</InputLabel>
-            <Select
-              labelId='asset-label'
-              id='asset-select'
-              value={order.coin}
-              label='Select asset pare'
-              onChange={e => onChange('coin', e.target.value)}
-            >
+            <Select labelId='asset-label' id='asset-select' value={order.coin} label='Select asset pare' onChange={e => onChange('coin', e.target.value)}>
               <MenuItem value=''>
                 <em>No asset pare</em>
               </MenuItem>
@@ -145,21 +125,10 @@ export const CreateTraderOrderModal: React.FC<{
               justifyContent: 'space-between',
             }}
           >
-            <Button
-              variant='contained'
-              color='error'
-              onClick={handleClose}
-              disabled={loading}
-            >
+            <Button variant='contained' color='error' onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
-            <LoadingButton
-              variant='contained'
-              color='success'
-              onClick={onConfirm}
-              loading={loading}
-              disabled={!order.coin || !order.size}
-            >
+            <LoadingButton variant='contained' color='success' onClick={onConfirm} loading={loading} disabled={!order.coin || !order.size}>
               Confirm
             </LoadingButton>
           </Box>

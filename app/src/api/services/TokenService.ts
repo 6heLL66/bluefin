@@ -16,9 +16,7 @@ export class TokenService {
    * @returns TokenDto_Output Successful Response
    * @throws ApiError
    */
-  public static tokenListApiTokensGet(): CancelablePromise<
-    Array<TokenDto_Output>
-  > {
+  public static tokenListApiTokensGet(): CancelablePromise<Array<TokenDto_Output>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/tokens',

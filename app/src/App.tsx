@@ -1,24 +1,23 @@
 import { Button, CircularProgress } from '@mui/material'
 import MuiTab from '@mui/material/Tab'
 import MuiTabs from '@mui/material/Tabs'
+import { useQuery } from '@tanstack/react-query'
 import { useContext, useEffect, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
-import { useQuery } from '@tanstack/react-query'
-
 import Box from '@mui/material/Box'
 
 import { OpenAPI, TokenService } from './api'
+import { MarketsService } from './bp-api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'
-import { db, GlobalContext } from './context'
+import { GlobalContext, db } from './context'
+import { useLogStore } from './store/logStore'
 import { Accounts, Batches, Proxy } from './tabs'
-import { Theme, ThemeContext } from './themeContext'
 import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
-import { MarketsService } from './bp-api'
-import { useLogStore } from './store/logStore'
+import { Theme, ThemeContext } from './themeContext'
 
 const Tabs = {
   Accounts: {
@@ -36,7 +35,7 @@ const Tabs = {
   Spread: {
     label: 'Spread (lighter + backpack)',
     id: 'spread',
-  }
+  },
 } as const
 
 OpenAPI.BASE = import.meta.env.VITE_API_URL
@@ -44,14 +43,11 @@ OpenAPI.BASE = import.meta.env.VITE_API_URL
 const App = () => {
   const { changeTheme, theme } = useContext(ThemeContext)
   const { isAuth, logout } = useContext(GlobalContext)
-  const [tabId, setTabId] = useState<string>(
-    localStorage.getItem('lastTabId') ?? Tabs.Accounts.id,
-  )
+  const [tabId, setTabId] = useState<string>(localStorage.getItem('lastTabId') ?? Tabs.Accounts.id)
 
   const [isLoading, setIsLoading] = useState(true)
 
   const { logs, clearLogs } = useLogStore()
-
 
   const sendToDb = () => {
     if (logs.length === 0) {
@@ -71,21 +67,21 @@ const App = () => {
     return () => clearInterval(interval)
   }, [logs])
 
-  const {data: lighterMarkets} = useQuery({
+  const { data: lighterMarkets } = useQuery({
     queryKey: ['lighter-tokens'],
     queryFn: () => {
       return TokenService.tokenListApiTokensGet()
-    }
+    },
   })
 
-  const {data: backpackMarkets} = useQuery({
+  const { data: backpackMarkets } = useQuery({
     queryKey: ['backpack-tokens'],
     queryFn: () => {
       return MarketsService.getMarkets()
-    }
+    },
   })
 
-  const {setLighterMarkets, setBackpackMarkets} = useSpreadStore()
+  const { setLighterMarkets, setBackpackMarkets } = useSpreadStore()
 
   useEffect(() => {
     if (lighterMarkets) {
@@ -144,19 +140,8 @@ const App = () => {
           ))}
         </MuiTabs>
         <Box sx={{ display: 'flex', gap: 2 }}>
-          <ThemeSwitch
-            onChange={e =>
-              changeTheme(e.target.checked ? Theme.Dark : Theme.Light)
-            }
-            checked={theme === Theme.Dark}
-          />
-          <Button
-            sx={{ mr: 2, height: '32px' }}
-            color='error'
-            variant='contained'
-            size='small'
-            onClick={logout}
-          >
+          <ThemeSwitch onChange={e => changeTheme(e.target.checked ? Theme.Dark : Theme.Light)} checked={theme === Theme.Dark} />
+          <Button sx={{ mr: 2, height: '32px' }} color='error' variant='contained' size='small' onClick={logout}>
             Logout
           </Button>
         </Box>
@@ -175,12 +160,7 @@ const App = () => {
           <Spread />
         </div>
       </Box>
-      <ToastContainer
-        position='bottom-left'
-        pauseOnFocusLoss={false}
-        pauseOnHover={false}
-        autoClose={3000}
-      />
+      <ToastContainer position='bottom-left' pauseOnFocusLoss={false} pauseOnHover={false} autoClose={3000} />
     </Box>
   )
 }

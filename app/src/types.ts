@@ -1,4 +1,4 @@
-import { SpreadData } from "./tabs/Spread/constants"
+import { SpreadData } from './tabs/Spread/constants'
 
 export interface Account {
   id?: string

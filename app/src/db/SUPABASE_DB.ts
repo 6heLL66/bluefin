@@ -1,28 +1,16 @@
-import {
-  Session,
-  SupabaseClient,
-  User,
-  WeakPassword,
-  createClient,
-} from '@supabase/supabase-js'
+import { Session, SupabaseClient, User, WeakPassword, createClient } from '@supabase/supabase-js'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Account, Batch, LogEntry, LogRow, Proxy, Trader, TraderOrder } from '../types'
 import { formatLogs } from '../utils'
 
-if (
-  !import.meta.env.VITE_SUPABASE_PROJECT_URL ||
-  !import.meta.env.VITE_SUPABASE_ANON_KEY
-) {
+if (!import.meta.env.VITE_SUPABASE_PROJECT_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
   throw new Error('Add .env variables')
 }
 
 export class SUPABASE_DB {
   client: SupabaseClient
-  unitTimingChanges: Record<
-    string,
-    { openedTiming: number; recreateTiming: number }
-  >
+  unitTimingChanges: Record<string, { openedTiming: number; recreateTiming: number }>
   unitTimingTimeoutId: NodeJS.Timeout | null
   unitSizesChanges: Record<string, number>
   unitSizesTimeoutId: NodeJS.Timeout | null
@@ -33,10 +21,7 @@ export class SUPABASE_DB {
   } | null
 
   constructor() {
-    this.client = createClient(
-      import.meta.env.VITE_SUPABASE_PROJECT_URL,
-      import.meta.env.VITE_SUPABASE_ANON_KEY,
-    )
+    this.client = createClient(import.meta.env.VITE_SUPABASE_PROJECT_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
 
     this.unitTimingChanges = {}
     this.unitTimingTimeoutId = null
@@ -90,9 +75,7 @@ export class SUPABASE_DB {
       throw new Error('401')
     }
 
-    return this.client
-      .from('accounts')
-      .insert({ ...account, user_id: this.auth.user.id })
+    return this.client.from('accounts').insert({ ...account, user_id: this.auth.user.id })
   }
 
   public editAccount = async (accountId: string, data: Partial<Account>) => {
@@ -103,11 +86,7 @@ export class SUPABASE_DB {
     const batches = await this.client
       .from('batches')
       .select()
-      .filter(
-        'accounts',
-        'ov',
-        `{${[accountId].map(id => `"${id}"`).join(',')}}`,
-      )
+      .filter('accounts', 'ov', `{${[accountId].map(id => `"${id}"`).join(',')}}`)
 
     if (batches.data?.length) {
       return new Promise((_, rej) => {
@@ -124,23 +103,15 @@ export class SUPABASE_DB {
     }
 
     const id = uuidv4()
-    await this.client
-      .from('proxies')
-      .insert<Proxy>({ ...proxy, id, user_id: this.auth.user.id })
-    return this.client
-      .from('accounts')
-      .insert({ ...account, proxy_id: id, user_id: this.auth.user.id })
+    await this.client.from('proxies').insert<Proxy>({ ...proxy, id, user_id: this.auth.user.id })
+    return this.client.from('accounts').insert({ ...account, proxy_id: id, user_id: this.auth.user.id })
   }
 
   public removeAccounts = async (accountIds: string[]) => {
     const batches = await this.client
       .from('batches')
       .select()
-      .filter(
-        'accounts',
-        'ov',
-        `{${accountIds.map(id => `"${id}"`).join(',')}}`,
-      )
+      .filter('accounts', 'ov', `{${accountIds.map(id => `"${id}"`).join(',')}}`)
 
     if (batches.data?.length) {
       return new Promise((_, rej) => {
@@ -156,9 +127,7 @@ export class SUPABASE_DB {
       throw new Error('401')
     }
 
-    return this.client
-      .from('proxies')
-      .insert<Proxy>({ ...proxy, user_id: this.auth.user.id })
+    return this.client.from('proxies').insert<Proxy>({ ...proxy, user_id: this.auth.user.id })
   }
 
   public removeProxies = (proxyIds: string[]) => {
@@ -166,9 +135,7 @@ export class SUPABASE_DB {
   }
 
   public getAccounts = async (): Promise<Account[]> => {
-    const { data } = await this.client
-      .from('accounts')
-      .select<string, Account>()
+    const { data } = await this.client.from('accounts').select<string, Account>()
     return data ?? []
   }
 
@@ -177,10 +144,7 @@ export class SUPABASE_DB {
     return data ?? []
   }
 
-  public connectProxyToAccounts = async (
-    accountIds: string[],
-    proxyId: string,
-  ) => {
+  public connectProxyToAccounts = async (accountIds: string[], proxyId: string) => {
     return this.client
       .from('accounts')
       .update({ proxy_id: proxyId ?? null })
@@ -197,10 +161,7 @@ export class SUPABASE_DB {
     return data ?? []
   }
 
-  public updateTrader = async (
-    public_address: string,
-    trader: Partial<Trader>,
-  ) => {
+  public updateTrader = async (public_address: string, trader: Partial<Trader>) => {
     return this.client
       .from('traders')
       .update({ ...trader })
@@ -208,10 +169,7 @@ export class SUPABASE_DB {
   }
 
   public removeTrader = async (public_address: string) => {
-    return this.client
-      .from('traders')
-      .delete()
-      .eq('public_address', public_address)
+    return this.client.from('traders').delete().eq('public_address', public_address)
   }
 
   public createTrader = async ({ name, public_address }: Trader) => {
@@ -226,9 +184,7 @@ export class SUPABASE_DB {
     })
   }
 
-  public getTraderOrders = async (
-    public_address: string,
-  ): Promise<TraderOrder[]> => {
+  public getTraderOrders = async (public_address: string): Promise<TraderOrder[]> => {
     const { data } = await this.client
       .from('trader_orders')
       .select<string, TraderOrder>()
@@ -238,10 +194,7 @@ export class SUPABASE_DB {
     return data ?? []
   }
 
-  public updateTraderOrder = async (
-    id: number,
-    order: Partial<TraderOrder>,
-  ) => {
+  public updateTraderOrder = async (id: number, order: Partial<TraderOrder>) => {
     return this.client
       .from('trader_orders')
       .update({ ...order })
@@ -261,17 +214,10 @@ export class SUPABASE_DB {
   }
 
   public updateBatch = async (id: string, smart_balance_usage: boolean) => {
-    return this.client
-      .from('batches')
-      .update({ smart_balance_usage })
-      .eq('id', id)
+    return this.client.from('batches').update({ smart_balance_usage }).eq('id', id)
   }
 
-  public createBatch = async (
-    name: string,
-    accounts: string[],
-    timing: number,
-  ) => {
+  public createBatch = async (name: string, accounts: string[], timing: number) => {
     if (!this.auth) {
       throw new Error('401')
     }
@@ -284,12 +230,7 @@ export class SUPABASE_DB {
     })
   }
 
-  public setUnitInitTiming = async (
-    batchId: string,
-    asset: string,
-    recreateTiming: number,
-    openedTiming: number,
-  ) => {
+  public setUnitInitTiming = async (batchId: string, asset: string, recreateTiming: number, openedTiming: number) => {
     this.unitTimingChanges = {
       ...this.unitTimingChanges,
       [asset]: {
@@ -308,10 +249,7 @@ export class SUPABASE_DB {
   }
 
   private applyUnitTimingChanges = async (batchId: string) => {
-    const batch = await this.client
-      .from('batches')
-      .select<string, Batch>()
-      .eq('id', batchId)
+    const batch = await this.client.from('batches').select<string, Batch>().eq('id', batchId)
 
     if (!batch.data?.[0]) {
       throw new Error('setUnitRecreateTiming')
@@ -326,17 +264,11 @@ export class SUPABASE_DB {
 
     this.unitTimingChanges = {}
 
-    return this.client
-      .from('batches')
-      .update({ unit_timings })
-      .eq('id', batchId)
+    return this.client.from('batches').update({ unit_timings }).eq('id', batchId)
   }
 
   public getUnitTimings = async (batchId: string) => {
-    const batch = await this.client
-      .from('batches')
-      .select<string, Batch>()
-      .eq('id', batchId)
+    const batch = await this.client.from('batches').select<string, Batch>().eq('id', batchId)
 
     if (!batch.data?.[0]) {
       throw new Error('setUnitRecreateTiming')
@@ -345,11 +277,7 @@ export class SUPABASE_DB {
     return JSON.parse(batch.data[0].unit_timings)
   }
 
-  public setUnitInitSize = async (
-    batchId: string,
-    asset: string,
-    size: number,
-  ) => {
+  public setUnitInitSize = async (batchId: string, asset: string, size: number) => {
     this.unitSizesChanges = {
       ...this.unitSizesChanges,
       [asset]: size,
@@ -365,10 +293,7 @@ export class SUPABASE_DB {
   }
 
   private applyUnitSizesChanges = async (batchId: string) => {
-    const { data } = await this.client
-      .from('batches')
-      .select<string, { unit_sizes: string }>('unit_sizes')
-      .eq('id', batchId)
+    const { data } = await this.client.from('batches').select<string, { unit_sizes: string }>('unit_sizes').eq('id', batchId)
 
     if (!data?.[0]) {
       throw new Error('setUnitSizes')
@@ -387,10 +312,7 @@ export class SUPABASE_DB {
   }
 
   public getUnitSizes = async (batchId: string) => {
-    const { data } = await this.client
-      .from('batches')
-      .select<string, { unit_sizes: string }>('unit_sizes')
-      .eq('id', batchId)
+    const { data } = await this.client.from('batches').select<string, { unit_sizes: string }>('unit_sizes').eq('id', batchId)
 
     if (!data?.[0]) {
       throw new Error('getUnitSizes')
@@ -405,12 +327,7 @@ export class SUPABASE_DB {
 
   public getLogs = async (start: string, end: string) => {
     return (
-      await this.client
-        .from('logs')
-        .select<string, LogRow>('*')
-        .gte('created_at', start)
-        .lte('created_at', end)
-        .order('created_at', { ascending: false })
+      await this.client.from('logs').select<string, LogRow>('*').gte('created_at', start).lte('created_at', end).order('created_at', { ascending: false })
     ).data
   }
 

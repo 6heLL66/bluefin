@@ -1,15 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  Table as MuiTable,
-  Paper,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TablePagination,
-  TableRow,
-} from '@mui/material'
+import { Button, Checkbox, CircularProgress, Table as MuiTable, Paper, TableBody, TableCell, TableContainer, TablePagination, TableRow } from '@mui/material'
 import React from 'react'
 
 import { HeadCell } from '../../types'
@@ -31,15 +20,7 @@ interface Props {
   rows: Row[]
 }
 
-export const Table: React.FC<Props> = ({
-  headCells,
-  ActionBar,
-  toolbar,
-  withCheckbox,
-  pagination = true,
-  loading,
-  rows,
-}) => {
+export const Table: React.FC<Props> = ({ headCells, ActionBar, toolbar, withCheckbox, pagination = true, loading, rows }) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(25)
@@ -53,9 +34,7 @@ export const Table: React.FC<Props> = ({
     setSelected([])
   }
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
@@ -72,10 +51,7 @@ export const Table: React.FC<Props> = ({
     } else if (selectedIndex === selected.length - 1) {
       newSelected = newSelected.concat(selected.slice(0, -1))
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      )
+      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
     setSelected(newSelected)
   }
@@ -86,35 +62,20 @@ export const Table: React.FC<Props> = ({
     setPage(newPage)
   }
 
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
-  const visibleRows = React.useMemo(
-    () => rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [page, rowsPerPage, rows],
-  )
+  const visibleRows = React.useMemo(() => rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [page, rowsPerPage, rows])
 
   return (
     <Paper sx={{ width: '100%', mb: 2 }}>
       <EnhancedTableToolbar numSelected={selected.length} toolBar={toolbar}>
-        {ActionBar && (
-          <ActionBar selected={selected} onActionDone={() => setSelected([])} />
-        )}
-        <Button
-          variant='outlined'
-          color='error'
-          sx={{ ml: 6, height: '38px' }}
-          onClick={() => setSelected([])}
-        >
+        {ActionBar && <ActionBar selected={selected} onActionDone={() => setSelected([])} />}
+        <Button variant='outlined' color='error' sx={{ ml: 6, height: '38px' }} onClick={() => setSelected([])}>
           Cancel
         </Button>
       </EnhancedTableToolbar>
       <TableContainer>
-        <MuiTable
-          sx={{ minWidth: 750 }}
-          aria-labelledby='tableTitle'
-          size='medium'
-        >
+        <MuiTable sx={{ minWidth: 750 }} aria-labelledby='tableTitle' size='medium'>
           <EnhancedTableHead
             headCells={headCells}
             numSelected={selected.length}
@@ -153,14 +114,7 @@ export const Table: React.FC<Props> = ({
                     {row.data.map((cell, cellIdx) => {
                       if (cellIdx === 0) {
                         return (
-                          <TableCell
-                            key={labelId}
-                            component='th'
-                            id={labelId}
-                            scope='row'
-                            padding={withCheckbox ? 'none' : 'normal'}
-                            align='left'
-                          >
+                          <TableCell key={labelId} component='th' id={labelId} scope='row' padding={withCheckbox ? 'none' : 'normal'} align='left'>
                             {cell}
                           </TableCell>
                         )

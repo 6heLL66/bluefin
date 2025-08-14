@@ -1,16 +1,4 @@
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Modal,
-  OutlinedInput,
-  Paper,
-  Select,
-  SelectChangeEvent,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Button, FormControl, InputLabel, MenuItem, Modal, OutlinedInput, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material'
 import { useContext, useMemo, useState } from 'react'
 
 import Box from '@mui/material/Box'
@@ -65,12 +53,7 @@ export const CreateTraderModal: React.FC<{
         <Box sx={{ gap: 5, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <FormControl fullWidth>
-              <TextField
-                label='Name'
-                type='text'
-                variant='outlined'
-                onChange={e => onChange('name', e.target.value)}
-              />
+              <TextField label='Name' type='text' variant='outlined' onChange={e => onChange('name', e.target.value)} />
             </FormControl>
             <FormControl fullWidth>
               <InputLabel id='demo-multiple-chip-label'>Accounts</InputLabel>
@@ -78,22 +61,15 @@ export const CreateTraderModal: React.FC<{
                 labelId='demo-multiple-chip-label'
                 value={trader.public_address ?? undefined}
                 onChange={onAccountsChange}
-                input={
-                  <OutlinedInput id='select-multiple-chip' label='Accounts' />
-                }
+                input={<OutlinedInput id='select-multiple-chip' label='Accounts' />}
               >
                 {filteredAccounts.map(account => (
-                  <MenuItem
-                    key={account.public_address}
-                    value={account.public_address}
-                  >
+                  <MenuItem key={account.public_address} value={account.public_address}>
                     {account.public_address}
                   </MenuItem>
                 ))}
 
-                {!filteredAccounts.length && (
-                  <Typography sx={{ p: 1 }}>No available accounts</Typography>
-                )}
+                {!filteredAccounts.length && <Typography sx={{ p: 1 }}>No available accounts</Typography>}
               </Select>
             </FormControl>
           </Box>
@@ -108,12 +84,7 @@ export const CreateTraderModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              variant='contained'
-              color='success'
-              onClick={onConfirm}
-              disabled={!trader.public_address || !trader.name}
-            >
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={!trader.public_address || !trader.name}>
               Confirm
             </Button>
           </Box>

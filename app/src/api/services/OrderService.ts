@@ -19,11 +19,7 @@ export class OrderService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static accountsOrdersApiOrdersPost({
-    requestBody,
-  }: {
-    requestBody: OrderCreateDto
-  }): CancelablePromise<any> {
+  public static accountsOrdersApiOrdersPost({ requestBody }: { requestBody: OrderCreateDto }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/orders',
@@ -39,11 +35,7 @@ export class OrderService {
    * @returns void
    * @throws ApiError
    */
-  public static accountsOrdersCancelApiOrdersCancelPost({
-    requestBody,
-  }: {
-    requestBody: OrderCancelDto
-  }): CancelablePromise<void> {
+  public static accountsOrdersCancelApiOrdersCancelPost({ requestBody }: { requestBody: OrderCancelDto }): CancelablePromise<void> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/orders/cancel',
@@ -59,11 +51,7 @@ export class OrderService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static accountOrderApiAccountOrdersPost({
-    requestBody,
-  }: {
-    requestBody: AccountOrderCreateDto
-  }): CancelablePromise<any> {
+  public static accountOrderApiAccountOrdersPost({ requestBody }: { requestBody: AccountOrderCreateDto }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/account/orders',
@@ -79,11 +67,7 @@ export class OrderService {
    * @returns void
    * @throws ApiError
    */
-  public static accountOrdersCancelApiAccountOrdersCancelPost({
-    requestBody,
-  }: {
-    requestBody: AccountOrderCancelDto
-  }): CancelablePromise<void> {
+  public static accountOrdersCancelApiAccountOrdersCancelPost({ requestBody }: { requestBody: AccountOrderCancelDto }): CancelablePromise<void> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/account/orders/cancel',

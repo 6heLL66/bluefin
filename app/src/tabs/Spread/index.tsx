@@ -1,26 +1,13 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  IconButton,
-  Paper,
-  TextField,
-  Typography,
-  Tooltip,
-  CircularProgress,
-  Collapse,
-} from '@mui/material'
-import { Add as AddIcon, Delete as DeleteIcon, Close as CloseIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
-
-import { Table } from '../../components/Table'
-import { headCells, SpreadData } from './constants'
-import { useSpreadStore } from './store'
-import { CreateSpreadUnitModal } from '../../components/CreateSpreadUnitModal'
+import { Add as AddIcon, Close as CloseIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
+import { Box, Button, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import { useState } from 'react'
-import { useSpreads } from './useSpreads'
+
 import { AccountService } from '../../api'
+import { CreateSpreadUnitModal } from '../../components/CreateSpreadUnitModal'
+import { Table } from '../../components/Table'
+import { SpreadData, headCells } from './constants'
+import { useSpreadStore } from './store'
+import { useSpreads } from './useSpreads'
 
 export const Spread = () => {
   const {
@@ -39,17 +26,48 @@ export const Spread = () => {
     updateSpread,
   } = useSpreadStore()
 
-  const { connectBackpackWebsocket, connectLighterWebsocket, closeAllPositionsMarket, testLighter, authLighter, authorizingLighter, isLighterConnected, isBackpackConnected, balanceError, balances } = useSpreads();
+  const {
+    connectBackpackWebsocket,
+    connectLighterWebsocket,
+    closeAllPositionsMarket,
+    testLighter,
+    authLighter,
+    authorizingLighter,
+    isLighterConnected,
+    isBackpackConnected,
+    balanceError,
+    balances,
+  } = useSpreads()
 
   const [open, setOpen] = useState(false)
   const [isApiConfigCollapsed, setIsApiConfigCollapsed] = useState(true)
 
   const getStatusChip = (status: SpreadData['status']) => {
     if (status === 'WAITING') {
-      return <Chip label={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CircularProgress size={16} color='info' /> waiting spread</div>} color="warning" size="small" />
+      return (
+        <Chip
+          label={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <CircularProgress size={16} color='info' /> waiting spread
+            </div>
+          }
+          color='warning'
+          size='small'
+        />
+      )
     }
 
-    return <Chip label={<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CircularProgress size={16} color='info' /> order filling</div>} color="warning" size="small" />
+    return (
+      <Chip
+        label={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CircularProgress size={16} color='info' /> order filling
+          </div>
+        }
+        color='warning'
+        size='small'
+      />
+    )
   }
 
   const handleOpenCreateSpread = () => {
@@ -59,20 +77,26 @@ export const Spread = () => {
   const handleCreateSpread = async (form: Omit<SpreadData, 'id' | 'timeOpened' | 'status'>) => {
     const tokenId = lighterMarkets?.find(token => token.symbol === form.asset)?.market_id ?? 0
     const data: SpreadData = {
-        ...form,
-        tokenId,
-        status: 'WAITING',
-        timeOpened: '0',
-        lighterPositions: [],
-        backpackPositions: [],
-        id: Date.now().toString(),
+      ...form,
+      tokenId,
+      status: 'WAITING',
+      timeOpened: '0',
+      lighterPositions: [],
+      backpackPositions: [],
+      id: Date.now().toString(),
     }
     createSpread(data)
 
-    await AccountService.accountLeverageApiAccountLeveragePost({ requestBody: { account: { private_key: lighterPrivateKey }, leverage: form.leverage, token_id: tokenId } })
+    await AccountService.accountLeverageApiAccountLeveragePost({
+      requestBody: {
+        account: { private_key: lighterPrivateKey },
+        leverage: form.leverage,
+        token_id: tokenId,
+      },
+    })
 
-    connectBackpackWebsocket();
-    connectLighterWebsocket();
+    connectBackpackWebsocket()
+    connectLighterWebsocket()
     setOpen(false)
   }
 
@@ -80,8 +104,8 @@ export const Spread = () => {
     deleteSpread(id)
 
     setTimeout(() => {
-      connectBackpackWebsocket();
-      connectLighterWebsocket();
+      connectBackpackWebsocket()
+      connectLighterWebsocket()
     }, 300)
   }
 
@@ -96,7 +120,7 @@ export const Spread = () => {
   const renderLighterPositions = (positions: SpreadData['lighterPositions']) => {
     if (!positions || positions.length === 0) {
       return (
-        <Typography variant="body2" color="text.secondary" fontSize="0.75rem">
+        <Typography variant='body2' color='text.secondary' fontSize='0.75rem'>
           No positions
         </Typography>
       )
@@ -105,39 +129,43 @@ export const Spread = () => {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {positions.map((position, index) => (
-          <Box key={index} sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: 0.25,
-            p: 1,
-            borderRadius: 1,
-            bgcolor: 'background.default',
-            border: '1px solid',
-            borderColor: 'divider'
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="caption" fontWeight={600}>
+          <Box
+            key={index}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.25,
+              p: 1,
+              borderRadius: 1,
+              bgcolor: 'background.default',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant='caption' fontWeight={600}>
                 {position.symbol}
               </Typography>
-              <Chip 
-                label={position.side} 
-                size="small" 
-                color={position.side === 'BUY' ? 'success' : 'error'}
-                sx={{ fontSize: '0.6rem', height: 16 }}
-              />
+              <Chip label={position.side} size='small' color={position.side === 'BUY' ? 'success' : 'error'} sx={{ fontSize: '0.6rem', height: 16 }} />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Value: {parseFloat(position.size).toFixed(2)}$
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Size: {parseFloat(position.position)} {position.symbol}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Entry: ${parseFloat(position.entry_price).toFixed(2)}
               </Typography>
             </Box>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant='caption' color='text.secondary'>
               Leverage: {position.leverage}x
             </Typography>
           </Box>
@@ -149,7 +177,7 @@ export const Spread = () => {
   const renderBackpackPositions = (positions: SpreadData['backpackPositions']) => {
     if (!positions || positions.length === 0) {
       return (
-        <Typography variant="body2" color="text.secondary" fontSize="0.75rem">
+        <Typography variant='body2' color='text.secondary' fontSize='0.75rem'>
           No positions
         </Typography>
       )
@@ -160,45 +188,49 @@ export const Spread = () => {
         {positions.map((position, index) => {
           const isLong = parseFloat(position.netQuantity) > 0
           const pnlColor = parseFloat(position.pnlRealized) >= 0 ? 'success.main' : 'error.main'
-          
+
           return (
-            <Box key={index} sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: 0.25,
-              p: 1,
-              borderRadius: 1,
-              bgcolor: 'background.default',
-              border: '1px solid',
-              borderColor: 'divider'
-            }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="caption" fontWeight={600}>
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.25,
+                p: 1,
+                borderRadius: 1,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant='caption' fontWeight={600}>
                   {position.symbol}
                 </Typography>
-                <Chip 
-                  label={isLong ? 'LONG' : 'SHORT'} 
-                  size="small" 
-                  color={isLong ? 'success' : 'error'}
-                  sx={{ fontSize: '0.6rem', height: 16 }}
-                />
+                <Chip label={isLong ? 'LONG' : 'SHORT'} size='small' color={isLong ? 'success' : 'error'} sx={{ fontSize: '0.6rem', height: 16 }} />
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant='caption' color='text.secondary'>
                   Value: {Math.abs(parseFloat(position.netCost)).toFixed(2)}$
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant='caption' color='text.secondary'>
                   Size: {Math.abs(parseFloat(position.netQuantity))} {position.symbol.split('_')[0]}
                 </Typography>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant='caption' color='text.secondary'>
                   Entry: ${parseFloat(position.entryPrice).toFixed(2)}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant='caption' color='text.secondary'>
                   Mark: ${parseFloat(position.markPrice).toFixed(2)}
                 </Typography>
-                <Typography variant="caption" color={pnlColor} fontWeight={600}>
+                <Typography variant='caption' color={pnlColor} fontWeight={600}>
                   PnL: ${parseFloat(position.pnlRealized).toFixed(2)}
                 </Typography>
               </Box>
@@ -212,72 +244,78 @@ export const Spread = () => {
   const tableRows = spreads.map(spread => ({
     id: spread.id,
     data: [
-      <Typography variant="body2" fontWeight={600}>
+      <Typography variant='body2' fontWeight={600}>
         {spread.asset}
       </Typography>,
-      <Typography variant="body2">
-        {spread.size}$
-      </Typography>,
+      <Typography variant='body2'>{spread.size}$</Typography>,
       renderLighterPositions(spread.lighterPositions),
       renderBackpackPositions(spread.backpackPositions),
       getStatusChip(spread.status),
       <TextField
-        size="small"
-        type="number"
+        size='small'
+        type='number'
         value={spread.openSpread}
-        onChange={(e) => handleSpreadChange(spread.id, 'openSpread', parseFloat(e.target.value) || 0)}
-        sx={{ 
+        onChange={e => handleSpreadChange(spread.id, 'openSpread', parseFloat(e.target.value) || 0)}
+        sx={{
           width: 120,
-          '& .MuiInputBase-input': { 
+          '& .MuiInputBase-input': {
             textAlign: 'center',
             fontSize: '0.9rem',
-            padding: '2px 4px'
-          }
+            padding: '2px 4px',
+          },
         }}
         InputProps={{
-          endAdornment: <Typography variant="caption" color="text.secondary">%</Typography>
+          endAdornment: (
+            <Typography variant='caption' color='text.secondary'>
+              %
+            </Typography>
+          ),
         }}
       />,
       <TextField
-        size="small"
-        type="number"
+        size='small'
+        type='number'
         value={spread.closeSpread}
-        onChange={(e) => handleSpreadChange(spread.id, 'closeSpread', parseFloat(e.target.value) || 0)}
-        sx={{ 
+        onChange={e => handleSpreadChange(spread.id, 'closeSpread', parseFloat(e.target.value) || 0)}
+        sx={{
           width: 120,
-          '& .MuiInputBase-input': { 
+          '& .MuiInputBase-input': {
             textAlign: 'center',
             fontSize: '0.9rem',
-            padding: '2px 4px'
-          }
+            padding: '2px 4px',
+          },
         }}
         InputProps={{
-          endAdornment: <Typography variant="caption" color="text.secondary">%</Typography>
+          endAdornment: (
+            <Typography variant='caption' color='text.secondary'>
+              %
+            </Typography>
+          ),
         }}
       />,
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-        <Tooltip title="Close All (Market)">
+        <Tooltip title='Close All (Market)'>
           <IconButton
-            size="small"
-            color="warning"
-            onClick={(e) => {
+            size='small'
+            color='warning'
+            onClick={e => {
               e.stopPropagation()
               handleCloseAll(spread)
             }}
           >
-            <CloseIcon fontSize="small" />
+            <CloseIcon fontSize='small' />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Delete Spread">
+        <Tooltip title='Delete Spread'>
           <IconButton
-            size="small"
-            color="error"
-            onClick={(e) => {
+            size='small'
+            color='error'
+            onClick={e => {
               e.stopPropagation()
               handleDeleteSpread(spread.id)
             }}
           >
-            <DeleteIcon fontSize="small" />
+            <DeleteIcon fontSize='small' />
           </IconButton>
         </Tooltip>
       </Box>,
@@ -292,87 +330,88 @@ export const Spread = () => {
           border: theme => `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             p: 2,
             mb: 2,
             borderBottom: theme => `1px solid ${theme.palette.divider}`,
             cursor: 'pointer',
             transition: 'all 0.2s ease-in-out',
             '&:hover': {
-              bgcolor: 'action.hover'
-            }
+              bgcolor: 'action.hover',
+            },
           }}
           onClick={() => setIsApiConfigCollapsed(!isApiConfigCollapsed)}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="h6" fontWeight={600}>
+                <Typography variant='h6' fontWeight={600}>
                   API Configuration
                 </Typography>
-                {(lighterPublicKey && lighterPrivateKey && backpackApiPublicKey && backpackApiSecretKey) && (
-                  <Chip 
-                    label="Configured" 
-                    size="small" 
-                    color="success" 
-                    sx={{ fontSize: '0.6rem', height: 20 }}
-                  />
+                {lighterPublicKey && lighterPrivateKey && backpackApiPublicKey && backpackApiSecretKey && (
+                  <Chip label='Configured' size='small' color='success' sx={{ fontSize: '0.6rem', height: 20 }} />
                 )}
               </Box>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 {isApiConfigCollapsed ? 'Click to expand' : 'Click to collapse'}
               </Typography>
             </Box>
-            <IconButton 
-              size="small"
+            <IconButton
+              size='small'
               sx={{
                 transition: 'transform 0.2s ease-in-out',
-                transform: isApiConfigCollapsed ? 'rotate(0deg)' : 'rotate(180deg)'
+                transform: isApiConfigCollapsed ? 'rotate(0deg)' : 'rotate(180deg)',
               }}
             >
               <ExpandMoreIcon />
             </IconButton>
           </Box>
         </Box>
-        
+
         <Collapse in={!isApiConfigCollapsed} timeout={300}>
           <CardContent sx={{ pt: 1 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
                 fullWidth
-                label="Lighter Public Key"
-                variant="outlined"
+                label='Lighter Public Key'
+                variant='outlined'
                 value={lighterPublicKey}
-                onChange={(e) => setLighterPublicKey(e.target.value)}
-                placeholder="Enter your Lighter public key"
+                onChange={e => setLighterPublicKey(e.target.value)}
+                placeholder='Enter your Lighter public key'
               />
               <TextField
                 fullWidth
-                label="Lighter Private Key"
-                variant="outlined"
-                type="password"
+                label='Lighter Private Key'
+                variant='outlined'
+                type='password'
                 value={lighterPrivateKey}
-                onChange={(e) => setLighterPrivateKey(e.target.value)}
-                placeholder="Enter your Lighter private key"
+                onChange={e => setLighterPrivateKey(e.target.value)}
+                placeholder='Enter your Lighter private key'
               />
               <TextField
                 fullWidth
-                label="Backpack API Key"
-                variant="outlined"
-                type="text"
+                label='Backpack API Key'
+                variant='outlined'
+                type='text'
                 value={backpackApiPublicKey}
-                onChange={(e) => setBackpackApiPublicKey(e.target.value)}
-                placeholder="Enter your Backpack API key"
+                onChange={e => setBackpackApiPublicKey(e.target.value)}
+                placeholder='Enter your Backpack API key'
               />
               <TextField
                 fullWidth
-                label="Backpack API Secret Key"
-                variant="outlined"
-                type="password"
+                label='Backpack API Secret Key'
+                variant='outlined'
+                type='password'
                 value={backpackApiSecretKey}
-                onChange={(e) => setBackpackApiSecretKey(e.target.value)}
-                placeholder="Enter your Backpack API secret key"
+                onChange={e => setBackpackApiSecretKey(e.target.value)}
+                placeholder='Enter your Backpack API secret key'
               />
             </Box>
           </CardContent>
@@ -386,207 +425,251 @@ export const Spread = () => {
         }}
       >
         <CardContent>
-          <Typography variant="h6" fontWeight={600} mb={3}>
+          <Typography variant='h6' fontWeight={600} mb={3}>
             Balance Overview
           </Typography>
-          
+
           {balanceError && (
-            <Box sx={{ 
-              mb: 3, 
-              p: 2, 
-              borderRadius: 2, 
-              bgcolor: 'error.main', 
-              color: 'error.contrastText',
-              border: '1px solid',
-              borderColor: 'error.dark'
-            }}>
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'error.main',
+                color: 'error.contrastText',
+                border: '1px solid',
+                borderColor: 'error.dark',
+              }}
+            >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Typography variant="subtitle2" fontWeight={600}>
+                <Typography variant='subtitle2' fontWeight={600}>
                   ⚠️ Insufficient Balance
                 </Typography>
               </Box>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              <Typography variant='body2' sx={{ opacity: 0.9 }}>
                 Your current balance is insufficient to cover all active spreads. Please add more funds or close some positions.
               </Typography>
             </Box>
           )}
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
-            <Box sx={{ 
-              p: 2, 
-              borderRadius: 2, 
-              bgcolor: 'background.default',
-              border: '1px solid',
-              borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: 4, 
-                bgcolor: 'primary.main',
-                opacity: 0.7
-              }} />
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  bgcolor: 'primary.main',
+                  opacity: 0.7,
+                }}
+              />
+              <Typography variant='subtitle2' color='text.secondary' mb={1}>
                 Lighter Balance
               </Typography>
-              <Typography variant="h4" fontWeight={700} color="primary.main">
+              <Typography variant='h4' fontWeight={700} color='primary.main'>
                 ${parseFloat(balances?.lighterBalance || '0').toFixed(2)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Available for trading
               </Typography>
             </Box>
 
-            <Box sx={{ 
-              p: 2, 
-              borderRadius: 2, 
-              bgcolor: 'background.default',
-              border: '1px solid',
-              borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: 4, 
-                bgcolor: 'secondary.main',
-                opacity: 0.7
-              }} />
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  bgcolor: 'secondary.main',
+                  opacity: 0.7,
+                }}
+              />
+              <Typography variant='subtitle2' color='text.secondary' mb={1}>
                 Backpack Balance
               </Typography>
-              <Typography variant="h4" fontWeight={700} color="secondary.main">
+              <Typography variant='h4' fontWeight={700} color='secondary.main'>
                 ${parseFloat(balances?.backpackBalance || '0').toFixed(2)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Available for trading
               </Typography>
             </Box>
 
-            <Box sx={{ 
-              p: 2, 
-              borderRadius: 2, 
-              bgcolor: 'background.default',
-              border: '1px solid',
-              borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: 4, 
-                bgcolor: 'info.main',
-                opacity: 0.7
-              }} />
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  bgcolor: 'info.main',
+                  opacity: 0.7,
+                }}
+              />
+              <Typography variant='subtitle2' color='text.secondary' mb={1}>
                 Backpack Leverage
               </Typography>
-              <Typography variant="h4" fontWeight={700} color="info.main">
+              <Typography variant='h4' fontWeight={700} color='info.main'>
                 {balances?.backpackLeverage || 1}x
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Maximum leverage available
               </Typography>
             </Box>
 
-            <Box sx={{ 
-              p: 2, 
-              borderRadius: 2, 
-              bgcolor: 'background.default',
-              border: '1px solid',
-              borderColor: 'divider',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                right: 0, 
-                height: 4, 
-                bgcolor: 'success.main',
-                opacity: 0.7
-              }} />
-              <Typography variant="subtitle2" color="text.secondary" mb={1}>
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'background.default',
+                border: '1px solid',
+                borderColor: 'divider',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  bgcolor: 'success.main',
+                  opacity: 0.7,
+                }}
+              />
+              <Typography variant='subtitle2' color='text.secondary' mb={1}>
                 Total Balance
               </Typography>
-              <Typography variant="h4" fontWeight={700} color="success.main">
+              <Typography variant='h4' fontWeight={700} color='success.main'>
                 ${(parseFloat(balances?.lighterBalance || '0') + parseFloat(balances?.backpackBalance || '0')).toFixed(2)}
               </Typography>
-              <Typography variant="caption" color="text.secondary">
+              <Typography variant='caption' color='text.secondary'>
                 Combined available balance
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{ mt: 3, p: 2, borderRadius: 2, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle2" color="text.secondary" mb={2}>
+          <Box
+            sx={{
+              mt: 3,
+              p: 2,
+              borderRadius: 2,
+              bgcolor: 'background.default',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+          >
+            <Typography variant='subtitle2' color='text.secondary' mb={2}>
               Connection Status
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-              <Chip 
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                flexWrap: 'wrap',
+              }}
+            >
+              <Chip
                 label={`Lighter: ${isLighterConnected ? 'Connected' : 'Disconnected'}`}
                 color={isLighterConnected ? 'success' : 'error'}
-                size="medium"
-                sx={{ 
+                size='medium'
+                sx={{
                   fontWeight: 600,
                   transition: 'all 0.3s ease-in-out',
                   transform: isLighterConnected ? 'scale(1.05)' : 'scale(1)',
                   boxShadow: isLighterConnected ? theme => theme.shadows[2] : 'none',
                 }}
-                icon={isLighterConnected ? (
-                  <Box 
-                    sx={{ 
-                      width: 8, 
-                      height: 8, 
-                      borderRadius: '50%', 
-                      backgroundColor: 'currentColor',
-                      animation: 'pulse 2s infinite',
-                      '@keyframes pulse': {
-                        '0%': { opacity: 1 },
-                        '50%': { opacity: 0.5 },
-                        '100%': { opacity: 1 },
-                      }
-                    }} 
-                  />
-                ) : undefined}
+                icon={
+                  isLighterConnected ? (
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'currentColor',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { opacity: 1 },
+                          '50%': { opacity: 0.5 },
+                          '100%': { opacity: 1 },
+                        },
+                      }}
+                    />
+                  ) : undefined
+                }
               />
-              <Chip 
+              <Chip
                 label={`Backpack: ${isBackpackConnected ? 'Connected' : 'Disconnected'}`}
                 color={isBackpackConnected ? 'success' : 'error'}
-                size="medium"
-                sx={{ 
+                size='medium'
+                sx={{
                   fontWeight: 600,
                   transition: 'all 0.3s ease-in-out',
                   transform: isBackpackConnected ? 'scale(1.05)' : 'scale(1)',
                   boxShadow: isBackpackConnected ? theme => theme.shadows[2] : 'none',
                 }}
-                icon={isBackpackConnected ? (
-                  <Box 
-                    sx={{ 
-                      width: 8, 
-                      height: 8, 
-                      borderRadius: '50%', 
-                      backgroundColor: 'currentColor',
-                      animation: 'pulse 2s infinite',
-                      '@keyframes pulse': {
-                        '0%': { opacity: 1 },
-                        '50%': { opacity: 0.5 },
-                        '100%': { opacity: 1 },
-                      }
-                    }} 
-                  />
-                ) : undefined}
+                icon={
+                  isBackpackConnected ? (
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'currentColor',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { opacity: 1 },
+                          '50%': { opacity: 0.5 },
+                          '100%': { opacity: 1 },
+                        },
+                      }}
+                    />
+                  ) : undefined
+                }
               />
             </Box>
           </Box>
@@ -600,14 +683,21 @@ export const Spread = () => {
         }}
       >
         <CardContent>
-          <Typography variant="h6" fontWeight={600} mb={3}>
+          <Typography variant='h6' fontWeight={600} mb={3}>
             Connection & Testing
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-              <Button 
-                variant='contained' 
-                disabled={authorizingLighter} 
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              <Button
+                variant='contained'
+                disabled={authorizingLighter}
                 onClick={authLighter}
                 sx={{
                   minWidth: 140,
@@ -634,23 +724,32 @@ export const Spread = () => {
                 {authorizingLighter ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <CircularProgress size={20} color='inherit' />
-                    <Typography variant="body2">Authorizing...</Typography>
+                    <Typography variant='body2'>Authorizing...</Typography>
                   </Box>
                 ) : (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="body2" fontWeight={600}>🔐 Auth Lighter</Typography>
+                    <Typography variant='body2' fontWeight={600}>
+                      🔐 Auth Lighter
+                    </Typography>
                   </Box>
                 )}
               </Button>
-              <Typography variant="caption" color="text.secondary" textAlign="center">
+              <Typography variant='caption' color='text.secondary' textAlign='center'>
                 Authenticate with Lighter API
               </Typography>
             </Box>
-            
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-              <Button 
-                variant='outlined' 
-                disabled={authorizingLighter} 
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1,
+              }}
+            >
+              <Button
+                variant='outlined'
+                disabled={authorizingLighter}
                 onClick={testLighter}
                 sx={{
                   minWidth: 140,
@@ -677,16 +776,16 @@ export const Spread = () => {
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="body2" fontWeight={600}>🧪 Test Lighter</Typography>
+                  <Typography variant='body2' fontWeight={600}>
+                    🧪 Test Lighter
+                  </Typography>
                 </Box>
               </Button>
-              <Typography variant="caption" color="text.secondary" textAlign="center">
+              <Typography variant='caption' color='text.secondary' textAlign='center'>
                 Test Lighter connection
               </Typography>
             </Box>
           </Box>
-          
-
         </CardContent>
       </Card>
 
@@ -696,14 +795,26 @@ export const Spread = () => {
           border: theme => `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Box sx={{ p: 3, borderBottom: theme => `1px solid ${theme.palette.divider}` }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6" fontWeight={600}>
+        <Box
+          sx={{
+            p: 3,
+            borderBottom: theme => `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 2,
+            }}
+          >
+            <Typography variant='h6' fontWeight={600}>
               Spread Management
             </Typography>
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               startIcon={<AddIcon />}
               onClick={handleOpenCreateSpread}
               sx={{
@@ -716,7 +827,6 @@ export const Spread = () => {
               Create Spread
             </Button>
           </Box>
-
         </Box>
         <Table
           headCells={headCells}
@@ -725,7 +835,7 @@ export const Spread = () => {
           pagination={true}
           toolbar={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant='body2' color='text.secondary'>
                 Total Spreads: {spreads.length}
               </Typography>
             </Box>

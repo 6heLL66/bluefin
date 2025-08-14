@@ -22,11 +22,7 @@ export class AccountService {
    * @returns AccountDto Successful Response
    * @throws ApiError
    */
-  public static accountsListApiAccountsPost({
-    requestBody,
-  }: {
-    requestBody: Array<BatchAccountDto>
-  }): CancelablePromise<Record<string, Array<AccountDto>>> {
+  public static accountsListApiAccountsPost({ requestBody }: { requestBody: Array<BatchAccountDto> }): CancelablePromise<Record<string, Array<AccountDto>>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/accounts',
@@ -62,11 +58,7 @@ export class AccountService {
    * @returns TaskDto Successful Response
    * @throws ApiError
    */
-  public static accountsRefreshApiAccountsRefreshPost({
-    requestBody,
-  }: {
-    requestBody: RefreshDto
-  }): CancelablePromise<Record<string, TaskDto>> {
+  public static accountsRefreshApiAccountsRefreshPost({ requestBody }: { requestBody: RefreshDto }): CancelablePromise<Record<string, TaskDto>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/accounts/refresh',
@@ -82,11 +74,7 @@ export class AccountService {
    * @returns TaskResultDto Successful Response
    * @throws ApiError
    */
-  public static accountRefreshResultApiAccountsRefreshTaskIdGet({
-    taskId,
-  }: {
-    taskId: string
-  }): CancelablePromise<TaskResultDto> {
+  public static accountRefreshResultApiAccountsRefreshTaskIdGet({ taskId }: { taskId: string }): CancelablePromise<TaskResultDto> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/accounts/refresh/{task_id}',
@@ -103,11 +91,7 @@ export class AccountService {
    * @returns AccountWithPositionsDto Successful Response
    * @throws ApiError
    */
-  public static accountPositionsApiAccountPositionsPost({
-    requestBody,
-  }: {
-    requestBody: BatchAccountDto
-  }): CancelablePromise<AccountWithPositionsDto> {
+  public static accountPositionsApiAccountPositionsPost({ requestBody }: { requestBody: BatchAccountDto }): CancelablePromise<AccountWithPositionsDto> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/account/positions',
@@ -123,11 +107,7 @@ export class AccountService {
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static accountLeverageApiAccountLeveragePost({
-    requestBody,
-  }: {
-    requestBody: BatchAccountLeverageDto
-  }): CancelablePromise<Record<string, any>> {
+  public static accountLeverageApiAccountLeveragePost({ requestBody }: { requestBody: BatchAccountLeverageDto }): CancelablePromise<Record<string, any>> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/account/leverage',

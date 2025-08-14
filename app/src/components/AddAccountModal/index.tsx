@@ -68,24 +68,9 @@ export const AddAccountModal: React.FC<{
       <Paper sx={{ width: '500px', p: 2 }}>
         <Box sx={{ gap: 5, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label='Name'
-              variant='outlined'
-              onChange={e => onChange('name', e.target.value)}
-              value={account.name}
-            />
-            <TextField
-              label='Public address'
-              variant='outlined'
-              onChange={e => onChange('public_address', e.target.value)}
-              value={account.public_address}
-            />
-            <TextField
-              label='Passphrase'
-              variant='outlined'
-              onChange={e => onChange('private_key', e.target.value)}
-              value={account.private_key}
-            />
+            <TextField label='Name' variant='outlined' onChange={e => onChange('name', e.target.value)} value={account.name} />
+            <TextField label='Public address' variant='outlined' onChange={e => onChange('public_address', e.target.value)} value={account.public_address} />
+            <TextField label='Passphrase' variant='outlined' onChange={e => onChange('private_key', e.target.value)} value={account.private_key} />
             {account.proxy !== undefined && (
               <TextField
                 label='Proxy'
@@ -107,12 +92,7 @@ export const AddAccountModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              variant='contained'
-              color='success'
-              onClick={onConfirm}
-              disabled={!account.private_key || !account.name}
-            >
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={!account.private_key || !account.name}>
               Confirm
             </Button>
           </Box>

@@ -1,19 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { OrderService as OrderServiceApi, ORDER_SIDE, AccountService } from '../../api'
-import {
-  FuturesService,
-  OrderService,
-  OrderType,
-  OrderTypeEnum,
-  Side,
-  CapitalService,
-  AccountService as BpAccountService,
-} from '../../bp-api'
+import { AccountService, ORDER_SIDE, OrderService as OrderServiceApi } from '../../api'
+import { AccountService as BpAccountService, CapitalService, FuturesService, OrderService, OrderType, OrderTypeEnum, Side } from '../../bp-api'
 import { getSignature } from '../../bp-api/getSignature'
+import { useLogger } from '../../hooks/useLogger'
 import { SpreadData } from './constants'
 import { useSpreadStore } from './store'
-import { useLogger } from '../../hooks/useLogger'
 
 interface BookTicker {
   symbol: string
@@ -36,12 +28,10 @@ export const useSpreads = () => {
     setLastTimeFilled,
     updateSpread,
   } = useSpreadStore()
-  
+
   const logger = useLogger()
 
-  const [backpackBook, setBackpackBook] = useState<Record<string, BookTicker>>(
-    {},
-  )
+  const [backpackBook, setBackpackBook] = useState<Record<string, BookTicker>>({})
   const [lighterBook, setLighterBook] = useState<Record<string, BookTicker>>({})
 
   const backpackWebsocket = useRef<WebSocket | null>(null)
@@ -56,21 +46,25 @@ export const useSpreads = () => {
     spreadsRef.current = spreads
 
     spreads.forEach(spread => {
-      
-      if (spread.lighterPositions[0] && spread.backpackPositions[0] && +spread.lighterPositions[0].position === Math.abs(+spread.backpackPositions[0].netQuantity)) {
-        const spr = (Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) - Math.min(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) / Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) * 100
-        if ((spread.lighterPositions[0].side === ORDER_SIDE.BUY && +spread.lighterPositions[0].entry_price > +spread.backpackPositions[0].entryPrice
-          || spread.lighterPositions[0].side === ORDER_SIDE.SELL && +spread.lighterPositions[0].entry_price < +spread.backpackPositions[0].entryPrice)
-          && (spread.lastTimeFilled && Date.now() - spread.lastTimeFilled > 1000 * 60 * 60)
-        ) {
-          updateSpread(spread.id, { closeSpread: spr * -0.9 })
-
-          return
+      if (!spread.lighterPositions[0] || !spread.backpackPositions[0]) {
+        return 
+      }
+      if (
+        ((spread.lighterPositions[0].side === ORDER_SIDE.BUY && +spread.lighterPositions[0].entry_price > +spread.backpackPositions[0].entryPrice) ||
+          (spread.lighterPositions[0].side === ORDER_SIDE.SELL && +spread.lighterPositions[0].entry_price < +spread.backpackPositions[0].entryPrice)) &&
+        spread.lastTimeFilled &&
+        Date.now() - spread.lastTimeFilled > 1000 * 60 * 60
+      ) {
+        const spr =
+        ((Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice) -
+          Math.min(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) /
+          Math.max(+spread.lighterPositions[0].entry_price, +spread.backpackPositions[0].entryPrice)) *
+        100
+        if (spr * -1  !== spread.closeSpread) {
+          updateSpread(spread.id, { closeSpread: spr * -1 })
         }
 
-        if (spr < spread.closeSpread) {
-          updateSpread(spread.id, { closeSpread: spr * 0.9 })
-        }
+        return
       }
     })
   }, [spreads])
@@ -79,25 +73,27 @@ export const useSpreads = () => {
     try {
       const requests = []
       for (let i = 0; i < 10; i++) {
-        requests.push(OrderServiceApi.accountOrderApiAccountOrdersPost({
-          requestBody: {
-            unit: {
-              side: ORDER_SIDE.BUY,
-              token_id: 24,
-              size: '5',
-            },
-            token: lighterMarkets.find((token) => token.market_id === 24)!,
-            account: {
+        requests.push(
+          OrderServiceApi.accountOrderApiAccountOrdersPost({
+            requestBody: {
+              unit: {
+                side: ORDER_SIDE.BUY,
+                token_id: 24,
+                size: '5',
+              },
+              token: lighterMarkets.find(token => token.market_id === 24)!,
               account: {
-                private_key: lighterPrivateKey,
+                account: {
+                  private_key: lighterPrivateKey,
+                },
               },
             },
-          },
-        }))
+          }),
+        )
       }
 
       await Promise.all(requests)
-      
+
       await OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost({
         requestBody: {
           account: {
@@ -108,7 +104,6 @@ export const useSpreads = () => {
           token_id: 24,
         },
       })
-      
     } catch (error) {
       throw error
     }
@@ -121,9 +116,7 @@ export const useSpreads = () => {
         lighterWebsocket.current = null
       }
 
-      lighterWebsocket.current = new WebSocket(
-        import.meta.env.VITE_WEBSOCKET_URL,
-      )
+      lighterWebsocket.current = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL)
 
       lighterWebsocket.current.onopen = () => {
         addLighterSpreadSubscription(spreadsRef.current)
@@ -133,9 +126,7 @@ export const useSpreads = () => {
         const { token_id, ask, bid } = JSON.parse(event.data)
 
         if (token_id) {
-          const symbol =
-            lighterMarkets.find(token => token.market_id === +token_id)
-              ?.symbol ?? ''
+          const symbol = lighterMarkets.find(token => token.market_id === +token_id)?.symbol ?? ''
 
           setLighterBook(prev => ({
             ...prev,
@@ -154,19 +145,12 @@ export const useSpreads = () => {
     }
   }
 
-  const openBackpackLimitOrder = async (
-    spread: SpreadData,
-    price: string,
-    quantity: string,
-    side: Side,
-    reduceOnly: boolean = false,
-  ) => {
+  const openBackpackLimitOrder = async (spread: SpreadData, price: string, quantity: string, side: Side, reduceOnly: boolean = false) => {
     const market = backpackMarkets.find(token => token.baseSymbol === spread.asset)
 
     const stepSize = Number(market?.filters.quantity.stepSize ?? 0)
 
-    const lowerPrice =
-    reduceOnly ? Number(price) : side === Side.ASK ? Number(price) + (stepSize * 8) : Number(price) - (stepSize * 8)
+    const lowerPrice = reduceOnly ? Number(price) : side === Side.ASK ? Number(price) + stepSize * 8 : Number(price) - stepSize * 8
 
     const isConnected = lighterWebsocket.current?.readyState === WebSocket.OPEN
 
@@ -179,15 +163,13 @@ export const useSpreads = () => {
       return
     }
 
-    const reduceOnlyQuantity = (Math.min(Number(quantity) * 1.025 / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]?.netQuantity)))
+    const reduceOnlyQuantity = Math.min((Number(quantity) * 1.025) / Number(lowerPrice), Math.abs(+spread.backpackPositions[0]?.netQuantity))
 
     const order = {
       orderType: OrderTypeEnum.LIMIT,
       postOnly: true,
       price: lowerPrice.toFixed(market?.filters.price.tickSize.split('.')[1].length ?? 2),
-      quantity: (reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice)).toFixed(
-        market?.filters.quantity.stepSize.split('.')[1].length ?? 2,
-      ),
+      quantity: (reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice)).toFixed(market?.filters.quantity.stepSize.split('.')[1].length ?? 2),
       reduceOnly,
       side: side,
       symbol: spread.asset.toUpperCase() + '_USDC_PERP',
@@ -201,17 +183,12 @@ export const useSpreads = () => {
       order,
       spread: spread,
     })
-    
+
     try {
       const dateNow = Date.now()
       const resultOrder = await OrderService.executeOrder({
         xApiKey: backpackApiPublicKey,
-        xSignature: await getSignature(
-          'orderExecute',
-          backpackApiSecretKey,
-          dateNow.toString(),
-          order,
-        ),
+        xSignature: await getSignature('orderExecute', backpackApiSecretKey, dateNow.toString(), order),
         xTimestamp: dateNow,
         xWindow: 60000,
         requestBody: order,
@@ -241,7 +218,7 @@ export const useSpreads = () => {
         spreadId: spread.id,
         asset: spread.asset,
         error: String(error),
-        order
+        order,
       })
       if (reduceOnly) {
         delete openedOrdersReduceOnly.current[spread.id]
@@ -257,17 +234,13 @@ export const useSpreads = () => {
 
   const closingOrders = useRef<Record<string, boolean>>({})
 
-  const closeBackpackOrder = async (
-    spread: SpreadData,
-    order: OrderType,
-    reduceOnly: boolean = false,
-  ) => {
+  const closeBackpackOrder = async (spread: SpreadData, order: OrderType, reduceOnly: boolean = false) => {
     if (closingOrders.current[spread.id]) return
 
     logger.spread('Ордер Backpack закрывается так как спред пропал', {
       spread: spread,
       order,
-      reduceOnly
+      reduceOnly,
     })
 
     try {
@@ -276,15 +249,10 @@ export const useSpreads = () => {
       const dateNow = Date.now()
       await OrderService.cancelOrder({
         xApiKey: backpackApiPublicKey,
-        xSignature: await getSignature(
-          'orderCancel',
-          backpackApiSecretKey,
-          dateNow.toString(),
-          {
-            orderId: order.id,
-            symbol: order.symbol,
-          },
-        ),
+        xSignature: await getSignature('orderCancel', backpackApiSecretKey, dateNow.toString(), {
+          orderId: order.id,
+          symbol: order.symbol,
+        }),
         xTimestamp: dateNow,
         xWindow: 60000,
         requestBody: {
@@ -296,7 +264,7 @@ export const useSpreads = () => {
       logger.spread('Ордер Backpack успешно закрыт', {
         spread: spread,
         order,
-        reduceOnly
+        reduceOnly,
       })
 
       if (reduceOnly) {
@@ -310,9 +278,9 @@ export const useSpreads = () => {
       logger.spread('Ошибка закрытия ордера Backpack', {
         spread: spread,
         order,
-        error: String(error)
+        error: String(error),
       })
-      
+
       await fetchPositions()
       if (reduceOnly) {
         delete openedOrdersReduceOnly.current[spread.id]
@@ -321,6 +289,7 @@ export const useSpreads = () => {
       }
 
       updateSpreadStatus(spread.id, 'WAITING')
+      
     } finally {
       closingOrders.current[spread.id] = false
     }
@@ -344,13 +313,11 @@ export const useSpreads = () => {
         const { data, stream } = JSON.parse(event.data)
 
         if (stream && stream.includes('orderUpdate')) {
-          const { e, l, S, s, L, X } = data
+          const { e, l, S, s, L, X, o } = data
 
-          if (e === 'orderFill') {
-            const spread = spreadsRef.current.find(
-              spread => spread.asset === s.split('_')[0],
-            )
-            
+          if (e === 'orderFill' && o === 'LIMIT') {
+            const spread = spreadsRef.current.find(spread => spread.asset === s.split('_')[0])
+
             logger.spread('Получено уведомление о заполнении ордера', {
               event: e,
               symbol: s,
@@ -361,15 +328,15 @@ export const useSpreads = () => {
               data,
               spread: spread,
             })
-            
+
             if (!spread) return
 
             const token = lighterMarkets.find(token => token.symbol === s.split('_')[0])!
             const isReduceOnly = !!openedOrdersReduceOnly.current[spread.id]
 
-            let reduceOnlyQuantity = (Math.min(l, Math.abs(+spread.lighterPositions[0]?.position)))
+            let reduceOnlyQuantity = Math.min(l, Math.abs(+spread.lighterPositions[0]?.position))
 
-            if (spread.lighterPositions[0] && +spread.lighterPositions[0].position - l < (1 / 10 ** (token.size_decimals * 4))) {
+            if (spread.lighterPositions[0] && +spread.lighterPositions[0].position - l < 1 / 10 ** (token.size_decimals * 4)) {
               reduceOnlyQuantity = Number(spread.lighterPositions[0].position)
             }
 
@@ -393,9 +360,9 @@ export const useSpreads = () => {
                   side: S === 'Bid' ? ORDER_SIDE.SELL : ORDER_SIDE.BUY,
                   token_id: token?.market_id ?? 0,
                   size: isReduceOnly ? reduceOnlyQuantity * L : l * L,
-                  reduce_only: isReduceOnly
+                  reduce_only: isReduceOnly,
                 },
-                token: {...token, price: L},
+                token: { ...token, price: L },
                 account: {
                   account: {
                     private_key: lighterPrivateKey,
@@ -403,7 +370,7 @@ export const useSpreads = () => {
                 },
               },
             })
-            
+
             if (X === 'Filled') {
               logger.spread('Ордер Backpack полностью заполнен', {
                 spread: spread,
@@ -414,19 +381,33 @@ export const useSpreads = () => {
                 l,
                 L,
               })
-              
+
               await fetchPositions()
               delete openedOrders.current[spread.id]
               delete openedOrdersReduceOnly.current[spread.id]
               updateSpreadStatus(spread.id, 'WAITING')
               setLastTimeFilled(spread.id, Date.now())
+
+              if (!isReduceOnly) {
+                setTimeout(() => {
+                  const _spread = spreadsRef.current.find(spr => spr.id === spread.id)
+                  if (!_spread) return
+                  const spr =
+                    ((Math.max(+_spread.lighterPositions[0].entry_price, +_spread.backpackPositions[0].entryPrice) -
+                      Math.min(+_spread.lighterPositions[0].entry_price, +_spread.backpackPositions[0].entryPrice)) /
+                      Math.max(+_spread.lighterPositions[0].entry_price, +_spread.backpackPositions[0].entryPrice)) *
+                    100
+          
+                  updateSpread(_spread.id, { closeSpread: spr * 0.9 })
+                }, 200)
+              }
             }
           }
         }
 
         if (stream && stream.includes('bookTicker')) {
           const symbol = data.s.split('_')[0]
-          
+
           setBackpackBook(prev => ({
             ...prev,
             [symbol]: {
@@ -446,7 +427,7 @@ export const useSpreads = () => {
 
   const addBackpackSpreadSubscription = async (spreads: SpreadData[]) => {
     if (spreads.length === 0) return
-    
+
     const backpackSubscribeMessage = {
       method: 'SUBSCRIBE',
       params: spreads.map(spread => `bookTicker.${spread.asset.toUpperCase()}_USDC_PERP`),
@@ -457,22 +438,12 @@ export const useSpreads = () => {
 
     const dateNow = Date.now()
 
-    const subscribeSignature = await getSignature(
-      'subscribe',
-      backpackApiSecretKey,
-      dateNow.toString(),
-      {},
-    )
+    const subscribeSignature = await getSignature('subscribe', backpackApiSecretKey, dateNow.toString(), {})
 
     const subscribeMessage = {
       method: 'SUBSCRIBE',
       params: spreads.map(spread => `account.orderUpdate.${spread.asset.toUpperCase()}_USDC_PERP`),
-      signature: [
-        backpackApiPublicKey,
-        subscribeSignature,
-        dateNow.toString(),
-        '60000',
-      ],
+      signature: [backpackApiPublicKey, subscribeSignature, dateNow.toString(), '60000'],
     }
 
     backpackWebsocket.current?.send(JSON.stringify(subscribeMessage))
@@ -480,7 +451,6 @@ export const useSpreads = () => {
 
   const addLighterSpreadSubscription = (spreads: SpreadData[]) => {
     if (spreads.length === 0) return
-
 
     const lighterSubscribeMessage = {
       token_ids: spreads.map(spread => spread.tokenId),
@@ -493,22 +463,16 @@ export const useSpreads = () => {
     if (spreads.length === 0) return
 
     try {
-      const lighterPositions =
-        await AccountService.accountPositionsApiAccountPositionsPost({
-          requestBody: {
-            account: {
-              private_key: lighterPrivateKey,
-            },
+      const lighterPositions = await AccountService.accountPositionsApiAccountPositionsPost({
+        requestBody: {
+          account: {
+            private_key: lighterPrivateKey,
           },
-        })
+        },
+      })
 
       const dateNow = Date.now()
-      const signature = await getSignature(
-        'positionQuery',
-        backpackApiSecretKey,
-        dateNow.toString(),
-        {},
-      )
+      const signature = await getSignature('positionQuery', backpackApiSecretKey, dateNow.toString(), {})
 
       const backpackPositions = await FuturesService.getPositions({
         xApiKey: backpackApiPublicKey,
@@ -519,10 +483,8 @@ export const useSpreads = () => {
 
       spreads.forEach(async spread => {
         const lighterPos = lighterPositions.positions.filter(pos => pos.symbol === spread.asset)
-        const backpackPos = backpackPositions.filter(
-          pos => pos.symbol === spread.asset + '_USDC_PERP',
-        )
-        
+        const backpackPos = backpackPositions.filter(pos => pos.symbol === spread.asset + '_USDC_PERP')
+
         setSpreadPositions(spread.id, lighterPos, backpackPos)
       })
 
@@ -562,31 +524,25 @@ export const useSpreads = () => {
       return
     }
     checkBalancesEnough()
-    
+
     spreads.forEach(spread => {
       if (!openedOrders.current[spread.id] && !openedOrdersReduceOnly.current[spread.id] && balanceError) {
         return
       }
-      const backpackBidPrice =
-        backpackBook[spread.asset.toUpperCase()]?.bidPrice
+      const backpackBidPrice = backpackBook[spread.asset.toUpperCase()]?.bidPrice
       const lighterBidPrice = lighterBook[spread.asset.toUpperCase()]?.bidPrice
-      const backpackAskPrice =
-        backpackBook[spread.asset.toUpperCase()]?.askPrice
+      const backpackAskPrice = backpackBook[spread.asset.toUpperCase()]?.askPrice
       const lighterAskPrice = lighterBook[spread.asset.toUpperCase()]?.askPrice
       const lighterAskQty = lighterBook[spread.asset.toUpperCase()]?.askQty
       const lighterBidQty = lighterBook[spread.asset.toUpperCase()]?.bidQty
 
       const positionsSize = Math.max(Math.abs(Number(spread.backpackPositions[0]?.netCost ?? 0)), Number(spread.lighterPositions[0]?.size ?? 0))
-      const isSpreadFulfilled =
-        spread.size - positionsSize < spread.size * 0.01 ||
-        spread.size - positionsSize < 15
+      const isSpreadFulfilled = spread.size - positionsSize < spread.size * 0.01 || spread.size - positionsSize < 15
 
       if (
         !openedOrders.current[spread.id] &&
         spread.lighterPositions?.some(pos => pos.symbol === spread.asset) &&
-        spread.backpackPositions?.some(
-          pos => pos.symbol === spread.asset + '_USDC_PERP',
-        )
+        spread.backpackPositions?.some(pos => pos.symbol === spread.asset + '_USDC_PERP')
       ) {
         const lighterPosition = spread.lighterPositions[0]
         const backpackPosition = spread.backpackPositions[0]
@@ -596,19 +552,13 @@ export const useSpreads = () => {
         }
         const isLighterLong = lighterPosition.side === ORDER_SIDE.BUY
         const lighterSpread = isLighterLong
-          ? (Number(lighterBidPrice) - Number(lighterPosition.entry_price)) /
-            Number(lighterBidPrice)
-          : (Number(lighterPosition.entry_price) - Number(lighterAskPrice)) /
-            Number(lighterAskPrice)
+          ? (Number(lighterBidPrice) - Number(lighterPosition.entry_price)) / Number(lighterBidPrice)
+          : (Number(lighterPosition.entry_price) - Number(lighterAskPrice)) / Number(lighterAskPrice)
         const backpackSpread = !isLighterLong
-          ? (Number(backpackAskPrice) - Number(backpackPosition.entryPrice)) /
-            Number(backpackAskPrice)
-          : (Number(backpackPosition.entryPrice) - Number(backpackBidPrice)) /
-            Number(backpackBidPrice)
+          ? (Number(backpackAskPrice) - Number(backpackPosition.entryPrice)) / Number(backpackAskPrice)
+          : (Number(backpackPosition.entryPrice) - Number(backpackBidPrice)) / Number(backpackBidPrice)
 
-        const size = isLighterLong
-          ? Number(lighterBidPrice) * Number(lighterBidQty)
-          : Number(lighterAskPrice) * Number(lighterAskQty)
+        const size = isLighterLong ? Number(lighterBidPrice) * Number(lighterBidQty) : Number(lighterAskPrice) * Number(lighterAskQty)
 
         const summarySpread = (lighterSpread + backpackSpread) * 100
 
@@ -625,82 +575,49 @@ export const useSpreads = () => {
           backpackAskPrice,
         })
 
-        if (
-          summarySpread >= spread.closeSpread &&
-          !openedOrdersReduceOnly.current[spread.id] &&
-          size > 0
-        ) {
+        if (summarySpread >= spread.closeSpread && !openedOrdersReduceOnly.current[spread.id] && size > 0) {
           logger.spread('Создание reduce-only ордера для закрытия спреда', {
             spreadId: spread.id,
             asset: spread.asset,
             summarySpread,
-            closeSpread: spread.closeSpread
+            closeSpread: spread.closeSpread,
           })
-          
+
           openedOrdersReduceOnly.current[spread.id] = {} as OrderType
           openBackpackLimitOrder(
             spread,
             isLighterLong ? backpackBidPrice : backpackAskPrice,
-            Math.min(
-              size,
-              Math.abs(Number(backpackPosition.netCost)),
-            ).toString(),
+            Math.min(size, Math.abs(Number(backpackPosition.netCost))).toString(),
             isLighterLong ? Side.BID : Side.ASK,
             true,
           )
-        } else if (
-          openedOrdersReduceOnly.current[spread.id] &&
-          openedOrdersReduceOnly.current[spread.id].symbol
-        ) {
+        } else if (openedOrdersReduceOnly.current[spread.id] && openedOrdersReduceOnly.current[spread.id].symbol) {
           if (summarySpread < spread.closeSpread / 2) {
             logger.spread('Закрытие reduce-only ордера - спред уменьшился', {
               spreadId: spread.id,
               asset: spread.asset,
               summarySpread,
-              closeSpreadHalf: spread.closeSpread / 2
+              closeSpreadHalf: spread.closeSpread / 2,
             })
-            
-            closeBackpackOrder(
-              spread,
-              openedOrdersReduceOnly.current[spread.id],
-              true,
-            )
+
+            closeBackpackOrder(spread, openedOrdersReduceOnly.current[spread.id], true)
           }
         }
       }
 
-      if (
-        backpackBidPrice &&
-        lighterBidPrice &&
-        backpackAskPrice &&
-        lighterAskPrice &&
-        !openedOrdersReduceOnly.current[spread.id] &&
-        !isSpreadFulfilled
-      ) {
-        let actualSpread =
-          ((Number(backpackAskPrice) - Number(lighterAskPrice)) /
-            (Number(lighterAskPrice) + Number(backpackAskPrice) / 2)) *
-          100
+      if (backpackBidPrice && lighterBidPrice && backpackAskPrice && lighterAskPrice && !openedOrdersReduceOnly.current[spread.id] && !isSpreadFulfilled) {
+        let actualSpread = ((Number(backpackAskPrice) - Number(lighterAskPrice)) / (Number(lighterAskPrice) + Number(backpackAskPrice) / 2)) * 100
 
         const shortBackpack = Number(spread.backpackPositions[0]?.netCost ?? 0) < 0 || actualSpread > 0
-        const size = shortBackpack
-          ? Number(lighterAskPrice) * Number(lighterAskQty)
-          : Number(lighterBidPrice) * Number(lighterBidQty)
+        const size = shortBackpack ? Number(lighterAskPrice) * Number(lighterAskQty) : Number(lighterBidPrice) * Number(lighterBidQty)
 
         if (!shortBackpack) {
-          actualSpread =
-            ((Number(lighterBidPrice) - Number(backpackBidPrice)) /
-              (Number(lighterBidPrice) + Number(backpackBidPrice) / 2)) *
-            100
+          actualSpread = ((Number(lighterBidPrice) - Number(backpackBidPrice)) / (Number(lighterBidPrice) + Number(backpackBidPrice) / 2)) * 100
         }
 
         console.log('actualSpread', actualSpread, spread.asset)
 
-        if (
-          actualSpread >= spread.openSpread &&
-          !openedOrders.current[spread.id] &&
-          Math.min(size, spread.size - positionsSize) > 0
-        ) {
+        if (actualSpread >= spread.openSpread && !openedOrders.current[spread.id] && Math.min(size, spread.size - positionsSize) > 0) {
           logger.spread('Создание ордера для открытия спреда', {
             spreadId: spread.id,
             asset: spread.asset,
@@ -708,9 +625,9 @@ export const useSpreads = () => {
             openSpread: spread.openSpread,
             side: shortBackpack ? 'ASK' : 'BID',
             price: shortBackpack ? backpackAskPrice : backpackBidPrice,
-            quantity: Math.min(size, spread.size - positionsSize)
+            quantity: Math.min(size, spread.size - positionsSize),
           })
-          
+
           openedOrders.current[spread.id] = {} as OrderType & { price: string }
           openBackpackLimitOrder(
             spread,
@@ -718,23 +635,12 @@ export const useSpreads = () => {
             Math.min(size, spread.size - positionsSize).toString(),
             shortBackpack ? Side.ASK : Side.BID,
           )
-        } else if (
-          openedOrders.current[spread.id] &&
-          openedOrders.current[spread.id].symbol
-        ) {
-          const a =
-            (Number(lighterAskPrice) -
-            Number(openedOrders.current[spread.id].price)) / Number(lighterAskPrice)
-          const b =
-            (Number(lighterBidPrice) -
-            Number(openedOrders.current[spread.id].price)) / Number(lighterBidPrice)
-          const allGood =
-            openedOrders.current[spread.id].side === Side.BID ? Math.abs(a) > 0 : Math.abs(b) < 0
+        } else if (openedOrders.current[spread.id] && openedOrders.current[spread.id].symbol) {
+          const a = (Number(lighterAskPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterAskPrice)
+          const b = (Number(lighterBidPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterBidPrice)
+          const allGood = openedOrders.current[spread.id].side === Side.BID ? Math.abs(a) > 0 : Math.abs(b) < 0
 
-          if (
-            !allGood ||
-            openedOrders.current[spread.id].createdAt + 6000 < Date.now()
-          ) {
+          if (!allGood || openedOrders.current[spread.id].createdAt + 6000 < Date.now()) {
             logger.spread('Закрытие ордера - условия изменились или истекло время', {
               spreadId: spread.id,
               asset: spread.asset,
@@ -744,9 +650,9 @@ export const useSpreads = () => {
               calculatedA: a,
               calculatedB: b,
               allGood,
-              orderAge: Date.now() - openedOrders.current[spread.id].createdAt
+              orderAge: Date.now() - openedOrders.current[spread.id].createdAt,
             })
-            
+
             closeBackpackOrder(spread, openedOrders.current[spread.id])
           }
         }
@@ -754,46 +660,43 @@ export const useSpreads = () => {
     })
   }, [backpackBook, lighterBook, spreads])
 
-  const [balances, setBalances] = useState<{ lighterBalance: string, backpackBalance: string, backpackLeverage: number }>({ lighterBalance: '0', backpackBalance: '0', backpackLeverage: 1 })
+  const [balances, setBalances] = useState<{
+    lighterBalance: string
+    backpackBalance: string
+    backpackLeverage: number
+  }>({ lighterBalance: '0', backpackBalance: '0', backpackLeverage: 1 })
   const [balanceError, setBalanceError] = useState(false)
 
   const getBalances = async () => {
-    const lighterBalance = await AccountService.accountPositionsApiAccountPositionsPost({ requestBody: { account: { private_key: lighterPrivateKey } } })
+    const lighterBalance = await AccountService.accountPositionsApiAccountPositionsPost({
+      requestBody: { account: { private_key: lighterPrivateKey } },
+    })
 
     const dateNow = Date.now()
 
     const backpackBalance = await CapitalService.getCollateral({
       xApiKey: backpackApiPublicKey,
-      xSignature: await getSignature(
-        'collateralQuery',
-        backpackApiSecretKey,
-        dateNow.toString(),
-        {}
-      ),
+      xSignature: await getSignature('collateralQuery', backpackApiSecretKey, dateNow.toString(), {}),
       xTimestamp: dateNow,
       xWindow: 60000,
     })
 
     const { leverageLimit: backpackLeverage } = await BpAccountService.getAccount({
       xApiKey: backpackApiPublicKey,
-      xSignature: await getSignature(
-        'accountQuery',
-        backpackApiSecretKey,
-        dateNow.toString(),
-        {}
-      ),
+      xSignature: await getSignature('accountQuery', backpackApiSecretKey, dateNow.toString(), {}),
       xTimestamp: dateNow,
       xWindow: 60000,
     })
 
-    setBalances({ lighterBalance: lighterBalance.free_balance, backpackBalance: backpackBalance.netEquityAvailable, backpackLeverage: Number(backpackLeverage) })
+    setBalances({
+      lighterBalance: lighterBalance.free_balance,
+      backpackBalance: backpackBalance.netEquityAvailable,
+      backpackLeverage: Number(backpackLeverage),
+    })
   }
 
   const refreshAll = async () => {
-    await Promise.all([
-      fetchPositions(),
-      getBalances()
-    ])
+    await Promise.all([fetchPositions(), getBalances()])
   }
 
   useEffect(() => {
@@ -830,24 +733,19 @@ export const useSpreads = () => {
               side: isLong ? Side.ASK : Side.BID,
               symbol: spread.asset.toUpperCase() + '_USDC_PERP',
             }
-            
+
             logger.spread('Создание market ордера для закрытия позиции Backpack', {
               spread: spread,
               isLong,
               quantity: order.quantity,
               side: order.side,
-              symbol: order.symbol
+              symbol: order.symbol,
             })
-            
+
             const dateNow = Date.now()
             return OrderService.executeOrder({
               xApiKey: backpackApiPublicKey,
-              xSignature: await getSignature(
-                'orderExecute',
-                backpackApiSecretKey,
-                dateNow.toString(),
-                order,
-              ),
+              xSignature: await getSignature('orderExecute', backpackApiSecretKey, dateNow.toString(), order),
               xTimestamp: dateNow,
               xWindow: 60000,
               requestBody: order,
@@ -859,19 +757,17 @@ export const useSpreads = () => {
                 spread: spread,
                 token: position,
               })
-              
-              return OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost(
-                {
-                  requestBody: {
-                    token_id: position.market_id,
+
+              return OrderServiceApi.accountOrdersCancelApiAccountOrdersCancelPost({
+                requestBody: {
+                  token_id: position.market_id,
+                  account: {
                     account: {
-                      account: {
-                        private_key: lighterPrivateKey,
-                      },
+                      private_key: lighterPrivateKey,
                     },
                   },
                 },
-              )
+              })
             }),
           ),
       )
@@ -884,7 +780,7 @@ export const useSpreads = () => {
     } catch (error) {
       logger.spread('Ошибка при закрытии всех позиций', {
         spread: spread,
-        error: String(error)
+        error: String(error),
       })
       throw error
     }
@@ -893,9 +789,15 @@ export const useSpreads = () => {
   const checkBalancesEnough = async () => {
     const { lighterBalance, backpackBalance, backpackLeverage } = balances
 
-    const lighterSummaryValue = spreadsRef.current.reduce((acc, spread) => acc + Number(spread.size / spread.leverage) - Number((spread.lighterPositions[0]?.size ?? 0)), 0)
+    const lighterSummaryValue = spreadsRef.current.reduce(
+      (acc, spread) => acc + Number(spread.size / spread.leverage) - Number(spread.lighterPositions[0]?.size ?? 0),
+      0,
+    )
 
-    const backpackSummaryValue = spreadsRef.current.reduce((acc, spread) => acc + Number(spread.size / backpackLeverage) - Math.abs(Number(spread.backpackPositions[0]?.netCost ?? 0)), 0)
+    const backpackSummaryValue = spreadsRef.current.reduce(
+      (acc, spread) => acc + Number(spread.size / backpackLeverage) - Math.abs(Number(spread.backpackPositions[0]?.netCost ?? 0)),
+      0,
+    )
 
     if (lighterSummaryValue > Number(lighterBalance) || backpackSummaryValue > Number(backpackBalance)) {
       setBalanceError(true)
@@ -905,7 +807,6 @@ export const useSpreads = () => {
   }
 
   const cleanup = () => {
-    
     if (backpackWebsocket.current) {
       backpackWebsocket.current.close()
       backpackWebsocket.current = null
@@ -926,10 +827,18 @@ export const useSpreads = () => {
 
   const authLighter = async () => {
     setAuthorizingLighter(true)
-    const data = await AccountService.accountsRefreshApiAccountsRefreshPost({ requestBody: { accounts: [{ account: { private_key: lighterPrivateKey } }], from_api_key_index: 52, to_api_key_index: 72}})
+    const data = await AccountService.accountsRefreshApiAccountsRefreshPost({
+      requestBody: {
+        accounts: [{ account: { private_key: lighterPrivateKey } }],
+        from_api_key_index: 52,
+        to_api_key_index: 72,
+      },
+    })
 
     const interval = setInterval(() => {
-      AccountService.accountRefreshResultApiAccountsRefreshTaskIdGet({ taskId: data[lighterPrivateKey].id }).then((res) => {
+      AccountService.accountRefreshResultApiAccountsRefreshTaskIdGet({
+        taskId: data[lighterPrivateKey].id,
+      }).then(res => {
         if (res.is_completed) {
           setAuthorizingLighter(false)
           clearInterval(interval)

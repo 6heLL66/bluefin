@@ -33,9 +33,7 @@ export class AssetsService {
    * @returns CollateralSummary Success.
    * @throws ApiError
    */
-  public static getCollateralParameters(): CancelablePromise<
-    Array<CollateralSummary>
-  > {
+  public static getCollateralParameters(): CancelablePromise<Array<CollateralSummary>> {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/api/v1/collateral',

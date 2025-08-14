@@ -58,20 +58,8 @@ export const Login = () => {
             width: '100%',
           }}
         >
-          <TextField
-            fullWidth
-            type='email'
-            label='Email'
-            variant='outlined'
-            onChange={e => setEmail(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            type='password'
-            label='Password'
-            variant='outlined'
-            onChange={e => setPassword(e.target.value)}
-          />
+          <TextField fullWidth type='email' label='Email' variant='outlined' onChange={e => setEmail(e.target.value)} />
+          <TextField fullWidth type='password' label='Password' variant='outlined' onChange={e => setPassword(e.target.value)} />
         </Box>
         <Box
           sx={{
@@ -87,14 +75,7 @@ export const Login = () => {
             </FormHelperText>
           )}
 
-          <LoadingButton
-            variant='contained'
-            color='success'
-            size='large'
-            onClick={onConfirm}
-            loading={loading}
-            disabled={!email || !password}
-          >
+          <LoadingButton variant='contained' color='success' size='large' onClick={onConfirm} loading={loading} disabled={!email || !password}>
             Login
           </LoadingButton>
         </Box>

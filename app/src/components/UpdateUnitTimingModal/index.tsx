@@ -20,11 +20,7 @@ export const UpdateUnitTimingModal = ({
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
+    <Modal open={open} onClose={handleClose} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Paper
         sx={{
           width: '500px',
@@ -54,12 +50,7 @@ export const UpdateUnitTimingModal = ({
             justifyContent: 'flex-end',
           }}
         >
-          <LoadingButton
-            variant='contained'
-            color='success'
-            onClick={onConfirm}
-            disabled={!timing}
-          >
+          <LoadingButton variant='contained' color='success' onClick={onConfirm} disabled={!timing}>
             Update
           </LoadingButton>
         </Box>

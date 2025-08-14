@@ -10,13 +10,7 @@ interface EnhancedTableHeadProps {
   headCells: HeadCell[]
 }
 
-export const EnhancedTableHead: React.FC<EnhancedTableHeadProps> = ({
-  numSelected,
-  onSelectAllClick,
-  rowCount,
-  withCheckbox,
-  headCells,
-}) => {
+export const EnhancedTableHead: React.FC<EnhancedTableHeadProps> = ({ numSelected, onSelectAllClick, rowCount, withCheckbox, headCells }) => {
   return (
     <TableHead>
       <TableRow>
@@ -34,11 +28,7 @@ export const EnhancedTableHead: React.FC<EnhancedTableHeadProps> = ({
           </TableCell>
         )}
         {headCells.map(headCell => (
-          <TableCell
-            key={headCell.id}
-            align={headCell.align}
-            padding={headCell.disablePadding ? 'none' : 'normal'}
-          >
+          <TableCell key={headCell.id} align={headCell.align} padding={headCell.disablePadding ? 'none' : 'normal'}>
             {headCell.label}
           </TableCell>
         ))}

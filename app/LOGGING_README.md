@@ -3,6 +3,7 @@
 ## Обзор
 
 Система логирования собирает детальную информацию о всех операциях в приложении, включая:
+
 - WebSocket подключения и сообщения
 - Создание и закрытие ордеров
 - Обновления позиций
@@ -12,13 +13,17 @@
 ## Компоненты
 
 ### 1. LogStore (store/logStore.ts)
+
 Zustand стор для хранения и управления логами:
+
 - Автоматическое ограничение до 1000 последних логов
 - Уникальные ID для каждого лога
 - Временные метки
 
 ### 2. useLogger Hook (hooks/useLogger.ts)
+
 Удобный хук для логирования с предустановленными категориями:
+
 - `logger.info()` - общая информация
 - `logger.warning()` - предупреждения
 - `logger.error()` - ошибки
@@ -30,7 +35,9 @@ Zustand стор для хранения и управления логами:
 - `logger.custom()` - кастомные логи
 
 ### 3. LogsViewer (components/LogsViewer/index.tsx)
+
 Компонент для отображения логов с возможностями:
+
 - Фильтрация по категориям
 - Фильтрация по Spread ID
 - Фильтрация по Asset
@@ -41,29 +48,34 @@ Zustand стор для хранения и управления логами:
 ## Категории логов
 
 ### WEBSOCKET
+
 - Подключения/отключения
 - Подписки на спреды
 - Получение данных (bookTicker, orderUpdate)
 - Ошибки подключения
 
 ### ORDER
+
 - Создание ордеров
 - Отмена ордеров
 - Заполнение ордеров
 - Расчеты цен и объемов
 
 ### POSITION
+
 - Получение позиций
 - Обновление позиций
 - Анализ размеров позиций
 
 ### SPREAD
+
 - Анализ спредов
 - Расчеты для открытия/закрытия
 - Условия создания ордеров
 - Изменения состояния спредов
 
 ### SYSTEM
+
 - Инициализация системы
 - Очистка ресурсов
 - Общие системные события
@@ -78,29 +90,31 @@ Zustand стор для хранения и управления логами:
 ## Использование
 
 ### В компонентах
+
 ```tsx
 import { useLogger } from '../hooks/useLogger'
 
 const MyComponent = () => {
   const logger = useLogger()
-  
+
   const handleAction = () => {
-    logger.info('Действие выполнено', { 
-      details: 'Дополнительная информация' 
+    logger.info('Действие выполнено', {
+      details: 'Дополнительная информация',
     })
   }
-  
+
   return <div>...</div>
 }
 ```
 
 ### В хуках
+
 ```tsx
 import { useLogger } from '../hooks/useLogger'
 
 export const useMyHook = () => {
   const logger = useLogger()
-  
+
   const someFunction = async () => {
     try {
       logger.info('Начало операции')
@@ -110,7 +124,7 @@ export const useMyHook = () => {
       logger.error('Ошибка операции', { error: String(error) })
     }
   }
-  
+
   return { someFunction }
 }
 ```
@@ -128,20 +142,21 @@ export const useMyHook = () => {
 
 ```typescript
 interface LogEntry {
-  id: string                    // Уникальный ID
-  timestamp: Date              // Временная метка
+  id: string // Уникальный ID
+  timestamp: Date // Временная метка
   level: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS'
   category: 'WEBSOCKET' | 'ORDER' | 'POSITION' | 'SPREAD' | 'SYSTEM'
-  message: string              // Основное сообщение
-  details?: Record<string, unknown>  // Дополнительные данные
-  spreadId?: string            // ID спреда (если применимо)
-  asset?: string               // Торговый актив (если применимо)
+  message: string // Основное сообщение
+  details?: Record<string, unknown> // Дополнительные данные
+  spreadId?: string // ID спреда (если применимо)
+  asset?: string // Торговый актив (если применимо)
 }
 ```
 
 ## Примеры логов
 
 ### WebSocket подключение
+
 ```json
 {
   "level": "INFO",
@@ -154,6 +169,7 @@ interface LogEntry {
 ```
 
 ### Создание ордера
+
 ```json
 {
   "level": "INFO",
@@ -172,6 +188,7 @@ interface LogEntry {
 ```
 
 ### Анализ спреда
+
 ```json
 {
   "level": "INFO",
@@ -203,4 +220,4 @@ interface LogEntry {
 1. Обновите типы в `types.ts`
 2. Добавьте новые методы в `useLogger` хук
 3. Обновите компонент `LogsViewer` для поддержки новых категорий
-4. Добавьте цветовую схему для новых категорий 
+4. Добавьте цветовую схему для новых категорий

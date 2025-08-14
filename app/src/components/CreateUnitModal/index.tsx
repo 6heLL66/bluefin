@@ -1,13 +1,5 @@
 import LoadingButton from '@mui/lab/LoadingButton'
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Paper,
-  Select,
-  TextField,
-} from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Modal, Paper, Select, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
@@ -20,12 +12,7 @@ export const CreateUnitModal: React.FC<{
   account: BatchAccount
   accountsCount: number
   handleClose: () => void
-  handleCreateUnit: (form: {
-    token_id: number
-    sz: number
-    leverage: number
-    timing: number
-  }) => void
+  handleCreateUnit: (form: { token_id: number; sz: number; leverage: number; timing: number }) => void
   defaultTiming: number
 }> = ({ open, handleClose, handleCreateUnit, defaultTiming }) => {
   const [form, setForm] = useState({
@@ -55,19 +42,12 @@ export const CreateUnitModal: React.FC<{
     getMarketData()
   }, [])
 
-  const onChange = (
-    key: keyof typeof form,
-    v: string | number,
-  ) => {
+  const onChange = (key: keyof typeof form, v: string | number) => {
     setForm(prev => ({ ...prev, [key]: v }))
   }
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
+    <Modal open={open} onClose={handleClose} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Paper
         sx={{
           width: '500px',
@@ -90,11 +70,13 @@ export const CreateUnitModal: React.FC<{
               <MenuItem value=''>
                 <em>No asset</em>
               </MenuItem>
-              {marketData?.sort((a, b) => a.symbol.localeCompare(b.symbol)).map(market => (
-                <MenuItem value={market.market_id} key={market.symbol}>
-                  {market.symbol}
-                </MenuItem>
-              ))}
+              {marketData
+                ?.sort((a, b) => a.symbol.localeCompare(b.symbol))
+                .map(market => (
+                  <MenuItem value={market.market_id} key={market.symbol}>
+                    {market.symbol}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
         </Box>

@@ -30,13 +30,7 @@ export class CancelablePromise<T> implements Promise<T> {
   #resolve?: (value: T | PromiseLike<T>) => void
   #reject?: (reason?: any) => void
 
-  constructor(
-    executor: (
-      resolve: (value: T | PromiseLike<T>) => void,
-      reject: (reason?: any) => void,
-      onCancel: OnCancel,
-    ) => void,
-  ) {
+  constructor(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void, onCancel: OnCancel) => void) {
     this.#isResolved = false
     this.#isRejected = false
     this.#isCancelled = false
@@ -95,9 +89,7 @@ export class CancelablePromise<T> implements Promise<T> {
     return this.#promise.then(onFulfilled, onRejected)
   }
 
-  public catch<TResult = never>(
-    onRejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null,
-  ): Promise<T | TResult> {
+  public catch<TResult = never>(onRejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null): Promise<T | TResult> {
     return this.#promise.catch(onRejected)
   }
 

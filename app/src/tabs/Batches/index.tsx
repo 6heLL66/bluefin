@@ -12,14 +12,8 @@ export const Batches: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      {modalId === 'createBatchModal' && (
-        <CreateBatchModal open={true} handleClose={() => setModalId(null)} />
-      )}
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={() => setModalId('createBatchModal')}
-      >
+      {modalId === 'createBatchModal' && <CreateBatchModal open={true} handleClose={() => setModalId(null)} />}
+      <Button variant='contained' color='primary' onClick={() => setModalId('createBatchModal')}>
         Create Batch
       </Button>
       <Box
@@ -32,15 +26,7 @@ export const Batches: React.FC = () => {
         }}
       >
         {batches.map(batch => {
-          return (
-            <Batch
-              name={batch.name}
-              accounts={batch.accounts}
-              constant_timing={batch.constant_timing}
-              id={batch.id!}
-              key={batch.id}
-            />
-          )
+          return <Batch name={batch.name} accounts={batch.accounts} constant_timing={batch.constant_timing} id={batch.id!} key={batch.id} />
         })}
       </Box>
     </Box>

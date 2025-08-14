@@ -48,12 +48,7 @@ export const AddProxyModal: React.FC<{
       <Paper sx={{ width: '500px', p: 2 }}>
         <Box sx={{ gap: 5, display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              fullWidth
-              label='host:port:login:password'
-              variant='outlined'
-              onChange={e => onChange('proxy', e.target.value)}
-            />
+            <TextField fullWidth label='host:port:login:password' variant='outlined' onChange={e => onChange('proxy', e.target.value)} />
           </Box>
 
           <Box
@@ -66,14 +61,7 @@ export const AddProxyModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              variant='contained'
-              color='success'
-              onClick={onConfirm}
-              disabled={
-                !proxy.host || !proxy.port || !proxy.username || !proxy.password
-              }
-            >
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={!proxy.host || !proxy.port || !proxy.username || !proxy.password}>
               Confirm
             </Button>
           </Box>
