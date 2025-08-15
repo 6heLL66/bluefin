@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 
-import { AccountService, AccountWithPositionsDto, OrderCreateDto, OrderService, PositionDto } from '../../../api'
+import { AccountService, AccountWithPositionsDto, DefaultService, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto, TokenService } from '../../../api'
 import { GlobalContext } from '../../../context'
 import { useLogger } from '../../../hooks/useLogger'
 import { Account, Unit } from '../../../types'
 import { getBatchAccount, transformAccountStatesToUnits } from '../../../utils'
+import { useQuery } from '@tanstack/react-query'
 
 interface Props {
   accounts: string[]
@@ -28,6 +29,8 @@ interface ReturnType {
   closingUnits: number[]
   recreatingUnits: number[]
   initialLoading: boolean
+  authorizingLighter: boolean
+  authLighter: () => Promise<void>
   setTimings: (token_id: number, recreateTiming: number, openedTiming: number) => Promise<void>
   getUnitTimingOpened: (token_id: number) => number
   getUnitTimingReacreate: (token_id: number) => number
@@ -35,12 +38,19 @@ interface ReturnType {
   closeUnit: (unit: Unit) => Promise<unknown>
 }
 
-const UPDATE_INTERVAL = 20000
+const UPDATE_INTERVAL = 5000
 
 export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } = useContext(GlobalContext)
 
   const logger = useLogger()
+
+  const { data: lighterMarkets } = useQuery({
+    queryKey: ['lighter-tokens'],
+    queryFn: () => {
+      return TokenService.tokenListApiTokensGet()
+    },
+  })
 
   const batchAccounts = useMemo(
     () =>
@@ -146,13 +156,16 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
 
       console.log('recreateUnit', token_id, leverage, sz)
 
+      const token = lighterMarkets!.find(t => t.market_id === token_id)!
+
       const promise = recreateRequest({
         accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
         unit: {
           token_id,
-          size: Math.ceil(sz),
+          size: sz / +token.price,
           leverage,
         },
+        token: token,
       })
         .catch(async e => {
           logger.batch(
@@ -189,7 +202,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         error: `${name}: Error while re-creating unit with asset ${token_id} error 🤯`,
       })
     },
-    [batchAccounts, getUnitTimingReacreate, fetchUserStates, setTimings, setRecreatingUnits],
+    [batchAccounts, lighterMarkets, getUnitTimingReacreate, fetchUserStates, setTimings, setRecreatingUnits],
   )
 
   const updateLoop = useCallback(() => {
@@ -245,15 +258,6 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     Promise.all([
       getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
       fetchUserStates(),
-      AccountService.accountsRefreshApiAccountsRefreshPost({
-        requestBody: {
-          accounts: batchAccounts.map(a => ({
-            account: { private_key: a.private_key },
-          })),
-          from_api_key_index: 52,
-          to_api_key_index: 52,
-        },
-      }),
     ]).finally(() => {
       setInitialLoading(false)
     })
@@ -291,13 +295,16 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         token_id.toString(),
       )
 
-      const dto: OrderCreateDto = {
+      const token = lighterMarkets!.find(t => t.market_id === token_id)!
+
+      const dto: OrderCreateWithTokenDto = {
         accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
         unit: {
           token_id,
-          size: sz,
+          size: sz / +token.price,
           leverage,
         },
+        token: token,
       }
 
       await Promise.all(
@@ -313,7 +320,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         ),
       )
 
-      return OrderService.accountsOrdersApiOrdersPost({
+      return DefaultService.accountsOrdersV2ApiV2OrdersPost({
         requestBody: dto,
       })
         .then(() => {
@@ -336,7 +343,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
         })
     },
-    [batchAccounts, fetchUserStates, setTimings, setCreatingUnits],
+    [batchAccounts, lighterMarkets, fetchUserStates, setTimings, setCreatingUnits],
   )
 
   const closeUnit = useCallback(
@@ -383,6 +390,37 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     [batchAccounts, fetchUserStates, setClosingUnits],
   )
 
+  const [authorizingLighter, setAuthorizingLighter] = useState(false)
+
+  const authLighter = async () => {
+    setAuthorizingLighter(true)
+    const data = await AccountService.accountsRefreshApiAccountsRefreshPost({
+      requestBody: {
+        accounts: batchAccounts.map(acc => ({
+          account: { private_key: acc.private_key },
+        })),
+        from_api_key_index: 52,
+        to_api_key_index: 72,
+      },
+    })
+
+    const interval = setInterval(() => {
+      Promise.all(batchAccounts.map((acc) => AccountService.accountRefreshResultApiAccountsRefreshTaskIdGet({
+        taskId: data[acc.private_key].id,
+      }))).then(res => {
+        if (res.every(r => r.is_completed)) {
+          setAuthorizingLighter(false)
+          clearInterval(interval)
+        }
+
+        if (res.some(r => r.created_at && +r.created_at + 600000 < Date.now())) {
+          setAuthorizingLighter(false)
+          clearInterval(interval)
+        }
+      })
+    }, 30000)
+  }
+
   return {
     batchAccounts,
     units,
@@ -391,6 +429,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     closingUnits,
     recreatingUnits,
     initialLoading,
+    authorizingLighter,
+    authLighter,
     getUnitTimingOpened,
     getUnitTimingReacreate,
     setTimings,
@@ -399,7 +439,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
   }
 }
 
-const recreateRequest = async (requestBody: OrderCreateDto) => {
+const recreateRequest = async (requestBody: OrderCreateWithTokenDto) => {
   await OrderService.accountsOrdersCancelApiOrdersCancelPost({
     requestBody: {
       accounts: requestBody.accounts,
@@ -409,14 +449,14 @@ const recreateRequest = async (requestBody: OrderCreateDto) => {
 
   await new Promise(res => setTimeout(res, 8000))
 
-  await OrderService.accountsOrdersApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+  await DefaultService.accountsOrdersV2ApiV2OrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
 
   await new Promise(res => setTimeout(res, 8000))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
   let retryCount = 4
-  const retryInterval = 1500
+  const retryInterval = 3000
 
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {

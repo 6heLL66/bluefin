@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material'
 import React, { useContext, useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -32,6 +32,8 @@ export const Batch: React.FC<{
     recreatingUnits,
     initialLoading,
     unitTimings,
+    authorizingLighter,
+    authLighter,
     getUnitTimingOpened,
     getUnitTimingReacreate,
     setTimings,
@@ -108,6 +110,21 @@ export const Batch: React.FC<{
 
   return (
     <Paper sx={{ padding: 3 }}>
+      <Button variant='contained' color='primary' onClick={authLighter}>
+        {authorizingLighter ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={20} color='inherit' />
+            <Typography variant='body2'>Authorizing...</Typography>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant='body2' fontWeight={600}>
+              🔐 Auth Lighter
+            </Typography>
+          </Box>
+        )}
+      </Button>
+
       {modalId === 'createUnitModal' && (
         <CreateUnitModal
           handleCreateUnit={handleCreateUnit}
