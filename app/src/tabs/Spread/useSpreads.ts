@@ -463,7 +463,8 @@ export const useSpreads = () => {
   }
 
   const fetchPositions = async () => {
-    if (spreads.length === 0) return
+    console.log(spreads.length, 'sdf')
+    if (spreadsRef.current.length === 0) return
 
     try {
       const lighterPositions = await AccountService.accountPositionsApiAccountPositionsPost({
@@ -484,8 +485,9 @@ export const useSpreads = () => {
         xWindow: 60000,
       })
 
-      spreads.forEach(async spread => {
+      spreadsRef.current.forEach(async spread => {
         const lighterPos = lighterPositions.positions.filter(pos => pos.symbol === spread.asset)
+        console.log('lighterPos', lighterPos, lighterPositions.positions)
         const backpackPos = backpackPositions.filter(pos => pos.symbol === spread.asset + '_USDC_PERP')
 
         setSpreadPositions(spread.id, lighterPos, backpackPos)

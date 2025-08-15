@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type AccountDto = {
+  address: string
   private_key: string
   lighter_id: number
   lighter_private_key: string

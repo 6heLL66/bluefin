@@ -107,7 +107,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
               ...acc,
               [account.private_key]: {
                 all: Number(account.balance).toFixed(2),
-                free: Number(account.balance).toFixed(2),
+                free: Number(account.free_balance).toFixed(2),
               },
             }
           }, {}),
@@ -407,9 +407,11 @@ const recreateRequest = async (requestBody: OrderCreateDto) => {
     },
   })
 
-  await new Promise(res => setTimeout(res, 5000))
+  await new Promise(res => setTimeout(res, 8000))
 
   await OrderService.accountsOrdersApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+
+  await new Promise(res => setTimeout(res, 8000))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
