@@ -383,8 +383,11 @@ export const useSpreads = () => {
               })
 
               await fetchPositions()
-              delete openedOrders.current[spread.id]
-              delete openedOrdersReduceOnly.current[spread.id]
+              setTimeout(() => {
+                delete openedOrders.current[spread.id]
+                delete openedOrdersReduceOnly.current[spread.id]
+              }, 100)
+              
               updateSpreadStatus(spread.id, 'WAITING')
               setLastTimeFilled(spread.id, Date.now())
 
@@ -399,7 +402,7 @@ export const useSpreads = () => {
                     100
           
                   updateSpread(_spread.id, { closeSpread: spr * 0.9 })
-                }, 200)
+                }, 100)
               }
             }
           }
