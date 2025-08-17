@@ -117,6 +117,7 @@ export const useSpreads = () => {
     try {
       if (lighterWebsocket.current) {
         lighterWebsocket.current.close()
+        lighterWebsocket.current.onmessage = () => {}
         lighterWebsocket.current = null
       }
 
@@ -151,6 +152,7 @@ export const useSpreads = () => {
 
   const openBackpackLimitOrder = async (spread: SpreadData, price: string, quantity: string, side: Side, reduceOnly: boolean = false) => {
     const market = backpackMarkets.find(token => token.baseSymbol === spread.asset)
+    const lighterMarket = lighterMarkets.find(token => token.symbol === spread.asset)
 
     const lowerPrice = reduceOnly ? Number(price) : side === Side.ASK ? Number(price) : Number(price)
 
@@ -171,7 +173,7 @@ export const useSpreads = () => {
       orderType: OrderTypeEnum.LIMIT,
       postOnly: true,
       price: lowerPrice.toFixed(market?.filters.price.tickSize.split('.')[1].length ?? 2),
-      quantity: (reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice)).toFixed(market?.filters.quantity.stepSize.split('.')[1].length ?? 2),
+      quantity: (reduceOnly ? reduceOnlyQuantity : Number(quantity) / Number(lowerPrice)).toFixed(lighterMarket?.size_decimals ?? 2),
       reduceOnly,
       side: side,
       symbol: spread.asset.toUpperCase() + '_USDC_PERP',
@@ -302,6 +304,7 @@ export const useSpreads = () => {
     try {
       if (backpackWebsocket.current) {
         backpackWebsocket.current.close()
+        backpackWebsocket.current.onmessage = () => {}
         backpackWebsocket.current = null
       }
 
@@ -723,12 +726,6 @@ export const useSpreads = () => {
     refreshAll()
     checkBalancesEnough()
 
-    if (backpackWebsocket.current) {
-      backpackWebsocket.current.onclose = () => {
-        connectBackpackWebsocket()
-      }
-    }
-
     return () => {
       cleanup()
       clearInterval(interval)
@@ -825,11 +822,13 @@ export const useSpreads = () => {
   const cleanup = () => {
     if (backpackWebsocket.current) {
       backpackWebsocket.current.close()
+      backpackWebsocket.current.onmessage = () => {}
       backpackWebsocket.current = null
     }
 
     if (lighterWebsocket.current) {
       lighterWebsocket.current.close()
+      lighterWebsocket.current.onmessage = () => {}
       lighterWebsocket.current = null
     }
 
