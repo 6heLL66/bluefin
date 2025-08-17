@@ -27,6 +27,10 @@ export const useSpreads = () => {
     updateSpreadStatus,
     setLastTimeFilled,
     updateSpread,
+    pausedSpreads,
+    toggleSpreadPause,
+    pauseAllSpreads,
+    resumeAllSpreads,
   } = useSpreadStore()
 
   const logger = useLogger()
@@ -148,9 +152,7 @@ export const useSpreads = () => {
   const openBackpackLimitOrder = async (spread: SpreadData, price: string, quantity: string, side: Side, reduceOnly: boolean = false) => {
     const market = backpackMarkets.find(token => token.baseSymbol === spread.asset)
 
-    const stepSize = Number(market?.filters.quantity.stepSize ?? 0)
-
-    const lowerPrice = reduceOnly ? Number(price) : side === Side.ASK ? Number(price) + stepSize * 8 : Number(price) - stepSize * 8
+    const lowerPrice = reduceOnly ? Number(price) : side === Side.ASK ? Number(price) : Number(price)
 
     const isConnected = lighterWebsocket.current?.readyState === WebSocket.OPEN
 
@@ -531,6 +533,15 @@ export const useSpreads = () => {
     checkBalancesEnough()
 
     spreads.forEach(spread => {
+      if (pausedSpreads.has(spread.id)) {
+        if (openedOrders.current[spread.id]) {
+          closeBackpackOrder(spread, openedOrders.current[spread.id])
+        }
+        if (openedOrdersReduceOnly.current[spread.id]) {
+          closeBackpackOrder(spread, openedOrdersReduceOnly.current[spread.id], true)
+        }
+        return
+      }
       if (!openedOrders.current[spread.id] && !openedOrdersReduceOnly.current[spread.id] && balanceError) {
         return
       }
@@ -663,7 +674,7 @@ export const useSpreads = () => {
         }
       }
     })
-  }, [backpackBook, lighterBook, spreads])
+  }, [backpackBook, lighterBook, spreads, pausedSpreads])
 
   const [balances, setBalances] = useState<{
     lighterBalance: string
@@ -857,6 +868,10 @@ export const useSpreads = () => {
     }, 30000)
   }
 
+  const isSpreadPaused = (spreadId: string) => pausedSpreads.has(spreadId)
+
+
+
   return {
     init,
     cleanup,
@@ -873,5 +888,10 @@ export const useSpreads = () => {
     authorizingLighter,
     isLighterConnected,
     isBackpackConnected,
+    toggleSpreadPause,
+    pauseAllSpreads,
+    resumeAllSpreads,
+    isSpreadPaused,
+    pausedSpreads,
   }
 }

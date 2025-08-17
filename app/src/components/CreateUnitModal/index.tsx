@@ -12,7 +12,7 @@ export const CreateUnitModal: React.FC<{
   account: BatchAccount
   accountsCount: number
   handleClose: () => void
-  handleCreateUnit: (form: { token_id: number; sz: number; leverage: number; timing: number }) => void
+  handleCreateUnit: (form: { token_id: number; sz: number; leverage: number; timing: number; range: number }) => void
   defaultTiming: number
 }> = ({ open, handleClose, handleCreateUnit, defaultTiming }) => {
   const [form, setForm] = useState({
@@ -20,6 +20,7 @@ export const CreateUnitModal: React.FC<{
     timing: defaultTiming,
     sz: 0,
     leverage: 1,
+    range: defaultTiming / 4,
   })
 
   const [marketData, setMarketData] = useState<TokenDto_Output[]>([])
@@ -29,6 +30,7 @@ export const CreateUnitModal: React.FC<{
       handleCreateUnit({
         ...form,
         timing: form.timing * 60000,
+        range: form.range * 60000,
       })
   }
 
@@ -50,7 +52,7 @@ export const CreateUnitModal: React.FC<{
     <Modal open={open} onClose={handleClose} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Paper
         sx={{
-          width: '500px',
+          width: '690px',
           p: 2,
           display: 'flex',
           flexDirection: 'column',
@@ -112,6 +114,17 @@ export const CreateUnitModal: React.FC<{
               defaultValue={defaultTiming}
               variant='outlined'
               onChange={e => onChange('timing', Number(e.target.value))}
+            />
+          </Box>
+          <Box sx={{ width: '100%' }}>
+            <TextField
+              label='Random range (mins)'
+              type='number'
+              size='small'
+              placeholder={String(defaultTiming / 4)}
+              defaultValue={defaultTiming / 4}
+              variant='outlined'
+              onChange={e => onChange('range', Number(e.target.value))}
             />
           </Box>
         </Box>

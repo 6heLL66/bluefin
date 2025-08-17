@@ -1,4 +1,5 @@
 import { ThemeOptions, ThemeProvider, createTheme } from '@mui/material'
+import * as Sentry from '@sentry/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useContext } from 'react'
 import ReactDOM from 'react-dom/client'
@@ -53,6 +54,13 @@ const darkTheme = {
     },
   },
 } as ThemeOptions
+
+Sentry.init({
+  dsn: 'https://c03ac759a2625d91812c9eb4ddb6f40b@o4509856693944320.ingest.us.sentry.io/4509856696500224',
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true,
+})
 
 const queryClient = new QueryClient({
   defaultOptions: {

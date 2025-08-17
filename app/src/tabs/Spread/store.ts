@@ -13,6 +13,7 @@ interface SpreadConfig {
   backpackApiPublicKey: string
   backpackApiSecretKey: string
   spreads: SpreadData[]
+  pausedSpreads: Set<string>
 }
 
 interface SpreadStore extends SpreadConfig {
@@ -26,10 +27,12 @@ interface SpreadStore extends SpreadConfig {
   updateSpreadStatus: (id: string, status: SpreadData['status']) => void
   updateSpread: (id: string, updates: Partial<SpreadData>) => void
   setBackpackMarkets: (markets: Market[]) => void
-
   setLighterMarkets: (markets: TokenDto_Output[]) => void
   createSpread: (spread: SpreadData) => void
   deleteSpread: (id: string) => void
+  toggleSpreadPause: (spreadId: string) => void
+  pauseAllSpreads: () => void
+  resumeAllSpreads: () => void
 }
 
 export const useSpreadStore = create<SpreadStore>()(
@@ -42,6 +45,7 @@ export const useSpreadStore = create<SpreadStore>()(
       backpackApiPublicKey: '',
       backpackApiSecretKey: '',
       spreads: [],
+      pausedSpreads: new Set(),
 
       setBackpackMarkets: (markets: Market[]) => set({ backpackMarkets: markets }),
 
@@ -78,10 +82,30 @@ export const useSpreadStore = create<SpreadStore>()(
         })),
 
       createSpread: (spread: SpreadData) => set(state => ({ spreads: [...state.spreads, spread] })),
+      
       deleteSpread: (id: string) =>
         set(state => ({
           spreads: state.spreads.filter(spread => spread.id !== id),
         })),
+
+      toggleSpreadPause: (spreadId: string) =>
+        set(state => {
+          const newSet = new Set(state.pausedSpreads)
+          if (newSet.has(spreadId)) {
+            newSet.delete(spreadId)
+          } else {
+            newSet.add(spreadId)
+          }
+          return { pausedSpreads: newSet }
+        }),
+
+      pauseAllSpreads: () =>
+        set(state => ({
+          pausedSpreads: new Set(state.spreads.map(spread => spread.id))
+        })),
+
+      resumeAllSpreads: () =>
+        set({ pausedSpreads: new Set() }),
     }),
     {
       name: 'spread-config',
@@ -91,7 +115,13 @@ export const useSpreadStore = create<SpreadStore>()(
         backpackApiPublicKey: state.backpackApiPublicKey,
         backpackApiSecretKey: state.backpackApiSecretKey,
         spreads: state.spreads,
+        pausedSpreads: Array.from(state.pausedSpreads),
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.pausedSpreads = new Set(state.pausedSpreads || [])
+        }
+      },
     },
   ),
 )

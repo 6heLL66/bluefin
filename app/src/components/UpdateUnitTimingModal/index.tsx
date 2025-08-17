@@ -4,19 +4,22 @@ import { useState } from 'react'
 
 export const UpdateUnitTimingModal = ({
   defaultValue,
+  defaultRange,
   open,
   handleClose,
   handleUpdate,
 }: {
   defaultValue: number
+  defaultRange: number
   handleClose: () => void
-  handleUpdate: (timing: number) => void
+  handleUpdate: (timing: number, range: number) => void
   open: boolean
 }) => {
   const [timing, setTiming] = useState(defaultValue)
+  const [range, setRange] = useState(defaultRange)
 
   const onConfirm = () => {
-    if (timing) handleUpdate(timing * 60000)
+    if (timing && range) handleUpdate(timing * 60000, range * 60000)
   }
 
   return (
@@ -40,6 +43,19 @@ export const UpdateUnitTimingModal = ({
               type='number'
               value={timing}
               onChange={e => setTiming(Number(e.target.value))}
+            />
+          </FormControl>
+        </Box>
+        <Box>
+          <FormControl fullWidth>
+            <TextField
+              fullWidth
+              size='medium'
+              label='Random range'
+              variant='outlined'
+              type='number'
+              value={range}
+              onChange={e => setRange(Number(e.target.value))}
             />
           </FormControl>
         </Box>

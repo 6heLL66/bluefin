@@ -33,9 +33,11 @@ export const Batch: React.FC<{
     initialLoading,
     unitTimings,
     authorizingLighter,
+    randomRecreatingTimings,
     authLighter,
     getUnitTimingOpened,
     getUnitTimingReacreate,
+    getUnitTimingRange,
     setTimings,
     createUnit,
     closeUnit,
@@ -51,15 +53,15 @@ export const Batch: React.FC<{
     }
   }
 
-  const handleUpdateUnitTiming = (timing: number) => {
+  const handleUpdateUnitTiming = (timing: number, range: number) => {
     if (updatingUnit === undefined) {
       return
     }
-    setTimings(updatingUnit, timing, getUnitTimingOpened(updatingUnit))
+    setTimings(updatingUnit, timing, getUnitTimingOpened(updatingUnit), range)
     setUpdatingUnit(undefined)
   }
 
-  const handleCreateUnit = async (form: { token_id: number; sz: number; leverage: number; timing: number }) => {
+  const handleCreateUnit = async (form: { token_id: number; sz: number; leverage: number; timing: number; range: number }) => {
     setModalId(null)
     const promise = createUnit(form)
 
@@ -71,8 +73,8 @@ export const Batch: React.FC<{
   }
 
   const rows = useMemo(
-    () => createRows(units, closingUnits, recreatingUnits, getUnitTimingOpened, getUnitTimingReacreate, handleAction),
-    [units, closingUnits, recreatingUnits, unitTimings, getUnitTimingOpened, getUnitTimingReacreate],
+    () => createRows(units, closingUnits, recreatingUnits, randomRecreatingTimings, getUnitTimingOpened, getUnitTimingReacreate, handleAction),
+    [units, closingUnits, recreatingUnits, unitTimings, randomRecreatingTimings, getUnitTimingOpened, getUnitTimingReacreate],
   )
 
   const toolbar = () => {
@@ -139,6 +141,7 @@ export const Batch: React.FC<{
       {updatingUnit !== undefined && (
         <UpdateUnitTimingModal
           handleUpdate={handleUpdateUnitTiming}
+          defaultRange={getUnitTimingRange(updatingUnit) / 60000}
           open
           handleClose={() => setUpdatingUnit(undefined)}
           defaultValue={getUnitTimingReacreate(updatingUnit) / 60000}

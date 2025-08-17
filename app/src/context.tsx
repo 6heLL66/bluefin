@@ -21,8 +21,8 @@ interface GlobalContextType {
   linkAccountsProxy: (accounts: Account['public_address'][], stringifyProxy: string) => void
   createBatch: ({ name, accounts, timing }: { name: string; accounts: string[]; timing: number }) => void
   closeBatch: (batchId: string) => void
-  getUnitTimings: (batchId: string) => Promise<Record<string, { openedTiming: number; recreateTiming: number }>>
-  setUnitInitTimings: (batchId: string, asset: string, recreateTiming: number, openedTiming: number) => Promise<void>
+  getUnitTimings: (batchId: string) => Promise<Record<string, { openedTiming: number; recreateTiming: number; range: number }>>
+  setUnitInitTimings: (batchId: string, asset: string, recreateTiming: number, openedTiming: number, range: number) => Promise<void>
   logout: () => void
 }
 
@@ -42,7 +42,7 @@ export const GlobalContext = createContext<GlobalContextType>({
   linkAccountsProxy: () => {},
   createBatch: () => {},
   closeBatch: () => {},
-  getUnitTimings: async () => ({}) as Record<string, { openedTiming: number; recreateTiming: number }>,
+  getUnitTimings: async () => ({}) as Record<string, { openedTiming: number; recreateTiming: number; range: number }>,
   setUnitInitTimings: async () => {},
 })
 
@@ -115,12 +115,12 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
     })
   }, [])
 
-  const getUnitTimings = useCallback((batchId: string): Promise<Record<string, { openedTiming: number; recreateTiming: number }>> => {
+  const getUnitTimings = useCallback((batchId: string): Promise<Record<string, { openedTiming: number; recreateTiming: number; range: number }>> => {
     return db.getUnitTimings(batchId)
   }, [])
 
-  const setUnitInitTimings = useCallback((batchId: string, asset: string, recreateTiming: number, openedTiming: number): Promise<void> => {
-    return db.setUnitInitTiming(batchId, asset, recreateTiming, openedTiming) as unknown as Promise<void>
+  const setUnitInitTimings = useCallback((batchId: string, asset: string, recreateTiming: number, openedTiming: number, range: number): Promise<void> => {
+    return db.setUnitInitTiming(batchId, asset, recreateTiming, openedTiming, range) as unknown as Promise<void>
   }, [])
 
   const linkAccountsProxy = useCallback((accountIds: string[], proxyId: string) => {

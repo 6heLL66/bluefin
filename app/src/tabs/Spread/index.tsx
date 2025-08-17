@@ -1,4 +1,4 @@
-import { Add as AddIcon, Close as CloseIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
+import { Add as AddIcon, Close as CloseIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, PlayArrow as PlayIcon, Pause as PauseIcon } from '@mui/icons-material'
 import { Box, Button, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Paper, TextField, Tooltip, Typography } from '@mui/material'
 import { useState } from 'react'
 
@@ -37,12 +37,35 @@ export const Spread = () => {
     isBackpackConnected,
     balanceError,
     balances,
+    toggleSpreadPause,
+    pauseAllSpreads,
+    resumeAllSpreads,
+    isSpreadPaused,
+    pausedSpreads,
   } = useSpreads()
 
   const [open, setOpen] = useState(false)
   const [isApiConfigCollapsed, setIsApiConfigCollapsed] = useState(true)
 
-  const getStatusChip = (status: SpreadData['status']) => {
+  const hasPausedSpreads = pausedSpreads.size > 0
+  const hasActiveSpreads = spreads.length > 0
+
+  const getStatusChip = (status: SpreadData['status'], spreadId: string) => {
+    if (isSpreadPaused(spreadId)) {
+      return (
+        <Chip
+          label={
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <PauseIcon fontSize='small' /> paused
+            </div>
+          }
+          color='default'
+          size='small'
+          variant='outlined'
+        />
+      )
+    }
+
     if (status === 'WAITING') {
       return (
         <Chip
@@ -187,7 +210,7 @@ export const Spread = () => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {positions.map((position, index) => {
           const isLong = parseFloat(position.netQuantity) > 0
-          const pnlColor = parseFloat(position.pnlRealized) >= 0 ? 'success.main' : 'error.main'
+          const pnlColor = parseFloat(position.pnlUnrealized) >= 0 ? 'success.main' : 'error.main'
 
           return (
             <Box
@@ -231,7 +254,7 @@ export const Spread = () => {
                   Mark: ${parseFloat(position.markPrice).toFixed(2)}
                 </Typography>
                 <Typography variant='caption' color={pnlColor} fontWeight={600}>
-                  PnL: ${parseFloat(position.pnlRealized).toFixed(2)}
+                  PnL: ${parseFloat(position.pnlUnrealized).toFixed(2)}
                 </Typography>
               </Box>
             </Box>
@@ -250,7 +273,7 @@ export const Spread = () => {
       <Typography variant='body2'>{spread.size}$</Typography>,
       renderLighterPositions(spread.lighterPositions),
       renderBackpackPositions(spread.backpackPositions),
-      getStatusChip(spread.status),
+      getStatusChip(spread.status, spread.id),
       <TextField
         size='small'
         type='number'
@@ -294,6 +317,18 @@ export const Spread = () => {
         }}
       />,
       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+        <Tooltip title={isSpreadPaused(spread.id) ? 'Resume Spread' : 'Pause Spread'}>
+          <IconButton
+            size='small'
+            color={isSpreadPaused(spread.id) ? 'success' : 'warning'}
+            onClick={e => {
+              e.stopPropagation()
+              toggleSpreadPause(spread.id)
+            }}
+          >
+            {isSpreadPaused(spread.id) ? <PlayIcon fontSize='small' /> : <PauseIcon fontSize='small' />}
+          </IconButton>
+        </Tooltip>
         <Tooltip title='Close All (Market)'>
           <IconButton
             size='small'
@@ -812,20 +847,41 @@ export const Spread = () => {
             <Typography variant='h6' fontWeight={600}>
               Spread Management
             </Typography>
-            <Button
-              variant='contained'
-              color='primary'
-              startIcon={<AddIcon />}
-              onClick={handleOpenCreateSpread}
-              sx={{
-                background: theme => theme.palette.primary.main,
-                '&:hover': {
-                  background: theme => theme.palette.primary.dark,
-                },
-              }}
-            >
-              Create Spread
-            </Button>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {hasActiveSpreads && (
+                <Button
+                  variant='outlined'
+                  color={hasPausedSpreads ? 'success' : 'warning'}
+                  startIcon={hasPausedSpreads ? <PlayIcon /> : <PauseIcon />}
+                  onClick={hasPausedSpreads ? resumeAllSpreads : pauseAllSpreads}
+                  sx={{
+                    borderWidth: 2,
+                    '&:hover': {
+                      borderWidth: 2,
+                      transform: 'translateY(-1px)',
+                      boxShadow: theme => theme.shadows[2],
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                >
+                  {hasPausedSpreads ? 'Resume All' : 'Pause All'}
+                </Button>
+              )}
+              <Button
+                variant='contained'
+                color='primary'
+                startIcon={<AddIcon />}
+                onClick={handleOpenCreateSpread}
+                sx={{
+                  background: theme => theme.palette.primary.main,
+                  '&:hover': {
+                    background: theme => theme.palette.primary.dark,
+                  },
+                }}
+              >
+                Create Spread
+              </Button>
+            </Box>
           </Box>
         </Box>
         <Table
@@ -838,6 +894,15 @@ export const Spread = () => {
               <Typography variant='body2' color='text.secondary'>
                 Total Spreads: {spreads.length}
               </Typography>
+              {pausedSpreads.size > 0 && (
+                <Chip
+                  label={`${pausedSpreads.size} Paused`}
+                  color='warning'
+                  size='small'
+                  variant='outlined'
+                  icon={<PauseIcon fontSize='small' />}
+                />
+              )}
             </Box>
           }
         />

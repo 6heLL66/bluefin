@@ -10,7 +10,7 @@ if (!import.meta.env.VITE_SUPABASE_PROJECT_URL || !import.meta.env.VITE_SUPABASE
 
 export class SUPABASE_DB {
   client: SupabaseClient
-  unitTimingChanges: Record<string, { openedTiming: number; recreateTiming: number }>
+  unitTimingChanges: Record<string, { openedTiming: number; recreateTiming: number; range: number }>
   unitTimingTimeoutId: NodeJS.Timeout | null
   unitSizesChanges: Record<string, number>
   unitSizesTimeoutId: NodeJS.Timeout | null
@@ -230,12 +230,13 @@ export class SUPABASE_DB {
     })
   }
 
-  public setUnitInitTiming = async (batchId: string, asset: string, recreateTiming: number, openedTiming: number) => {
+  public setUnitInitTiming = async (batchId: string, asset: string, recreateTiming: number, openedTiming: number, range: number) => {
     this.unitTimingChanges = {
       ...this.unitTimingChanges,
       [asset]: {
         openedTiming,
         recreateTiming,
+        range,
       },
     }
 

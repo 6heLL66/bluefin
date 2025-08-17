@@ -15,11 +15,11 @@ import type { OrderCreateDto } from '../models/OrderCreateDto'
 
 export class OrderService {
   /**
-   * Accounts Orders
+   * Accounts Orders V2
    * @returns any Successful Response
    * @throws ApiError
    */
-  public static accountsOrdersApiOrdersPost({ requestBody }: { requestBody: OrderCreateDto }): CancelablePromise<any> {
+  public static accountsOrdersV2ApiOrdersPost({ requestBody }: { requestBody: OrderCreateDto }): CancelablePromise<any> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/orders',

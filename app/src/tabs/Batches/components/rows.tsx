@@ -10,6 +10,7 @@ export const createRows = (
   units: Unit[],
   closingUnitAsset: number[],
   reCreatingUnitAssets: number[],
+  randomRecreatingTimings: Record<string, number>,
   getUnitTimingOpened: (token_id: number) => number,
   getUnitTimingReacreate: (token_id: number) => number,
   handleAction?: (type: 'close_unit' | 'update_unit_timing', unit: Unit) => void,
@@ -22,7 +23,8 @@ export const createRows = (
           <strong>{unit.base_unit_info.symbol}</strong>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '2px' }} onClick={() => handleAction && handleAction('update_unit_timing', unit)}>
             <RefreshOutlined sx={{ width: '18px', height: '18px', marginTop: '-2px' }} />
-            {getUnitTimingReacreate(unit.base_unit_info.token_id) / 60000} min
+            {getUnitTimingReacreate(unit.base_unit_info.token_id) / 60000} min{' '}
+            {randomRecreatingTimings[unit.base_unit_info.token_id] && `(${(randomRecreatingTimings[unit.base_unit_info.token_id] / 60000).toFixed(2)} min)`}
           </Box>
         </Box>
 

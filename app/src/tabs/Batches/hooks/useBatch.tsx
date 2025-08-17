@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
+import seedrandom from 'seedrandom'
 
 import { AccountService, AccountWithPositionsDto, DefaultService, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto, TokenService } from '../../../api'
 import { GlobalContext } from '../../../context'
@@ -19,6 +20,7 @@ interface CreateUnitPayload {
   sz: number
   leverage: number
   timing: number
+  range: number
 }
 
 interface ReturnType {
@@ -30,8 +32,10 @@ interface ReturnType {
   recreatingUnits: number[]
   initialLoading: boolean
   authorizingLighter: boolean
+  randomRecreatingTimings: Record<string, number>
+  getUnitTimingRange: (token_id: number) => number
   authLighter: () => Promise<void>
-  setTimings: (token_id: number, recreateTiming: number, openedTiming: number) => Promise<void>
+  setTimings: (token_id: number, recreateTiming: number, openedTiming: number, range: number) => Promise<void>
   getUnitTimingOpened: (token_id: number) => number
   getUnitTimingReacreate: (token_id: number) => number
   createUnit: (payload: CreateUnitPayload) => Promise<unknown>
@@ -64,6 +68,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
 
   const [initialLoading, setInitialLoading] = useState(true)
 
+  const [randomRecreatingTimings, setRandomRecreatingTimings] = useState<Record<string, number>>({})
+
   const [closingUnits, setClosingUnits] = useState<number[]>([])
   const [creatingUnits, setCreatingUnits] = useState<number[]>([])
   const [recreatingUnits, setRecreatingUnits] = useState<number[]>([])
@@ -72,7 +78,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
 
   const [accountStates, setAccountState] = useState<AccountWithPositionsDto[]>([])
 
-  const [unitTimings, setUnitTimings] = useState<Record<string, { openedTiming: number; recreateTiming: number }>>({})
+  const [unitTimings, setUnitTimings] = useState<Record<string, { openedTiming: number; recreateTiming: number; range: number }>>({})
 
   const units = useMemo(() => {
     return transformAccountStatesToUnits(Object.values(accountStates))
@@ -92,14 +98,22 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     [unitTimings],
   )
 
+  const getUnitTimingRange = useCallback(
+    (token_id: number): number => {
+      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.range
+    },
+    [unitTimings],
+  )
+
   const setTimings = useCallback(
-    async (token_id: number, recreateTiming: number, openedTiming: number) => {
-      setUnitInitTimings(id, token_id.toString(), recreateTiming, openedTiming)
+    async (token_id: number, recreateTiming: number, openedTiming: number, range: number) => {
+      setUnitInitTimings(id, token_id.toString(), recreateTiming, openedTiming, range)
       setUnitTimings(prev => ({
         ...prev,
         [token_id.toString()]: {
           openedTiming,
           recreateTiming,
+          range,
         },
       }))
     },
@@ -138,7 +152,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
   }, [batchAccounts, logger])
 
   const recreateUnit = useCallback(
-    async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing'>) => {
+    async ({ token_id, leverage, sz }: Omit<CreateUnitPayload, 'timing' | 'range'>) => {
       setRecreatingUnits(prev => [...prev, token_id])
 
       logger.batch(
@@ -191,8 +205,9 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           throw e
         })
         .finally(async () => {
+          const unitRange = getUnitTimingRange(token_id)
           const unitRecreateTiming = getUnitTimingReacreate(token_id)
-          setTimings(token_id, unitRecreateTiming, Date.now())
+          setTimings(token_id, unitRecreateTiming, Date.now(), unitRange)
           setRecreatingUnits(prev => prev.filter(unit => unit !== token_id))
         })
 
@@ -215,6 +230,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         units.forEach((unit: Unit) => {
           const unitOpenedTiming = getUnitTimingOpened(unit.base_unit_info.token_id)
           const unitRecreateTiming = getUnitTimingReacreate(unit.base_unit_info.token_id)
+          const unitRange = getUnitTimingRange(unit.base_unit_info.token_id)
 
           if (
             closingUnits.includes(unit.base_unit_info.token_id) ||
@@ -226,7 +242,17 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
             return
           }
 
-          if (now - unitOpenedTiming >= unitRecreateTiming || unit.positions.length !== accountsProps.length) {
+          const randomOffset = seedrandom(unitOpenedTiming.toString())() * (unitRange * 2) - unitRange
+          const randomizedRecreateTiming = unitRecreateTiming + randomOffset
+
+          setRandomRecreatingTimings(prev => ({
+            ...prev,
+            [unit.base_unit_info.token_id]: randomizedRecreateTiming,
+          }))
+
+          console.log('randomizedRecreateTiming', randomizedRecreateTiming / 60000)
+
+          if (now - unitOpenedTiming >= randomizedRecreateTiming || unit.positions.length !== accountsProps.length) {
             logger.batch(
               'Автоматическое пересоздание юнита по таймингу',
               {
@@ -277,9 +303,9 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
   }, [updateLoop])
 
   const createUnit = useCallback(
-    async ({ token_id, sz, leverage, timing }: CreateUnitPayload) => {
+    async ({ token_id, sz, leverage, timing, range }: CreateUnitPayload) => {
       setCreatingUnits(prev => [...prev, token_id])
-      setTimings(token_id, timing, Date.now())
+      setTimings(token_id, timing, Date.now(), range)
 
       logger.batch(
         'Создание юнита',
@@ -339,7 +365,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         })
         .then(data => setAccountState(data))
         .finally(async () => {
-          setTimings(token_id, timing, Date.now())
+          setTimings(token_id, timing, Date.now(), range)
           setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
         })
     },
@@ -413,7 +439,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           clearInterval(interval)
         }
 
-        if (res.some(r => r.created_at && +r.created_at + 600000 < Date.now())) {
+        if (res.some(r => r.created_at && new Date(r.created_at).valueOf() + 1800000 < Date.now())) {
           setAuthorizingLighter(false)
           clearInterval(interval)
         }
@@ -430,6 +456,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     recreatingUnits,
     initialLoading,
     authorizingLighter,
+    randomRecreatingTimings,
+    getUnitTimingRange,
     authLighter,
     getUnitTimingOpened,
     getUnitTimingReacreate,

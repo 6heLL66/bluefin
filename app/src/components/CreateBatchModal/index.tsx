@@ -49,7 +49,7 @@ export const CreateBatchModal: React.FC<{
   }, [accounts, batches])
 
   const onConfirm = () => {
-    if (batchAccounts.accounts.length === 4) {
+    if (batchAccounts.accounts.length === 4 || batchAccounts.accounts.length === 6) {
       createBatch(batchAccounts)
       handleClose()
     }
@@ -107,7 +107,7 @@ export const CreateBatchModal: React.FC<{
 
                 {!filteredAccounts.length && <Typography sx={{ p: 1 }}>No available accounts</Typography>}
               </Select>
-              <FormHelperText variant='standard'>Supported only 4 accounts in batch</FormHelperText>
+              <FormHelperText variant='standard'>Supported only 4 or 6 accounts in batch</FormHelperText>
             </FormControl>
             <FormControl sx={{ m: 1, minWidth: 120 }}>
               <TextField
@@ -131,7 +131,7 @@ export const CreateBatchModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button variant='contained' color='success' onClick={onConfirm} disabled={![2, 4, 6].includes(batchAccounts.accounts.length)}>
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={![4, 6].includes(batchAccounts.accounts.length)}>
               Confirm
             </Button>
           </Box>
