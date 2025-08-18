@@ -662,9 +662,9 @@ export const useSpreads = () => {
             shortBackpack ? Side.ASK : Side.BID,
           )
         } else if (openedOrders.current[spread.id] && openedOrders.current[spread.id].symbol) {
-          const a = (Number(lighterAskPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterAskPrice)
-          const b = (Number(lighterBidPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterBidPrice)
-          const allGood = openedOrders.current[spread.id].side === Side.BID ? Math.abs(a) > spread.openSpread / 2 : Math.abs(b) > spread.openSpread / 2
+          const a = (Number(lighterBidPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterBidPrice)
+          const b = (Number(lighterAskPrice) - Number(openedOrders.current[spread.id].price)) / Number(lighterAskPrice)
+          const allGood = openedOrders.current[spread.id].side === Side.BID ? Math.abs(a) > spread.openSpread / 2 : b < spread.openSpread / -2
 
           if (!allGood || openedOrders.current[spread.id].createdAt + 5000 < Date.now()) {
             logger.spread('Закрытие ордера - условия изменились или истекло время', {
