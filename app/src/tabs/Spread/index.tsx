@@ -185,7 +185,7 @@ export const Spread = () => {
                 Size: {parseFloat(position.position)} {position.symbol}
               </Typography>
               <Typography variant='caption' color='text.secondary'>
-                Entry: ${parseFloat(position.entry_price).toFixed(2)}
+                Entry: ${parseFloat(position.entry_price).toFixed(4)}
               </Typography>
             </Box>
             <Typography variant='caption' color='text.secondary'>
@@ -246,7 +246,7 @@ export const Spread = () => {
                   Size: {Math.abs(parseFloat(position.netQuantity))} {position.symbol.split('_')[0]}
                 </Typography>
                 <Typography variant='caption' color='text.secondary'>
-                  Entry: ${parseFloat(position.entryPrice).toFixed(2)}
+                  Entry: ${parseFloat(position.entryPrice).toFixed(4)}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

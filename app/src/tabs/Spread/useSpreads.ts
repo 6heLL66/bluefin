@@ -374,6 +374,13 @@ export const useSpreads = () => {
                   },
                 },
               },
+            }).catch(error => {
+              logger.spread('Ошибка создания ордера Lighter', {
+                error: String(error),
+                message: error.message,
+                spread: spread,
+                data,
+              })
             })
 
             if (X === 'Filled') {
