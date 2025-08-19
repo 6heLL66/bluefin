@@ -154,7 +154,7 @@ export const useSpreads = () => {
     const market = backpackMarkets.find(token => token.baseSymbol === spread.asset)
     const lighterMarket = lighterMarkets.find(token => token.symbol === spread.asset)
 
-    const lowerPrice = reduceOnly ? Number(price) : side === Side.ASK ? Number(price) : Number(price)
+    const lowerPrice = Number(price)
 
     const isConnected = lighterWebsocket.current?.readyState === WebSocket.OPEN
 
