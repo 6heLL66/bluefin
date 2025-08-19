@@ -2,7 +2,7 @@ import { Button, CircularProgress } from '@mui/material'
 import MuiTab from '@mui/material/Tab'
 import MuiTabs from '@mui/material/Tabs'
 import { useQuery } from '@tanstack/react-query'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -49,7 +49,9 @@ const App = () => {
 
   const { logs, clearLogs } = useLogStore()
 
-  const sendToDb = () => {
+  const lastTimeLogsSentRef = useRef<number>(0)
+
+  const sendToDb = useCallback(() => {
     if (logs.length === 0) {
       return
     }
@@ -57,15 +59,14 @@ const App = () => {
     db.insertLogs(logs).then(() => {
       clearLogs()
     })
-  }
+  }, [logs, clearLogs])
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (lastTimeLogsSentRef.current + 60000 < Date.now()) {
+      lastTimeLogsSentRef.current = Date.now()
       sendToDb()
-    }, 20000)
-
-    return () => clearInterval(interval)
-  }, [logs])
+    }
+  }, [sendToDb])
 
   const { data: lighterMarkets } = useQuery({
     queryKey: ['lighter-tokens'],

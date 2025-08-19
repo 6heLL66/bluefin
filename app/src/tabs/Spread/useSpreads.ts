@@ -265,12 +265,6 @@ export const useSpreads = () => {
         },
       })
 
-      logger.spread('Ордер Backpack успешно закрыт', {
-        spread: spread,
-        order,
-        reduceOnly,
-      })
-
       if (reduceOnly) {
         delete openedOrdersReduceOnly.current[spread.id]
       } else {
@@ -619,13 +613,6 @@ export const useSpreads = () => {
           )
         } else if (openedOrdersReduceOnly.current[spread.id] && openedOrdersReduceOnly.current[spread.id].symbol) {
           if (summarySpread < spread.closeSpread / 2) {
-            logger.spread('Закрытие reduce-only ордера - спред уменьшился', {
-              spreadId: spread.id,
-              asset: spread.asset,
-              summarySpread,
-              closeSpreadHalf: spread.closeSpread / 2,
-            })
-
             closeBackpackOrder(spread, openedOrdersReduceOnly.current[spread.id], true)
           }
         }
