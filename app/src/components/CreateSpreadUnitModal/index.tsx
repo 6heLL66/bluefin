@@ -86,7 +86,11 @@ export const CreateSpreadUnitModal: React.FC<{
                 <em>No asset</em>
               </MenuItem>
               {marketData
-                .filter(market => backpackMarkets?.some(bpMarket => bpMarket.symbol.split('_')[0] === market.symbol))
+                .filter(
+                  market =>
+                    backpackMarkets?.some(bpMarket => bpMarket.symbol.split('_')[0] === market.symbol) &&
+                    Number(backpackMarkets?.find(bpMarket => bpMarket.symbol.split('_')[0] === market.symbol)?.filters.quantity.stepSize) === (1 / (10 ** market.size_decimals)),
+                )
                 .sort((a, b) => a.symbol.localeCompare(b.symbol))
                 .map(market => (
                   <MenuItem value={market.symbol} key={market.symbol}>

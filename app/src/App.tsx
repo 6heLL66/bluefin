@@ -77,8 +77,8 @@ const App = () => {
 
   const { data: backpackMarkets } = useQuery({
     queryKey: ['backpack-tokens'],
-    queryFn: () => {
-      return MarketsService.getMarkets()
+    queryFn: async () => {
+      return (await MarketsService.getMarkets()).filter(m => m.marketType === 'PERP')
     },
   })
 
