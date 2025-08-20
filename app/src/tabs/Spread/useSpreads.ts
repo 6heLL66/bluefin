@@ -113,6 +113,8 @@ export const useSpreads = () => {
     }
   }
 
+  const lighterAllBookRef = useRef<Record<string, Record<string, { price: string, size: string }[]>>>({})
+
   const connectLighterWebsocket = () => {
     try {
       if (lighterWebsocket.current) {
@@ -128,19 +130,50 @@ export const useSpreads = () => {
       }
 
       lighterWebsocket.current.onmessage = event => {
-        const { token_id, ask, bid } = JSON.parse(event.data)
+        const { channel, order_book, type } = JSON.parse(event.data)
 
-        if (token_id) {
-          const symbol = lighterMarkets.find(token => token.market_id === +token_id)?.symbol ?? ''
+        if ((type === 'update/order_book' || type === 'subscribed/order_book') && channel) {
+          const symbol = lighterMarkets.find(token => token.market_id === +channel.split(':')[1])?.symbol ?? ''
+
+          const bookRef = lighterAllBookRef.current[symbol];
+
+          order_book.asks.forEach((ask: { price: string, size: string }) => {
+            const existsOrderIndex = bookRef.asks.findIndex(a => a.price === ask.price)
+            if (existsOrderIndex >= 0) {
+              if (+ask.size <= 0) {
+                bookRef.asks.splice(existsOrderIndex, 1)
+              } else {
+                bookRef.asks[existsOrderIndex].size = ask.size
+              }
+            } else {
+              bookRef.asks.push({ price: ask.price, size: ask.size })
+            }
+          })
+
+          order_book.bids.forEach((bid: { price: string, size: string }) => {
+            const existsOrderIndex = bookRef.bids.findIndex(b => b.price === bid.price)
+            if (existsOrderIndex >= 0) {
+              if (+bid.size <= 0) {
+                bookRef.bids.splice(existsOrderIndex, 1)
+              } else {
+                bookRef.asks[existsOrderIndex].size = bid.size
+              }
+            } else {
+              bookRef.bids.push({ price: bid.price, size: bid.size })
+            }
+          })
+
+          const askBest = bookRef.asks.sort((a, b) => +a.price - +b.price)[0]
+          const bidBest = bookRef.bids.sort((a, b) => +b.price - +a.price)[0]
 
           setLighterBook(prev => ({
             ...prev,
             [symbol]: {
               symbol,
-              bidPrice: bid?.price && +bid?.size > 0 ? bid.price : prev[symbol]?.bidPrice,
-              bidQty: bid?.size && +bid?.size > 0 ? bid.size : prev[symbol]?.bidQty,
-              askPrice: ask?.price && +ask?.size > 0 ? ask.price : prev[symbol]?.askPrice,
-              askQty: ask?.size && +ask?.size > 0 ? ask.size : prev[symbol]?.askQty,
+              bidPrice: bidBest?.price ?? '0',
+              bidQty: bidBest?.size ?? '0',
+              askPrice: askBest?.price ?? '0',
+              askQty: askBest?.size ?? '0',
             },
           }))
         }
@@ -461,11 +494,10 @@ export const useSpreads = () => {
   const addLighterSpreadSubscription = (spreads: SpreadData[]) => {
     if (spreads.length === 0) return
 
-    const lighterSubscribeMessage = {
-      token_ids: spreads.map(spread => spread.tokenId),
-    }
-
-    lighterWebsocket.current?.send(JSON.stringify(lighterSubscribeMessage))
+    spreads.forEach(spread => {
+      lighterAllBookRef.current[spread.asset] = { asks: [], bids: [] }
+      lighterWebsocket.current?.send(JSON.stringify({ type: 'subscribe', channel: `order_book/${spread.tokenId}` }))
+    })
   }
 
   const fetchPositions = async () => {
