@@ -501,7 +501,6 @@ export const useSpreads = () => {
   }
 
   const fetchPositions = async () => {
-    console.log(spreads.length, 'sdf')
     if (spreadsRef.current.length === 0) return
 
     try {
@@ -525,7 +524,6 @@ export const useSpreads = () => {
 
       spreadsRef.current.forEach(async spread => {
         const lighterPos = lighterPositions.positions.filter(pos => pos.symbol === spread.asset)
-        console.log('lighterPos', lighterPos, lighterPositions.positions)
         const backpackPos = backpackPositions.filter(pos => pos.symbol === spread.asset + '_USDC_PERP')
 
         setSpreadPositions(spread.id, lighterPos, backpackPos)
@@ -614,18 +612,18 @@ export const useSpreads = () => {
 
         const summarySpread = (lighterSpread + backpackSpread) * 100
 
-        console.log('summarySpread', summarySpread, spread.asset, {
-          lighterSpread,
-          backpackSpread,
-          lighterPosition,
-          backpackPosition,
-          lighterBidPrice,
-          lighterAskPrice,
-          lighterAskQty,
-          lighterBidQty,
-          backpackBidPrice,
-          backpackAskPrice,
-        })
+        // console.log('summarySpread', summarySpread, spread.asset, {
+        //   lighterSpread,
+        //   backpackSpread,
+        //   lighterPosition,
+        //   backpackPosition,
+        //   lighterBidPrice,
+        //   lighterAskPrice,
+        //   lighterAskQty,
+        //   lighterBidQty,
+        //   backpackBidPrice,
+        //   backpackAskPrice,
+        // })
 
         if (summarySpread >= spread.closeSpread && !openedOrdersReduceOnly.current[spread.id] && size > 0) {
           logger.spread('Создание reduce-only ордера для закрытия спреда', {
@@ -660,7 +658,7 @@ export const useSpreads = () => {
           actualSpread = ((Number(lighterBidPrice) - Number(backpackBidPrice)) / (Number(lighterBidPrice) + Number(backpackBidPrice) / 2)) * 100
         }
 
-        console.log('actualSpread', actualSpread, spread.asset)
+        // console.log('actualSpread', actualSpread, spread.asset)
 
         if (actualSpread >= spread.openSpread && !openedOrders.current[spread.id] && Math.min(size, spread.size - positionsSize) > 0) {
           logger.spread('Создание ордера для открытия спреда', {

@@ -18,6 +18,7 @@ import { Accounts, Batches, Proxy } from './tabs'
 import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
 import { Theme, ThemeContext } from './themeContext'
+import { LighterSpreadsTable } from './tabs/LighterSpreadsTable'
 
 const Tabs = {
   Accounts: {
@@ -35,6 +36,10 @@ const Tabs = {
   Spread: {
     label: 'Spread (lighter + backpack)',
     id: 'spread',
+  },
+  LighterSpreadsTable: {
+    label: 'Lighter Spreads Table',
+    id: 'lighter-spreads-table',
   },
 } as const
 
@@ -160,6 +165,9 @@ const App = () => {
         <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
           <Spread />
         </div>
+        {tabId === Tabs.LighterSpreadsTable.id && <div style={{ display: tabId === Tabs.LighterSpreadsTable.id ? 'block' : 'none' }}>
+          <LighterSpreadsTable />
+        </div>}
       </Box>
       <ToastContainer position='bottom-left' pauseOnFocusLoss={false} pauseOnHover={false} autoClose={3000} />
     </Box>

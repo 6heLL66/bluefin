@@ -9,7 +9,6 @@ export const getSignature = async (method: string, secretKey: string, timestamp:
   }
 
   const messageString = new URLSearchParams(message).toString()
-  console.log(messageString)
   const messageBuffer = new TextEncoder().encode(messageString)
 
   const decodedKey = Uint8Array.from(Buffer.from(secretKey, 'base64'))
