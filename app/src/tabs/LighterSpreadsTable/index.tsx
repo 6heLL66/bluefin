@@ -54,7 +54,7 @@ export const LighterSpreadsTable = () => {
                 .map(async (market) => {
                     try {
                         setIsTooManyRequests(false)
-                        const response = await fetch(`https://mainnet.zklighter.elliot.ai/api/v1/orderBookOrders?market_id=${market.market_id}&limit=1`)
+                        const response = await fetch(`https://mainnet.zklighter.elliot.ai/api/v1/orderBookOrders?market_id=${market.market_id}&limit=4`)
 
                         if (response?.status === 429) {
                             setIsTooManyRequests(true)
@@ -64,7 +64,7 @@ export const LighterSpreadsTable = () => {
                         if (!response) return null
                         
                         const data = await response.json() as LighterSpreadsResponse
-                        return { market, data }
+                        return { market, data: {...data, bids: data.bids.filter(b => +b.remaining_base_amount > 0).sort((a, b) => +b.price - +a.price), asks: data.asks.filter(a => +a.remaining_base_amount > 0).sort((a, b) => +a.price - +b.price)} }
                     } catch (error) {
                         console.error(`Error fetching data for market ${market.market_id}:`, error)
                         return null
@@ -390,12 +390,6 @@ export const LighterSpreadsTable = () => {
                                 >
                                     % {sortBy === 'percentage' && (sortOrder === 'asc' ? '↑' : '↓')}
                                 </TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#2d3748', py: 0.5, px: 1, borderBottom: '2px solid #64b5f6', color: '#ffffff' }}>
-                                    Bid Vol
-                                </TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 'bold', backgroundColor: '#2d3748', py: 0.5, px: 1, borderBottom: '2px solid #64b5f6', color: '#ffffff' }}>
-                                    Ask Vol
-                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -439,21 +433,12 @@ export const LighterSpreadsTable = () => {
                                             <TableCell align="right" sx={{ py: 0.5, px: 1, borderBottom: '1px solid #404040', color: '#666' }}>
                                                 <Typography variant="caption">AFK</Typography>
                                             </TableCell>
-                                            <TableCell align="right" sx={{ py: 0.5, px: 1, borderBottom: '1px solid #404040', color: '#666' }}>
-                                                <Typography variant="caption">AFK</Typography>
-                                            </TableCell>
-                                            <TableCell align="right" sx={{ py: 0.5, px: 1, borderBottom: '1px solid #404040', color: '#666' }}>
-                                                <Typography variant="caption">AFK</Typography>
-                                            </TableCell>
                                         </TableRow>
                                     )
                                 }
 
                                 const bestBid = +bookData!.bids[0].price;
                                 const bestAsk = +bookData!.asks[0].price;
-
-                                const bidVolume = bookData!.bids[0].remaining_base_amount;
-                                const askVolume = bookData!.asks[0].remaining_base_amount;
 
                                 return (
                                     <TableRow 
@@ -505,16 +490,6 @@ export const LighterSpreadsTable = () => {
                                                     color: '#ffffff'
                                                 }}
                                             />
-                                        </TableCell>
-                                        <TableCell align="right" sx={{ py: 0.5, px: 1, borderBottom: '1px solid #404040' }}>
-                                            <Typography variant="caption" sx={{ color: '#bdbdbd' }}>
-                                                {formatVolume(+bidVolume)}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell align="right" sx={{ py: 0.5, px: 1, borderBottom: '1px solid #404040' }}>
-                                            <Typography variant="caption" sx={{ color: '#bdbdbd' }}>
-                                                {formatVolume(+askVolume)}
-                                            </Typography>
                                         </TableCell>
                                     </TableRow>
                                 )
