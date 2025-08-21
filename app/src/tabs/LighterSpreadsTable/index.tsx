@@ -23,7 +23,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useState, useEffect } from "react"
-import { Refresh, Visibility, VisibilityOff, Warning, Settings } from "@mui/icons-material"
+import { Refresh, Visibility, VisibilityOff, Warning } from "@mui/icons-material"
 
 export const LighterSpreadsTable = () => {
     const { afkTokens, toggleToken, isTokenAfk } = useAfkTokensStore()
