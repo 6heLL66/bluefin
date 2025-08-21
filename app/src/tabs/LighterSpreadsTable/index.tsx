@@ -127,13 +127,6 @@ export const LighterSpreadsTable = () => {
         }).format(price)
     }
 
-    const formatVolume = (volume: number) => {
-        return new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 2
-        }).format(volume)
-    }
-
     const formatSpreadPercentage = (percentage: number) => {
         return new Intl.NumberFormat('en-US', {
             minimumFractionDigits: 2,
