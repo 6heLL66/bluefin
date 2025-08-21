@@ -399,7 +399,7 @@ export const LighterSpreadsTable = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {getAllTokensData().map((item, index) => {
+                            {getAllTokensData().map((item) => {
                                 const { market, bookData, spread, spreadPercentage, isAfk } = item;
 
                                 if (isAfk) {
