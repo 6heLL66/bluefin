@@ -350,6 +350,9 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         requestBody: dto,
       })
         .then(() => {
+          return checkPositionsOpened(dto)
+        })
+        .then(data => {
           logger.batch(
             'Юнит успешно создан',
             {
@@ -361,9 +364,25 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
             },
             token_id.toString(),
           )
-          return checkPositionsOpened(dto)
+          setAccountState(data)
         })
-        .then(data => setAccountState(data))
+        .catch(e => {
+          logger.batch('Ошибка при создании юнита, закрываем юнит', {
+            batch_name: name,
+            batch_id: id,
+            token_id,
+            size: sz,
+            leverage,
+            error: String(e),
+          }, token_id.toString())
+          
+          return OrderService.accountsOrdersCancelApiOrdersCancelPost({
+            requestBody: {
+              accounts: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
+              token_id,
+            },
+          })
+        })
         .finally(async () => {
           setTimings(token_id, timing, Date.now(), range)
           setCreatingUnits(prev => prev.filter(coin => coin !== token_id))
