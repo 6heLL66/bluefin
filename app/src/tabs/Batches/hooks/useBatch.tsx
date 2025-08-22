@@ -478,13 +478,11 @@ const recreateRequest = async (requestBody: OrderCreateWithTokenDto) => {
   await new Promise(res => setTimeout(res, 8000))
 
   await OrderService.accountsOrdersV2ApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
-
-  await new Promise(res => setTimeout(res, 8000))
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
-  let retryCount = 4
-  const retryInterval = 3000
+  let retryCount = 5
+  const retryInterval = 5000
 
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
@@ -493,7 +491,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
       }).then(data => {
         const positions = data.reduce((acc, account) => [...acc, ...account.positions], [] as PositionDto[])
 
-        const isPositionsFullyOpened = positions.filter(pos => pos.market_id === orderDto.unit.token_id).length === 4
+        const isPositionsFullyOpened = positions.filter(pos => pos.market_id === orderDto.unit.token_id).length === orderDto.accounts.length
         if (isPositionsFullyOpened) {
           res(data)
 

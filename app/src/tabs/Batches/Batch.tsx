@@ -182,6 +182,17 @@ export const Batch: React.FC<{
         )
       })}
 
+      <Box>
+        <Typography sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}>
+          Total balance:
+          <div>
+            <strong>
+            {batchAccounts.reduce((acc, account) => acc + +balances[account.private_key]?.all, 0).toFixed(2)}$
+            </strong>
+          </div>
+        </Typography>
+      </Box>
+
       <Box sx={{ mt: 2 }}>
         <Table headCells={headCells} loading={initialLoading} rows={rows} pagination={false} toolbar={toolbar()} />
       </Box>
