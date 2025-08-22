@@ -42,7 +42,7 @@ interface ReturnType {
   closeUnit: (unit: Unit) => Promise<unknown>
 }
 
-const UPDATE_INTERVAL = 5000
+const UPDATE_INTERVAL = 10000
 
 export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } = useContext(GlobalContext)
