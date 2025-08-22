@@ -711,6 +711,7 @@ export const useSpreads = () => {
   const [balanceError, setBalanceError] = useState(false)
 
   const getBalances = async () => {
+    if (!lighterPrivateKey || !backpackApiSecretKey) return
     const lighterBalance = await AccountService.accountPositionsApiAccountPositionsPost({
       requestBody: { account: { private_key: lighterPrivateKey } },
     })
