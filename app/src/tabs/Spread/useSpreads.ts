@@ -501,7 +501,7 @@ export const useSpreads = () => {
   }
 
   const fetchPositions = async () => {
-    if (spreadsRef.current.length === 0) return
+    if (spreadsRef.current.length === 0 || !lighterPrivateKey || !backpackApiSecretKey) return
 
     try {
       const lighterPositions = await AccountService.accountPositionsApiAccountPositionsPost({
