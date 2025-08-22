@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { toast } from 'react-toastify'
 import seedrandom from 'seedrandom'
 
-import { AccountService, AccountWithPositionsDto, DefaultService, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto, TokenService } from '../../../api'
+import { AccountService, AccountWithPositionsDto, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto, TokenService } from '../../../api'
 import { GlobalContext } from '../../../context'
 import { useLogger } from '../../../hooks/useLogger'
 import { Account, Unit } from '../../../types'
@@ -346,7 +346,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         ),
       )
 
-      return DefaultService.accountsOrdersV2ApiV2OrdersPost({
+      return OrderService.accountsOrdersV2ApiOrdersPost({
         requestBody: dto,
       })
         .then(() => {
@@ -477,7 +477,7 @@ const recreateRequest = async (requestBody: OrderCreateWithTokenDto) => {
 
   await new Promise(res => setTimeout(res, 8000))
 
-  await DefaultService.accountsOrdersV2ApiV2OrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
+  await OrderService.accountsOrdersV2ApiOrdersPost({ requestBody }).then(() => checkPositionsOpened(requestBody))
 
   await new Promise(res => setTimeout(res, 8000))
 }
