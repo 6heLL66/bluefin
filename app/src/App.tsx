@@ -33,10 +33,10 @@ const Tabs = {
     label: 'Wash trade',
     id: 'Trade',
   },
-  Spread: {
-    label: 'Spread (lighter + backpack)',
-    id: 'spread',
-  },
+  // Spread: {
+  //   label: 'Spread (lighter + backpack)',
+  //   id: 'spread',
+  // },
   LighterSpreadsTable: {
     label: 'Lighter Spreads Table',
     id: 'lighter-spreads-table',
