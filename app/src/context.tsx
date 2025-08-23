@@ -133,7 +133,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const createBatch = useCallback(
     async ({ name, accountIds, timing }: { name: string; accountIds: string[]; timing: number }) => {
       const accountsDtos = accountIds.map(id => accounts.find(a => a.id === id)).filter(a => a !== undefined)
-      const accountsData = await AccountService.accountsPositionsApiAccountsPositionsPost({ requestBody: accountsDtos.map(a => ({ account: { private_key: a!.private_key } })) })
+      const accountsData = await AccountService.accountsPositionsApiAccountsPositionsPost({ requestBody: accountsDtos.map(a => ({ account: { private_key: a!.private_key, public_address: a!.public_address } })) })
 
       const totalBalance = accountsData.reduce((acc, account) => acc + +account.balance, 0)
 

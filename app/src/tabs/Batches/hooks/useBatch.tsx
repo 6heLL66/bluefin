@@ -337,7 +337,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         batchAccounts.map(acc =>
           AccountService.accountLeverageApiAccountLeveragePost({
             requestBody: {
-              account: { private_key: acc.private_key },
+              account: { private_key: acc.private_key, public_address: acc.public_address },
               leverage,
               token_id,
               proxy: getAccountProxy(acc),
@@ -442,7 +442,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     const data = await AccountService.accountsRefreshApiAccountsRefreshPost({
       requestBody: {
         accounts: batchAccounts.map(acc => ({
-          account: { private_key: acc.private_key },
+          account: { private_key: acc.private_key, public_address: acc.public_address },
         })),
         from_api_key_index: 52,
         to_api_key_index: 72,

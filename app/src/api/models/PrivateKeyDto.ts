@@ -4,4 +4,5 @@
 /* eslint-disable */
 export type PrivateKeyDto = {
   private_key: string
+  public_address: string
 }
