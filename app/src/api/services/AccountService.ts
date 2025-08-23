@@ -12,6 +12,7 @@ import type { AccountDto } from '../models/AccountDto'
 import type { AccountWithPositionsDto } from '../models/AccountWithPositionsDto'
 import type { BatchAccountDto } from '../models/BatchAccountDto'
 import type { BatchAccountLeverageDto } from '../models/BatchAccountLeverageDto'
+import type { BatchAccountRetrieveDto } from '../models/BatchAccountRetrieveDto'
 import type { RefreshDto } from '../models/RefreshDto'
 import type { TaskDto } from '../models/TaskDto'
 import type { TaskResultDto } from '../models/TaskResultDto'
@@ -41,7 +42,7 @@ export class AccountService {
   public static accountsPositionsApiAccountsPositionsPost({
     requestBody,
   }: {
-    requestBody: Array<BatchAccountDto>
+    requestBody: Array<BatchAccountRetrieveDto>
   }): CancelablePromise<Array<AccountWithPositionsDto>> {
     return __request(OpenAPI, {
       method: 'POST',
@@ -91,7 +92,7 @@ export class AccountService {
    * @returns AccountWithPositionsDto Successful Response
    * @throws ApiError
    */
-  public static accountPositionsApiAccountPositionsPost({ requestBody }: { requestBody: BatchAccountDto }): CancelablePromise<AccountWithPositionsDto> {
+  public static accountPositionsApiAccountPositionsPost({ requestBody }: { requestBody: BatchAccountRetrieveDto }): CancelablePromise<AccountWithPositionsDto> {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/account/positions',

@@ -2,6 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type PrivateKeyDto = {
-  private_key: string
+export type AddressDto = {
+  public_address: string
 }

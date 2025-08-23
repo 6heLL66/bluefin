@@ -129,7 +129,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           res.reduce((acc, account) => {
             return {
               ...acc,
-              [account.private_key]: {
+              [account.address]: {
                 all: Number(account.balance).toFixed(2),
                 free: Number(account.free_balance).toFixed(2),
               },
@@ -337,7 +337,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         batchAccounts.map(acc =>
           AccountService.accountLeverageApiAccountLeveragePost({
             requestBody: {
-              account: { private_key: acc.private_key, public_address: acc.public_address },
+              account: { private_key: acc.private_key },
               leverage,
               token_id,
               proxy: getAccountProxy(acc),
@@ -506,6 +506,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
       AccountService.accountsPositionsApiAccountsPositionsPost({
+        // @ts-expect-error sdf
         requestBody: orderDto.accounts,
       }).then(data => {
         const positions = data.reduce((acc, account) => [...acc, ...account.positions], [] as PositionDto[])

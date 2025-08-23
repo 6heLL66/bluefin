@@ -111,7 +111,7 @@ export const Batch: React.FC<{
     )
   }
 
-  const totalBalance = batchAccounts.reduce((acc, account) => acc + +balances[account.private_key]?.all, 0)
+  const totalBalance = batchAccounts.reduce((acc, account) => acc + +balances[account.public_address]?.all, 0)
 
   return (
     <Paper sx={{ padding: 3 }}>
@@ -178,9 +178,9 @@ export const Batch: React.FC<{
                 <ChipWithCopy value={account.public_address} short />
               </strong>
             </div>
-            balance: <strong>{balances[account.private_key]?.all}$</strong>
+            balance: <strong>{balances[account.public_address]?.all}$</strong>
             free_balance:
-            <strong>{balances[account.private_key]?.free}$</strong>
+            <strong>{balances[account.public_address]?.free}$</strong>
           </Typography>
         )
       })}

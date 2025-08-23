@@ -8,6 +8,7 @@
 import type { PositionDto } from './PositionDto'
 
 export type AccountWithPositionsDto = {
+  address: string
   private_key: string
   lighter_id: number
   balance: string
