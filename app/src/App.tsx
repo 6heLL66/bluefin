@@ -15,7 +15,7 @@ import { ThemeSwitch } from './components/ThemeSwitch'
 import { GlobalContext, db } from './context'
 import { useLogStore } from './store/logStore'
 import { Accounts, Batches, Proxy } from './tabs'
-import { Spread } from './tabs/Spread'
+// import { Spread } from './tabs/Spread'
 import { useSpreadStore } from './tabs/Spread/store'
 import { Theme, ThemeContext } from './themeContext'
 import { LighterSpreadsTable } from './tabs/LighterSpreadsTable'
@@ -162,9 +162,9 @@ const App = () => {
         <div style={{ display: tabId === Tabs.Spot.id ? 'block' : 'none' }}>
           <Batches />
         </div>
-        <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
+        {/* <div style={{ display: tabId === Tabs.Spread.id ? 'block' : 'none' }}>
           <Spread />
-        </div>
+        </div> */}
         {tabId === Tabs.LighterSpreadsTable.id && <div style={{ display: tabId === Tabs.LighterSpreadsTable.id ? 'block' : 'none' }}>
           <LighterSpreadsTable />
         </div>}
