@@ -217,7 +217,7 @@ export class SUPABASE_DB {
     return this.client.from('batches').update({ smart_balance_usage }).eq('id', id)
   }
 
-  public createBatch = async (name: string, accounts: string[], timing: number) => {
+  public createBatch = async (name: string, accounts: string[], timing: number, totalBalance: number) => {
     if (!this.auth) {
       throw new Error('401')
     }
@@ -226,6 +226,7 @@ export class SUPABASE_DB {
       name,
       accounts,
       constant_timing: timing,
+      initial_total_balance: totalBalance,
       user_id: this.auth.user.id,
     })
   }

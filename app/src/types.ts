@@ -34,6 +34,9 @@ export interface Batch {
   unit_sizes: string
   constant_timing: number
   user_id?: string
+  initial_total_balance?: number
+  initial_total_points?: number
+  initial_total_volume?: number
 }
 
 export interface SpotMeta {

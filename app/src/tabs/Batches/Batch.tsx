@@ -17,8 +17,9 @@ export const Batch: React.FC<{
   name: string
   accounts: string[]
   constant_timing: number
+  initial_total_balance?: number
   id: string
-}> = ({ name, accounts, id, constant_timing }) => {
+}> = ({ name, accounts, id, constant_timing, initial_total_balance }) => {
   const [modalId, setModalId] = useState<string | null>(null)
   const { closeBatch, getAccountProxy } = useContext(GlobalContext)
 
@@ -110,6 +111,8 @@ export const Batch: React.FC<{
     )
   }
 
+  const totalBalance = batchAccounts.reduce((acc, account) => acc + +balances[account.private_key]?.all, 0)
+
   return (
     <Paper sx={{ padding: 3 }}>
       <Button variant='contained' color='primary' onClick={authLighter}>
@@ -187,7 +190,7 @@ export const Batch: React.FC<{
           Total balance:
           <div>
             <strong>
-            {batchAccounts.reduce((acc, account) => acc + +balances[account.private_key]?.all, 0).toFixed(2)}$
+            {totalBalance.toFixed(2)}$ {initial_total_balance && <Typography variant='caption' fontSize={14} color='red'>({(totalBalance - initial_total_balance).toFixed(2)}$)</Typography>}
             </strong>
           </div>
         </Typography>

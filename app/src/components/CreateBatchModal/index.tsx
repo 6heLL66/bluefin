@@ -34,11 +34,11 @@ export const CreateBatchModal: React.FC<{
   const { accounts, createBatch, batches } = useContext(GlobalContext)
   const [batchAccounts, setBatchAccounts] = useState<{
     name: string
-    accounts: string[]
+    accountIds: string[]
     timing: number
   }>({
     name: '',
-    accounts: [],
+    accountIds: [],
     timing: 60,
   })
 
@@ -49,7 +49,7 @@ export const CreateBatchModal: React.FC<{
   }, [accounts, batches])
 
   const onConfirm = () => {
-    if (batchAccounts.accounts.length === 4 || batchAccounts.accounts.length === 6) {
+    if (batchAccounts.accountIds.length === 4 || batchAccounts.accountIds.length === 6) {
       createBatch(batchAccounts)
       handleClose()
     }
@@ -62,7 +62,7 @@ export const CreateBatchModal: React.FC<{
   const onAccountsChange = (v: SelectChangeEvent<string[]>) => {
     setBatchAccounts({
       ...batchAccounts,
-      accounts: Array.from(v.target.value),
+      accountIds: Array.from(v.target.value),
     })
   }
 
@@ -85,7 +85,7 @@ export const CreateBatchModal: React.FC<{
               <Select
                 labelId='demo-multiple-chip-label'
                 multiple
-                value={batchAccounts.accounts}
+                value={batchAccounts.accountIds}
                 onChange={onAccountsChange}
                 maxRows={6}
                 input={<OutlinedInput id='select-multiple-chip' label='Accounts' />}
@@ -131,7 +131,7 @@ export const CreateBatchModal: React.FC<{
             <Button variant='contained' color='error' onClick={handleClose}>
               Cancel
             </Button>
-            <Button variant='contained' color='success' onClick={onConfirm} disabled={![4, 6].includes(batchAccounts.accounts.length)}>
+            <Button variant='contained' color='success' onClick={onConfirm} disabled={![4, 6].includes(batchAccounts.accountIds.length)}>
               Confirm
             </Button>
           </Box>

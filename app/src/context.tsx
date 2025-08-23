@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import { SUPABASE_DB } from './db/SUPABASE_DB'
 import { Account, Batch, Proxy } from './types'
 import { parseProxy } from './utils'
+import { AccountService } from './api'
 
 interface GlobalContextType {
   proxies: Proxy[]
@@ -19,7 +20,7 @@ interface GlobalContextType {
   getAccounts: () => void
   addProxy: (proxy: Proxy) => void
   linkAccountsProxy: (accounts: Account['public_address'][], stringifyProxy: string) => void
-  createBatch: ({ name, accounts, timing }: { name: string; accounts: string[]; timing: number }) => void
+  createBatch: ({ name, accountIds, timing }: { name: string; accountIds: string[]; timing: number }) => void
   closeBatch: (batchId: string) => void
   getUnitTimings: (batchId: string) => Promise<Record<string, { openedTiming: number; recreateTiming: number; range: number }>>
   setUnitInitTimings: (batchId: string, asset: string, recreateTiming: number, openedTiming: number, range: number) => Promise<void>
@@ -130,8 +131,13 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const createBatch = useCallback(
-    ({ name, accounts, timing }: { name: string; accounts: string[]; timing: number }) => {
-      db.createBatch(name, accounts, timing).then(() => {
+    async ({ name, accountIds, timing }: { name: string; accountIds: string[]; timing: number }) => {
+      const accountsDtos = accountIds.map(id => accounts.find(a => a.id === id)).filter(a => a !== undefined)
+      const accountsData = await AccountService.accountsPositionsApiAccountsPositionsPost({ requestBody: accountsDtos.map(a => ({ account: { private_key: a.private_key } })) })
+
+      const totalBalance = accountsData.reduce((acc, account) => acc + +account.balance, 0)
+
+      db.createBatch(name, accountIds, timing, totalBalance).then(() => {
         getBatches()
       })
     },
