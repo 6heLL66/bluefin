@@ -146,6 +146,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           batch_name: name,
           batch_id: id,
           error: String(error),
+          message: error.message,
+          error_object: error,
         })
         throw error
       })
