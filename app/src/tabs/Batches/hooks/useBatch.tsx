@@ -525,7 +525,7 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
         }
 
         retryCount--
-      }).catch(e => {
+      }).catch(() => {
        
       })
     }, retryInterval)
