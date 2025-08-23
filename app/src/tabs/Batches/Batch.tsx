@@ -35,6 +35,7 @@ export const Batch: React.FC<{
     unitTimings,
     authorizingLighter,
     randomRecreatingTimings,
+    tradeData,
     authLighter,
     getUnitTimingOpened,
     getUnitTimingReacreate,
@@ -112,6 +113,8 @@ export const Batch: React.FC<{
   }
 
   const totalBalance = batchAccounts.reduce((acc, account) => acc + +balances[account.public_address]?.all, 0)
+  const totalPoints = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.points, 0)
+  const totalVolume = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.volume, 0)
 
   return (
     <Paper sx={{ padding: 3 }}>
@@ -181,17 +184,31 @@ export const Batch: React.FC<{
             balance: <strong>{balances[account.public_address]?.all}$</strong>
             free_balance:
             <strong>{balances[account.public_address]?.free}$</strong>
+            points: <strong>{tradeData[account.public_address]?.points}</strong>
+            volume: <strong>{tradeData[account.public_address]?.volume.toFixed(2)}$</strong>
           </Typography>
         )
       })}
 
       <Box>
-        <Typography sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}>
+        <Typography sx={{ display: 'flex', gap: 3, alignItems: 'center', mt: 2 }}>
           Total balance:
           <div>
             <strong>
             {totalBalance.toFixed(2)}$ {initial_total_balance && <Typography variant='caption' fontSize={14} color='red'>({(totalBalance - initial_total_balance).toFixed(2)}$)</Typography>}
             </strong>
+          </div>
+        </Typography>
+        <Typography sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}>
+          Total points:
+          <div>
+            <strong>{totalPoints}</strong>
+          </div>
+        </Typography>
+        <Typography sx={{ display: 'flex', gap: 3, alignItems: 'center', m: '6px 0' }}>
+          Total volume:
+          <div>
+            <strong>{totalVolume.toFixed(2)}$</strong>
           </div>
         </Typography>
       </Box>

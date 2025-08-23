@@ -3,5 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type AddressDto = {
-  public_address: string
+  public_address?: string | null
+  private_key?: string | null
 }

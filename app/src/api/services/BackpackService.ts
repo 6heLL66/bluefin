@@ -34,7 +34,7 @@ export class BackpackService {
    */
   public static proxyApiBackpackPathPatch1({ path }: { path: string }): CancelablePromise<any> {
     return __request(OpenAPI, {
-      method: 'GET',
+      method: 'DELETE',
       url: '/api/backpack/{path}',
       path: {
         path: path,
@@ -51,7 +51,7 @@ export class BackpackService {
    */
   public static proxyApiBackpackPathPatch2({ path }: { path: string }): CancelablePromise<any> {
     return __request(OpenAPI, {
-      method: 'POST',
+      method: 'PUT',
       url: '/api/backpack/{path}',
       path: {
         path: path,
@@ -68,7 +68,7 @@ export class BackpackService {
    */
   public static proxyApiBackpackPathPatch3({ path }: { path: string }): CancelablePromise<any> {
     return __request(OpenAPI, {
-      method: 'PUT',
+      method: 'POST',
       url: '/api/backpack/{path}',
       path: {
         path: path,
@@ -102,7 +102,7 @@ export class BackpackService {
    */
   public static proxyApiBackpackPathPatch5({ path }: { path: string }): CancelablePromise<any> {
     return __request(OpenAPI, {
-      method: 'DELETE',
+      method: 'GET',
       url: '/api/backpack/{path}',
       path: {
         path: path,

@@ -8,6 +8,7 @@ export { OpenAPI } from './core/OpenAPI'
 export type { OpenAPIConfig } from './core/OpenAPI'
 
 export type { AccountDto } from './models/AccountDto'
+export type { AccountInfoDto } from './models/AccountInfoDto'
 export type { AccountOrderCancelDto } from './models/AccountOrderCancelDto'
 export type { AccountOrderCreateDto } from './models/AccountOrderCreateDto'
 export type { AccountWithPositionsDto } from './models/AccountWithPositionsDto'

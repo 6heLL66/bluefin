@@ -32,6 +32,7 @@ interface ReturnType {
   recreatingUnits: number[]
   initialLoading: boolean
   authorizingLighter: boolean
+  tradeData: Record<string, { points: number; volume: number }>
   randomRecreatingTimings: Record<string, number>
   getUnitTimingRange: (token_id: number) => number
   authLighter: () => Promise<void>
@@ -46,6 +47,8 @@ const UPDATE_INTERVAL = 10000
 
 export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } = useContext(GlobalContext)
+
+  const [tradeData, setTradeData] = useState<Record<string, { points: number; volume: number }>>({})
 
   const logger = useLogger()
 
@@ -282,13 +285,38 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
       })
   }, [accountsProps, fetchUserStates, closingUnits, recreatingUnits, creatingUnits, getUnitTimingOpened, getUnitTimingReacreate, recreateUnit, unitTimings])
 
+  const fetchTradeData = useCallback(async () => {
+    const accountsTradeData = await AccountService.accountsPointsApiAccountsPointsPost({
+      requestBody: batchAccounts.map(acc => getBatchAccount(acc, getAccountProxy(acc))),
+    })
+
+    const tradeData = accountsTradeData.reduce((acc, account) => {
+      return {
+        ...acc,
+        [account.address]: {
+          points: +account.points,
+          volume: +account.total_volume,
+        }
+      }
+    }, {})
+
+    setTradeData(tradeData)
+  }, [batchAccounts, getAccountProxy])
+
   useEffect(() => {
     Promise.all([
       getUnitTimings(id).then(unitTimings => setUnitTimings(unitTimings)),
       fetchUserStates(),
+      fetchTradeData(),
     ]).finally(() => {
       setInitialLoading(false)
     })
+
+    const interval = setInterval(fetchTradeData, 1000 * 60 * 15)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
@@ -470,6 +498,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
 
   return {
     batchAccounts,
+    tradeData,
     units,
     balances,
     unitTimings,
@@ -508,7 +537,6 @@ const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
       AccountService.accountsPositionsApiAccountsPositionsPost({
-        // @ts-expect-error sdf
         requestBody: orderDto.accounts,
       }).then(data => {
         const positions = data.reduce((acc, account) => [...acc, ...account.positions], [] as PositionDto[])

@@ -9,6 +9,7 @@ import type { CancelablePromise } from '../core/CancelablePromise'
 import { OpenAPI } from '../core/OpenAPI'
 import { request as __request } from '../core/request'
 import type { AccountDto } from '../models/AccountDto'
+import type { AccountInfoDto } from '../models/AccountInfoDto'
 import type { AccountWithPositionsDto } from '../models/AccountWithPositionsDto'
 import type { BatchAccountDto } from '../models/BatchAccountDto'
 import type { BatchAccountLeverageDto } from '../models/BatchAccountLeverageDto'
@@ -63,6 +64,22 @@ export class AccountService {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/api/accounts/refresh',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: `Validation Error`,
+      },
+    })
+  }
+  /**
+   * Accounts Points
+   * @returns AccountInfoDto Successful Response
+   * @throws ApiError
+   */
+  public static accountsPointsApiAccountsPointsPost({ requestBody }: { requestBody: Array<BatchAccountDto> }): CancelablePromise<Array<AccountInfoDto>> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/api/accounts/points',
       body: requestBody,
       mediaType: 'application/json',
       errors: {
