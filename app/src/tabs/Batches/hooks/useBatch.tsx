@@ -230,13 +230,14 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     updatingRef.current = true
     const now = Date.now()
 
-    /*if (
+    if (
       closingUnits.length > 0 ||
       recreatingUnits.length > 0 ||
       creatingUnits.length > 0
     ) {
+      updatingRef.current = false
       return
-    }*/
+    }
 
     return fetchUserStates()
       .then((res: Array<AccountWithPositionsDto>) => {
@@ -268,25 +269,25 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
           console.log('randomizedRecreateTiming', randomizedRecreateTiming / 60000)
 
           if (now - unitOpenedTiming >= randomizedRecreateTiming || unit.positions.length !== accountsProps.length) {
-            logger.batch(
-              'Автоматическое пересоздание юнита по таймингу',
-              {
-                batch_name: name,
-                batch_id: id,
-                token_id: unit.base_unit_info.token_id,
-                time_since_opened: now - unitOpenedTiming,
-                recreate_timing: unitRecreateTiming,
-                positions_count: unit.positions.length,
-                expected_positions: accountsProps.length,
-              },
-              unit.base_unit_info.token_id.toString(),
-            )
+            // logger.batch(
+            //   'Автоматическое пересоздание юнита по таймингу',
+            //   {
+            //     batch_name: name,
+            //     batch_id: id,
+            //     token_id: unit.base_unit_info.token_id,
+            //     time_since_opened: now - unitOpenedTiming,
+            //     recreate_timing: unitRecreateTiming,
+            //     positions_count: unit.positions.length,
+            //     expected_positions: accountsProps.length,
+            //   },
+            //   unit.base_unit_info.token_id.toString(),
+            // )
 
-            recreateUnit({
-              token_id: unit.base_unit_info.token_id,
-              leverage: unit.base_unit_info.leverage,
-              sz: unit.base_unit_info.size,
-            })
+            // recreateUnit({
+            //   token_id: unit.base_unit_info.token_id,
+            //   leverage: unit.base_unit_info.leverage,
+            //   sz: unit.base_unit_info.size,
+            // })
           }
         })
       })
