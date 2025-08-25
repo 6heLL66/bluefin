@@ -89,21 +89,21 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
 
   const getUnitTimingOpened = useCallback(
     (token_id: number): number => {
-      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.openedTiming
+      return unitTimings?.[token_id.toString() as keyof typeof unitTimings]?.openedTiming
     },
     [unitTimings],
   )
 
   const getUnitTimingReacreate = useCallback(
     (token_id: number): number => {
-      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.recreateTiming
+      return unitTimings?.[token_id.toString() as keyof typeof unitTimings]?.recreateTiming
     },
     [unitTimings],
   )
 
   const getUnitTimingRange = useCallback(
     (token_id: number): number => {
-      return unitTimings[token_id.toString() as keyof typeof unitTimings]?.range
+      return unitTimings?.[token_id.toString() as keyof typeof unitTimings]?.range
     },
     [unitTimings],
   )
@@ -196,6 +196,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
               size: sz,
               leverage,
               error: String(e),
+              e,
             },
             token_id.toString(),
           )
@@ -228,6 +229,15 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
   const updateLoop = useCallback(() => {
     updatingRef.current = true
     const now = Date.now()
+
+    if (
+      Object.keys(closingUnits).length > 0 ||
+      Object.keys(recreatingUnits).length > 0 ||
+      Object.keys(creatingUnits).length > 0
+    ) {
+      return
+    }
+    
     return fetchUserStates()
       .then((res: Array<AccountWithPositionsDto>) => {
         const units = transformAccountStatesToUnits(res)
@@ -404,6 +414,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
             size: sz,
             leverage,
             error: String(e),
+            e
           }, token_id.toString())
           
           return OrderService.accountsOrdersCancelApiOrdersCancelPost({
