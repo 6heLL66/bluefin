@@ -231,13 +231,13 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     const now = Date.now()
 
     if (
-      Object.keys(closingUnits).length > 0 ||
-      Object.keys(recreatingUnits).length > 0 ||
-      Object.keys(creatingUnits).length > 0
+      closingUnits.length > 0 ||
+      recreatingUnits.length > 0 ||
+      creatingUnits.length > 0
     ) {
       return
     }
-    
+
     return fetchUserStates()
       .then((res: Array<AccountWithPositionsDto>) => {
         const units = transformAccountStatesToUnits(res)
