@@ -230,13 +230,13 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     updatingRef.current = true
     const now = Date.now()
 
-    if (
+    /*if (
       closingUnits.length > 0 ||
       recreatingUnits.length > 0 ||
       creatingUnits.length > 0
     ) {
       return
-    }
+    }*/
 
     return fetchUserStates()
       .then((res: Array<AccountWithPositionsDto>) => {
