@@ -243,6 +243,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
       .then((res: Array<AccountWithPositionsDto>) => {
         const units = transformAccountStatesToUnits(res)
 
+        let alreadyRun = false;
+
         units.forEach((unit: Unit) => {
           const unitOpenedTiming = getUnitTimingOpened(unit.base_unit_info.token_id)
           const unitRecreateTiming = getUnitTimingReacreate(unit.base_unit_info.token_id)
@@ -253,7 +255,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
             recreatingUnits.includes(unit.base_unit_info.token_id) ||
             creatingUnits.includes(unit.base_unit_info.token_id) ||
             !unitOpenedTiming ||
-            !unitRecreateTiming
+            !unitRecreateTiming || 
+            alreadyRun
           ) {
             return
           }
@@ -282,6 +285,8 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
               },
               unit.base_unit_info.token_id.toString(),
             )
+
+            alreadyRun = true;
 
             recreateUnit({
               token_id: unit.base_unit_info.token_id,
