@@ -549,8 +549,8 @@ const recreateRequest = async (requestBody: OrderCreateWithTokenDto) => {
 }
 
 const checkPositionsOpened = async (orderDto: OrderCreateDto) => {
-  let retryCount = 5
-  const retryInterval = 5000
+  let retryCount = 10
+  const retryInterval = 3000
 
   return new Promise<AccountWithPositionsDto[]>((res, rej) => {
     const interval = setInterval(() => {
