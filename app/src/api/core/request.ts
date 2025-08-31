@@ -286,39 +286,14 @@ export const catchErrorCodes = (options: ApiRequestOptions, result: ApiResult): 
 }
 
 /**
- * Request method
+ * Request method with automatic retry for 5xx errors
  * @param config The OpenAPI configuration object
  * @param options The request options from the service
  * @returns CancelablePromise<T>
  * @throws ApiError
  */
+import { requestWithRetry } from './requestWithRetry'
+
 export const request = <T>(config: OpenAPIConfig, options: ApiRequestOptions): CancelablePromise<T> => {
-  return new CancelablePromise(async (resolve, reject, onCancel) => {
-    try {
-      const url = getUrl(config, options)
-      const formData = getFormData(options)
-      const body = getRequestBody(options)
-      const headers = await getHeaders(config, options)
-
-      if (!onCancel.isCancelled) {
-        const response = await sendRequest(config, options, url, body, formData, headers, onCancel)
-        const responseBody = await getResponseBody(response)
-        const responseHeader = getResponseHeader(response, options.responseHeader)
-
-        const result: ApiResult = {
-          url,
-          ok: response.ok,
-          status: response.status,
-          statusText: response.statusText,
-          body: responseHeader ?? responseBody,
-        }
-
-        catchErrorCodes(options, result)
-
-        resolve(result.body)
-      }
-    } catch (error) {
-      reject(error)
-    }
-  })
+  return requestWithRetry(config, options, 3)
 }
