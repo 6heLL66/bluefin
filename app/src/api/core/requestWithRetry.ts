@@ -1,10 +1,9 @@
 import { CancelablePromise } from './CancelablePromise'
-import type { OnCancel } from './CancelablePromise'
 import type { OpenAPIConfig } from './OpenAPI'
 import type { ApiRequestOptions } from './ApiRequestOptions'
 import type { ApiResult } from './ApiResult'
 import { getFormData, getRequestBody, getHeaders, sendRequest, getResponseHeader, getResponseBody, catchErrorCodes } from './request'
-import { shouldRetry, getRetryDelay, defaultRetryConfig, type RetryConfig } from './retryConfig'
+import { shouldRetry, getRetryDelay } from './retryConfig'
 
 const delay = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms))
