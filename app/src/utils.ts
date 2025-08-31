@@ -37,7 +37,7 @@ export const connectSocket = (cb: (socket: WebSocket | null) => void) => {
 export const transformAccountStatesToUnits = (accountStates: Array<AccountWithPositionsDto>): Unit[] => {
   if (!accountStates.length) return []
 
-  const unitsMap: { [key: string]: Unit } = {}
+  const unitsMap: { [key: string]: Unit & { longSize: number; shortSize: number } } = {}
 
   accountStates.forEach(accountState => {
     accountState.positions.forEach(position => {
@@ -50,11 +50,16 @@ export const transformAccountStatesToUnits = (accountStates: Array<AccountWithPo
             leverage: Number(leverage),
             size: 0,
           },
+          longSize: 0,
+          shortSize: 0,
           positions: [],
         }
       }
       if (Number(size) > 0 && side === ORDER_SIDE.BUY) {
-        unitsMap[symbol].base_unit_info.size += Number(size)
+        unitsMap[symbol].longSize += +position.position * +position.entry_price
+      }
+      if (Number(size) > 0 && side === ORDER_SIDE.SELL) {
+        unitsMap[symbol].shortSize += +position.position * +position.entry_price
       }
       unitsMap[symbol].positions.push({
         info: {
@@ -66,7 +71,13 @@ export const transformAccountStatesToUnits = (accountStates: Array<AccountWithPo
     })
   })
 
-  return Object.values(unitsMap)
+  return Object.values(unitsMap).map(unit => ({
+    ...unit,
+    base_unit_info: {
+      ...unit.base_unit_info,
+      size: Math.max(unit.longSize, unit.shortSize)
+    },
+  }))
 }
 
 export const getBatchAccount = (account: Account, proxy?: Proxy): BatchAccount => {
