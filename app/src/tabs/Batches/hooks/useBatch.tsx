@@ -57,6 +57,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
     queryFn: () => {
       return TokenService.tokenListApiTokensGet()
     },
+    refetchInterval: 1000 * 60,
   })
 
   const batchAccounts = useMemo(
