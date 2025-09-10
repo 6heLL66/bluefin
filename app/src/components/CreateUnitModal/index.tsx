@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 
 import Box from '@mui/material/Box'
 
-import { TokenDto_Output, TokenService } from '../../api'
+import { TokenDto_Output } from '../../api'
 import { BatchAccount } from '../../types'
+import { getLighterMarkets } from '../../own-api/getLighterMarkets'
 
 export const CreateUnitModal: React.FC<{
   open: boolean
@@ -35,7 +36,7 @@ export const CreateUnitModal: React.FC<{
   }
 
   const getMarketData = async () => {
-    const data = await TokenService.tokenListApiTokensGet()
+    const data = await getLighterMarkets()
 
     setMarketData(data)
   }
