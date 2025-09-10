@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'r
 import { toast } from 'react-toastify'
 import seedrandom from 'seedrandom'
 
-import { AccountService, AccountWithPositionsDto, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto, TokenService } from '../../../api'
+import { AccountService, AccountWithPositionsDto, OrderCreateDto, OrderCreateWithTokenDto, OrderService, PositionDto } from '../../../api'
 import { GlobalContext } from '../../../context'
 import { useLogger } from '../../../hooks/useLogger'
 import { Account, Unit } from '../../../types'

@@ -116,8 +116,6 @@ export const Batch: React.FC<{
   const totalPoints = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.points, 0)
   const totalVolume = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.volume, 0)
   const totalWeeklyVolume = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.weekly_volume, 0)
-  const totalDailyVolume = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.daily_volume, 0)
-  const totalMonthlyVolume = batchAccounts.reduce((acc, account) => acc + +tradeData[account.public_address]?.monthly_volume, 0)
 
   return (
     <Paper sx={{ padding: 3 }}>

@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 import Box from '@mui/material/Box'
 
-import { OpenAPI, TokenService } from './api'
+import { OpenAPI } from './api'
 import { MarketsService } from './bp-api'
 import { Login } from './components/Login'
 import { ThemeSwitch } from './components/ThemeSwitch'

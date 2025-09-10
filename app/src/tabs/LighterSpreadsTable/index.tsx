@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query"
-import { TokenService } from "../../api/services/TokenService"
 import { LighterSpreadsResponse } from "./types"
 import { useAfkTokensStore } from "../../store/afkTokensStore"
 import { 
