@@ -70,12 +70,11 @@ export const requestWithRetry = <T>(
     let attempt = 0
 
     while (attempt <= maxRetries) {
+      const url = getUrl(config, options)
+      const formData = getFormData(options)
+      const body = getRequestBody(options)
+      const headers = await getHeaders(config, options)
       try {
-        const url = getUrl(config, options)
-        const formData = getFormData(options)
-        const body = getRequestBody(options)
-        const headers = await getHeaders(config, options)
-
         if (onCancel.isCancelled) {
           reject(new Error('Request cancelled'))
           return
@@ -109,7 +108,7 @@ export const requestWithRetry = <T>(
       } catch (error) {
         lastError = error
         
-        if (attempt < maxRetries) {
+        if (!url.includes('accounts/points') && attempt < maxRetries) {
           const retryDelay = getRetryDelay(attempt)
           console.warn(`Request failed with error: ${error}, retrying in ${retryDelay}ms (attempt ${attempt + 1}/${maxRetries})`)
           
