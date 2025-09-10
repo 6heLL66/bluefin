@@ -333,7 +333,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
       setInitialLoading(false)
     })
 
-    const interval = setInterval(fetchTradeData, 1000 * 60 * 45)
+    const interval = setInterval(fetchTradeData, 1000 * 60 * 60)
 
     return () => {
       clearInterval(interval)
