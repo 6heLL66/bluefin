@@ -19,6 +19,7 @@ import { Accounts, Batches, Proxy } from './tabs'
 import { useSpreadStore } from './tabs/Spread/store'
 import { Theme, ThemeContext } from './themeContext'
 import { LighterSpreadsTable } from './tabs/LighterSpreadsTable'
+import { getLighterMarkets } from './own-api/getLighterMarkets'
 
 const Tabs = {
   Accounts: {
@@ -76,7 +77,7 @@ const App = () => {
   const { data: lighterMarkets } = useQuery({
     queryKey: ['lighter-tokens'],
     queryFn: () => {
-      return TokenService.tokenListApiTokensGet()
+      return getLighterMarkets()
     },
   })
 

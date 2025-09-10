@@ -24,6 +24,7 @@ import {
 } from '@mui/material'
 import { useState, useEffect } from "react"
 import { Refresh, Visibility, VisibilityOff, Warning } from "@mui/icons-material"
+import { getLighterMarkets } from "../../own-api/getLighterMarkets"
 
 export const LighterSpreadsTable = () => {
     const { afkTokens, toggleToken, isTokenAfk } = useAfkTokensStore()
@@ -33,7 +34,7 @@ export const LighterSpreadsTable = () => {
     const { data: lighterMarkets } = useQuery({
         queryKey: ['lighter-tokens'],
         queryFn: () => {
-          return TokenService.tokenListApiTokensGet()
+          return getLighterMarkets()
         },
     })
 

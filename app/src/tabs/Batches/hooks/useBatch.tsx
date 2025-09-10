@@ -8,6 +8,7 @@ import { useLogger } from '../../../hooks/useLogger'
 import { Account, Unit } from '../../../types'
 import { getBatchAccount, transformAccountStatesToUnits } from '../../../utils'
 import { useQuery } from '@tanstack/react-query'
+import { getLighterMarkets } from '../../../own-api/getLighterMarkets'
 
 interface Props {
   accounts: string[]
@@ -55,7 +56,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
   const { data: lighterMarkets } = useQuery({
     queryKey: ['lighter-tokens'],
     queryFn: () => {
-      return TokenService.tokenListApiTokensGet()
+      return getLighterMarkets()
     },
     refetchInterval: 1000 * 60,
   })
@@ -332,7 +333,7 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
       setInitialLoading(false)
     })
 
-    const interval = setInterval(fetchTradeData, 1000 * 60 * 15)
+    const interval = setInterval(fetchTradeData, 1000 * 60 * 45)
 
     return () => {
       clearInterval(interval)
