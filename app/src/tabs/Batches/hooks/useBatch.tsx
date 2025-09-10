@@ -32,7 +32,7 @@ interface ReturnType {
   recreatingUnits: number[]
   initialLoading: boolean
   authorizingLighter: boolean
-  tradeData: Record<string, { points: number; volume: number }>
+  tradeData: Record<string, { points: number; volume: number; weekly_volume: number; daily_volume: number; monthly_volume: number }>
   randomRecreatingTimings: Record<string, number>
   getUnitTimingRange: (token_id: number) => number
   authLighter: () => Promise<void>
@@ -48,7 +48,7 @@ const UPDATE_INTERVAL = 10000
 export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnType => {
   const { accounts, getAccountProxy, getUnitTimings, setUnitInitTimings } = useContext(GlobalContext)
 
-  const [tradeData, setTradeData] = useState<Record<string, { points: number; volume: number }>>({})
+  const [tradeData, setTradeData] = useState<Record<string, { points: number; volume: number; weekly_volume: number; daily_volume: number; monthly_volume: number }>>({})
 
   const logger = useLogger()
 
@@ -313,6 +313,9 @@ export const useBatch = ({ accounts: accountsProps, id, name }: Props): ReturnTy
         [account.address]: {
           points: +account.points,
           volume: +account.total_volume,
+          weekly_volume: +account.weekly_volume,
+          daily_volume: +account.daily_volume,
+          monthly_volume: +account.monthly_volume,
         }
       }
     }, {})
